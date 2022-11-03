@@ -1,3 +1,5 @@
+/* (Alessio) Only write styles which are valid on the whole application. Use App.scss to define reusable styles or single scss for each component instead. */
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
