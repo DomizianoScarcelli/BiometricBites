@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import { Homepage, NoPage } from './pages';
 import Layout from './pages/layout';
+import { images } from './constants';
 import './App.scss';
 
 const App = () => {
