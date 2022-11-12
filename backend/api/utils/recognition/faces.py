@@ -4,6 +4,9 @@ import cv2
 # Classifier
 face_cascade = cv2.CascadeClassifier('cascades/data/haarcascade_frontalface_alt2.xml') # frontal face only
 
+def test():
+        return "Ciao :)"
+
 def face_recognition():
     cap = cv2.VideoCapture(0)
 
