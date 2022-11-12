@@ -4,3 +4,7 @@ from .utils.recognition import faces
 
 def api(request, *args, **kwargs):
     return JsonResponse({'message': 'Test Api'})
+
+# def face_recognition(request, *args, **kwargs):
+#     face_recognition()
+#     return JsonResponse({'message': 'Test Api'})
