@@ -6,4 +6,4 @@ def api(request, *args, **kwargs):
     return JsonResponse({'message': 'Test Api'})
 
 def faces(request, *args, **kwargs): #TODO
-    return JsonResponse({'message': test()})
+    return JsonResponse({'message': "Ciao :)"})
