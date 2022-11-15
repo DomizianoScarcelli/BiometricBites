@@ -5,8 +5,13 @@ import images from "../../constants/images"
 import ProfileIconName from "../../components/ProfileIconName/ProfileIconName"
 import Button from "../../components/Button/Button"
 
+type AttendanceRowProps = {
+	dateTime: Date
+	price: number
+}
+
 function Homepage() {
-	const [hasPhotos, setHasPhotos] = useState(false)
+	const [hasPhotos, setHasPhotos] = useState(true)
 
 	return (
 		<div className="background">
@@ -20,17 +25,48 @@ function Home() {
 	// TODO: This has to be still written, it's the component that shows up only
 	// if the user has some photos uploaded in the database
 	return (
+		<div className="infoContainer">
+			<div className="leftContainer">
+				<Button text="Add another photo!" img={images.selfie_emoji} shadow={false} />
+				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} />
+				<Button text="Your details" img={images.details_emoji} shadow={false} />
+			</div>
+
+			<div className="history">
+				<div className="top_history">
+					<p>Attendance History</p>
+					<img alt="history emoji" src={images.history_emoji}></img>
+				</div>
+				<div className="body_history">
+					<div className="row darker">
+						<p>Date</p>
+						<p>Time</p>
+						<p>Paid</p>
+					</div>
+					<AttendanceRow dateTime={new Date()} price={3.0} />
+					<AttendanceRow dateTime={new Date()} price={3.0} />
+					<AttendanceRow dateTime={new Date()} price={3.0} />
+				</div>
+			</div>
+		</div>
+	)
+}
+function AttendanceRow(props: AttendanceRowProps) {
+	return (
 		<>
-			<p>Daje</p>
+			<div className="row">
+				<p>{`${props.dateTime.getDay()}/${props.dateTime.getMonth()}/${props.dateTime.getFullYear()}`}</p>
+				<p>{`${props.dateTime.getHours()}:${props.dateTime.getMinutes()}`}</p>
+				<p>{props.price % 1 !== 0 ? props.price : `${props.price}.00`}</p>
+			</div>
 		</>
 	)
 }
-
 function UploadPhoto() {
 	return (
 		<>
 			<p>You haven't uploaded any photo yet, upload it in order to start using the recognition system!</p>
-			<Button text={`Upload a photo of \n your face!`} img={images.face_emoji} />
+			<Button text={`Upload a photo of \n your face!`} img={images.face_emoji} shadow={true} />
 		</>
 	)
 }
