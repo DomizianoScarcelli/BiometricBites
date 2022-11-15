@@ -15,7 +15,7 @@ function Homepage() {
 
 	return (
 		<div className="background">
-			<ProfileIconName />
+			<ProfileIconName name="Domiziano Scarcelli" />
 			<div className="centralContainer">{hasPhotos ? <Home /> : <UploadPhoto />}</div>
 		</div>
 	)
@@ -51,13 +51,13 @@ function Home() {
 		</div>
 	)
 }
-function AttendanceRow(props: AttendanceRowProps) {
+function AttendanceRow({ dateTime, price }: AttendanceRowProps) {
 	return (
 		<>
 			<div className="row">
-				<p>{`${props.dateTime.getDay()}/${props.dateTime.getMonth()}/${props.dateTime.getFullYear()}`}</p>
-				<p>{`${props.dateTime.getHours()}:${props.dateTime.getMinutes()}`}</p>
-				<p>{props.price % 1 !== 0 ? props.price : `${props.price}.00`}</p>
+				<p>{`${dateTime.getDay()}/${dateTime.getMonth()}/${dateTime.getFullYear()}`}</p>
+				<p>{`${dateTime.getHours()}:${dateTime.getMinutes()}`}</p>
+				<p>{price % 1 !== 0 ? price : `${price}.00`}</p>
 			</div>
 		</>
 	)

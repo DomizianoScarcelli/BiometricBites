@@ -8,17 +8,17 @@ type ButtonProps = {
 	shadow: boolean
 }
 
-const Button: React.FC<ButtonProps> = (props) => {
+const Button = ({ text, img, shadow }: ButtonProps) => {
 	return (
 		<>
-			<button style={props.shadow ? { boxShadow: "4px 5px 19px rgba(var(--shadow-color-rgb), 0.5)" } : {}}>
+			<button style={shadow ? { boxShadow: "4px 5px 19px rgba(var(--shadow-color-rgb), 0.5)" } : {}}>
 				<p>
 					{/* Strange trick to use \n in the text props */}
-					{props.text.split("\n").map((str) => (
+					{text.split("\n").map((str) => (
 						<p>{str}</p>
 					))}
 				</p>
-				<img alt="face emoji" src={props.img}></img>
+				<img alt="face emoji" src={img}></img>
 			</button>
 		</>
 	)

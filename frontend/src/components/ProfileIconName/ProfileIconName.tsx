@@ -2,14 +2,18 @@ import React from "react"
 
 import "./ProfileIconName.scss"
 
-const ProfileIconName = () => {
+type ProfileIconNameProps = {
+	name: string
+}
+
+const ProfileIconName = ({ name }: ProfileIconNameProps) => {
 	return (
 		<div className="container">
 			<div className="profileIcon">
-				<p>D</p>
+				<p>{name[0]}</p>
 			</div>
 			<p>
-				Good Evening, <br /> Domiziano Scarcelli!
+				Good Evening, <br /> {name}!
 			</p>
 		</div>
 	)
