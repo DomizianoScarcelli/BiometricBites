@@ -1,0 +1,27 @@
+p {
+	font-size: 1.5rem;
+	margin: 0;
+	font-weight: 600;
+	font-family: var(--primary-font);
+	color: var(--primary-color);
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+	align-items: center;
+}
+
+.profileIcon {
+	/* To be added in its own component file */
+	background-color: var(--secondary-blue);
+	width: 5rem;
+	height: 5rem;
+	border-radius: 1.5rem;
+	display: grid;
+	place-items: center;
+	p {
+		font-size: 3rem;
+	}
+}
