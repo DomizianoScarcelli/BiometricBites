@@ -24,8 +24,8 @@ def signup(username, password, role):
 
 #Type the values here:
 user = {
-    "USERNAME": "ale",
-    "PASSWORD": "prova",
+    "USERNAME": "alessio",
+    "PASSWORD": "password",
     "ROLE": "admin" #admin or student
 }
 registration = signup(user.get("USERNAME"), user.get("PASSWORD"), user.get("ROLE"))
