@@ -12,21 +12,32 @@ def dbconnector():
     DBconf = settings.DATABASES.get("mysql")
     return sql.connect(host=DBconf.get("DB_HOST"), username=DBconf.get("DB_USERNAME"), passwd=DBconf.get("DB_PASSWORD"), database=DBconf.get("DB_NAME"))
 
-def signup(username, password, role):
-    if username == "" or password == "" or (role not in ["student", "admin"]):
+def signup(email, password, role, name, surname, cf, isee):
+    if email == "" or password == "" or (role not in ["student", "admin"]) or name == "" or surname == "" or len(cf) != 16 or not isee.isnumeric():
         return ValueError("Unable to add a new user, please check the input values.")
     conn = dbconnector()
     cursor = conn.cursor()
-    query = "INSERT INTO users (username, password, role) VALUES('{}', '{}', '{}')".format(username, password, role)
-    cursor.execute(query)
-    conn.commit()
-    return "User added to DB!"
+    try:
+        query_one = "INSERT INTO users (email, password, role) VALUES('{}', '{}', '{}')".format(email, password, role)
+        cursor.execute(query_one)
+        lastid = cursor.lastrowid
+        query_two = "INSERT INTO users_info (id, name, surname, cf, isee) VALUES('{}', '{}', '{}', '{}', '{}')".format(lastid, name, surname, cf, isee)
+        cursor.execute(query_two)
+        conn.commit()
+        return "User added to DB!"
+    except:
+        conn.rollback()
+        return "An error occurred!"
 
 #Type the values here:
 user = {
-    "USERNAME": "alessio",
+    "EMAIL": "alessio@gmail.com",
     "PASSWORD": "password",
-    "ROLE": "admin" #admin or student
+    "ROLE": "admin", #admin or student
+    "NAME": "alessio",
+    "SURNAME": "lucciola",
+    "CF": "ABCDEFGHILMNOPQR", #16 characters
+    "ISEE": "15000"
 }
-registration = signup(user.get("USERNAME"), user.get("PASSWORD"), user.get("ROLE"))
+registration = signup(user.get("EMAIL"), user.get("PASSWORD"), user.get("ROLE"), user.get("NAME"), user.get("SURNAME"), user.get("CF"), user.get("ISEE"))
 print(registration)
