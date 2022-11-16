@@ -1,0 +1,15 @@
+button {
+	height: 10rem;
+	width: 33rem;
+	background-color: var(--primary-color);
+	cursor: pointer;
+	border: none;
+	border-radius: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+
+	p {
+		color: var(--primary-text-color);
+	}
+}
