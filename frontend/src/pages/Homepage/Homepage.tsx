@@ -1,5 +1,7 @@
-import React from "react"
-import { useState } from "react"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { ReactSession } from 'react-client-session';
+
 import "./Homepage.scss"
 import images from "../../constants/images"
 import ProfileIconName from "../../components/ProfileIconName/ProfileIconName"
@@ -11,13 +13,46 @@ type AttendanceRowProps = {
 }
 
 function Homepage() {
-	const [hasPhotos, setHasPhotos] = useState(true)
+	const [hasPhotos, setHasPhotos] = useState(true);
+	const navigate = useNavigate();
+
+	const firstLetterUppercase = (str: string) => {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
+	const logout = () => {
+		ReactSession.setStoreType("sessionStorage");
+		ReactSession.set("USER_EMAIL", "");
+		ReactSession.set("USER_NAME", "");
+		ReactSession.set("USER_SURNAME", "");
+		ReactSession.set("USER_ROLE", "");
+		ReactSession.set("USER_ID", "");
+		ReactSession.set("USER_COST", "");
+		navigate('/login');
+	}
+
+	useEffect (
+		() => {
+			if (!(ReactSession.get("USER_EMAIL") && ReactSession.get("USER_ROLE")))
+			{
+				navigate('/login');
+			}
+		}, []
+	)
 
 	return (
+		<>
 		<div className="background">
-			<ProfileIconName name="Domiziano Scarcelli" />
-			<div className="centralContainer">{hasPhotos ? <Home /> : <UploadPhoto />}</div>
+			<ProfileIconName name={firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME"))} />
+			{ReactSession.get("USER_EMAIL") === 'admin' ? (
+				// to implement
+				''
+			) : (
+				<div className="centralContainer">{hasPhotos ? <Home /> : <UploadPhoto />}</div>
+			)}
 		</div>
+		<text onClick={logout}>Logout</text>
+		</>
 	)
 }
 
