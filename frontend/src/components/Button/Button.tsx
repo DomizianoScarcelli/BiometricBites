@@ -19,7 +19,7 @@ const Button = ({ text, img, shadow, onClick }: ButtonProps) => {
 						<p>{str}</p>
 					))}
 				</p>
-				<img alt={`${img}`} src={img}></img>
+				{img ? <img alt={`${img}`} src={img}></img> : <></>}
 			</button>
 		</>
 	)
