@@ -21,7 +21,6 @@ function Homepage() {
 	}
 
 	const logout = () => {
-		ReactSession.setStoreType("sessionStorage");
 		ReactSession.set("USER_EMAIL", "");
 		ReactSession.set("USER_NAME", "");
 		ReactSession.set("USER_SURNAME", "");
@@ -31,9 +30,9 @@ function Homepage() {
 		navigate('/login');
 	}
 
-	useEffect (
-		() => {
-			if (!(ReactSession.get("USER_EMAIL") && ReactSession.get("USER_ROLE")))
+	useEffect (() => {
+		ReactSession.setStoreType("sessionStorage");
+			if (ReactSession.get("USER_EMAIL") === undefined)
 			{
 				navigate('/login');
 			}
@@ -43,7 +42,7 @@ function Homepage() {
 	return (
 		<>
 		<div className="background">
-			<ProfileIconName name={firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME"))} />
+			<ProfileIconName name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ''} />
 			{ReactSession.get("USER_EMAIL") === 'admin' ? (
 				// to implement
 				''
