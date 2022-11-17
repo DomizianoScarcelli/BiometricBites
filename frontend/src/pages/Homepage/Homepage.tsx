@@ -22,22 +22,27 @@ function Homepage() {
 }
 
 function Home() {
-	// TODO: This has to be still written, it's the component that shows up only
-	// if the user has some photos uploaded in the database
 	return (
 		<div className="infoContainer">
 			<div className="leftContainer">
-				<Button text="Add another photo!" img={images.selfie_emoji} shadow={false} />
-				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} />
-				<Button text="Your details" img={images.details_emoji} shadow={false} />
+				<Button
+					text="Add another photo!"
+					img={images.selfie_emoji}
+					shadow={false}
+					onClick={() => {
+						console.log("Clicked add photo")
+					}}
+				/>
+				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {}} />
+				<Button text="Your details" img={images.details_emoji} shadow={false} onClick={() => {}} />
 			</div>
 
 			<div className="history">
-				<div className="top_history">
+				<div className="top">
 					<p>Attendance History</p>
 					<img alt="history emoji" src={images.history_emoji}></img>
 				</div>
-				<div className="body_history">
+				<div className="body">
 					<div className="row darker">
 						<p>Date</p>
 						<p>Time</p>
@@ -66,7 +71,7 @@ function UploadPhoto() {
 	return (
 		<>
 			<p>You haven't uploaded any photo yet, upload it in order to start using the recognition system!</p>
-			<Button text={`Upload a photo of \n your face!`} img={images.face_emoji} shadow={true} />
+			<Button text={`Upload a photo of \n your face!`} img={images.face_emoji} shadow={true} onClick={() => {}} />
 		</>
 	)
 }
