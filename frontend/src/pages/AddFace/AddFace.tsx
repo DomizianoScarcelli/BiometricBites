@@ -2,6 +2,7 @@ import React from "react"
 import Webcam from "react-webcam"
 import "./AddFace.scss"
 import Button from "../../components/Button/Button"
+import WebcamStreamCapture from "../../components/WebcamStreamCapture/WebcamStreamCapture"
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
@@ -26,8 +27,8 @@ function AddFace() {
 			</div>
 
 			<div className="add_face-container__right">
-				<Webcam audio={false} screenshotFormat="image/jpeg" style={webcamStyle} />
-				<Button text="Start video capturing" img="" onClick={() => {}} shadow={true} />
+				{/* <Webcam audio={false} screenshotFormat="image/jpeg" style={webcamStyle} /> */}
+				<WebcamStreamCapture startRecordingText="Start video capturing" endRecordingText="End video capturing" style={webcamStyle} />
 			</div>
 		</div>
 	)

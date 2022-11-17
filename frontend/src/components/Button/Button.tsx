@@ -4,7 +4,7 @@ import "./Button.scss"
 
 type ButtonProps = {
 	text: string
-	img: string
+	img?: string
 	shadow: boolean
 	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
