@@ -1,5 +1,6 @@
-import React from "react"
-import { useState } from "react"
+import React, { useEffect, useState } from "react";
+import { ReactSession } from 'react-client-session';
+
 import "./Homepage.scss"
 import images from "../../constants/images"
 import ProfileIconName from "../../components/ProfileIconName/ProfileIconName"
@@ -12,6 +13,15 @@ type AttendanceRowProps = {
 
 function Homepage() {
 	const [hasPhotos, setHasPhotos] = useState(true)
+
+	useEffect (
+		() => {
+			let email = ReactSession.get("email")
+			if (email) {
+				//
+			}
+		}, []
+	)
 
 	return (
 		<div className="background">

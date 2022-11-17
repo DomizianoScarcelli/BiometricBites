@@ -1,0 +1,86 @@
+.background {
+	width: 100vw;
+	height: 100vh;
+	background-color: var(--background-color);
+	position: relative;
+	background-blend-mode: multiply;
+	background-image: url("../../assets/pattern_background.jpg");
+	background-size: cover;
+	.container {
+		padding: 2rem;
+	}
+}
+
+.centerContainer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%, -50%);
+}
+
+.loginContainer {
+	display: flex;
+	flex-direction: column;
+	max-width: 50vw;
+	justify-content: center;
+	align-items: center;
+    padding: 2rem;
+    border-radius: 30px;
+    background-color: var(--primary-color);
+
+    p {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0;
+        font-weight: 600;
+        font-family: var(--primary-font);
+        color: var(--black-color);
+    }
+
+	form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    input {
+        padding: 1rem;
+        margin: 1rem;
+        border-radius: 20px;
+        border: none;
+        border-color: black;
+        background-color: white;
+        color: black;
+        font-family: var(--primary-font);
+        text-decoration: none;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.05s ease-in-out;
+
+        &:hover {
+            outline: 2px solid;
+        }
+
+        &:active {
+            outline: 2px solid;
+        }
+    }
+
+    button {
+        width: 50%;
+        height: 50px;
+        margin: 0.5rem auto;
+        border-radius: 20px;
+        border: none;
+        background-color: white;
+        font-weight: 500;
+        color: black;
+        font-family: var(--primary-font);
+        cursor: pointer;
+    }
+}
