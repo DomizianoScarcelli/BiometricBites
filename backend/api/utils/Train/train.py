@@ -10,7 +10,7 @@ image_dir = BASE_DIR + "/Capture/images"
 
 # Classifier
 # TODO: find better ones
-face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_alt2.xml')
+face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
 
 # Recognizer
 # TODO: find better ones
@@ -36,16 +36,12 @@ for root, dirs, files in os.walk(image_dir):
         id_ = label_ids[label]
 
         # Turn image into grayscale
-        pil_image = Image.open(path).convert("L") 
+        #pil_image = Image.open(path).convert("L") 
         
-        # # Resize the images
-        # size = (550, 550)
-        # final_image = pil_image.resize(size, Image.Resampling.LANCZOS)
-
         # Turn the image into a numpy array
-        image_array = np.array(pil_image, "uint8") 
+        image_array = np.array(Image.open(path), "uint8") 
 
-        # Detect face into images
+        # TODO: tweak this
         faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.5, minNeighbors=5)
 
         # Append the detected faces into x_train and their id into y_labels

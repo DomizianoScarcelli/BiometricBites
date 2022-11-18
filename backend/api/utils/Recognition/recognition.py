@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 
 # Classifier
 # TODO: find better ones
-face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_alt2.xml')
+face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
 
 # Recognizer
 # TODO: find better ones
@@ -32,9 +32,11 @@ while(True):
 
 	# Turn captured frame into gray scale
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # TODO: tweak this
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=5)
 
-	## for each face...
+	# for each face...
     for (x, y, w, h) in faces:
 		# ROI: Region of interest, (ycord_start, ycord_end), the square in which the face was found
     	roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
@@ -42,8 +44,9 @@ while(True):
 		# Use deep learned model to identify the person
     	id_, conf = recognizer.predict(roi_gray)
 
-		# If confidence is good...
-    	if conf >= 45 and conf <= 85:
+		# If confiden
+		# ce is good...
+    	if conf >= 45:
 			# ... write who he think he recognized
     		font = cv2.FONT_HERSHEY_SIMPLEX
     		name = labels[id_]
@@ -60,7 +63,8 @@ while(True):
 
     # Display the resulting frame
     cv2.imshow('frame',frame)
-    if cv2.waitKey(20) & 0xFF == ord('q'): # Close the frame by pressing 'q'
+
+    if cv2.waitKey(1) & 0xFF == 27: # 27 = 'ESC'
         break
 
 # When everything done, release the capture
