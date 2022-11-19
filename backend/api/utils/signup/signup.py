@@ -31,11 +31,11 @@ def signup(email, password, role, name, surname, cf, isee):
 
 #Type the values here:
 user = {
-    "EMAIL": "alessio@gmail.com",
+    "EMAIL": "prova@gmail.com",
     "PASSWORD": "password",
     "ROLE": "admin", #admin or student
-    "NAME": "alessio",
-    "SURNAME": "lucciola",
+    "NAME": "ale",
+    "SURNAME": "luc",
     "CF": "ABCDEFGHILMNOPQR", #16 characters
     "ISEE": "15000"
 }
