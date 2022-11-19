@@ -34,7 +34,12 @@ while(True):
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # TODO: tweak this
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=5)
+    faces = face_cascade.detectMultiScale(
+        gray, # Input grayscale image.
+        scaleFactor=1.2, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+        minNeighbors=5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+        minSize=(20, 20) # Minimum rectangle size to be considered a face.
+    )
 
 	# for each face...
     for (x, y, w, h) in faces:
@@ -64,7 +69,8 @@ while(True):
     # Display the resulting frame
     cv2.imshow('frame',frame)
 
-    if cv2.waitKey(1) & 0xFF == 27: # 27 = 'ESC'
+    # Exit if..
+    if cv2.waitKey(1) & 0xFF == 27: # ...'ESC' pressed
         break
 
 # When everything done, release the capture

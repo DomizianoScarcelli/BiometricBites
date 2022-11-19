@@ -35,15 +35,16 @@ for root, dirs, files in os.walk(image_dir):
             current_id += 1
         id_ = label_ids[label]
 
-        # Turn image into grayscale
-        #pil_image = Image.open(path).convert("L") 
-        
         # Turn the image into a numpy array
         image_array = np.array(Image.open(path), "uint8") 
 
         # TODO: tweak this
-        faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.5, minNeighbors=5)
-
+        faces = face_cascade.detectMultiScale(
+            image_array, # Input grayscale image.
+            scaleFactor=1.2, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+            minNeighbors=5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+            minSize=(20, 20) # Minimum rectangle size to be considered a face.
+        )
         # Append the detected faces into x_train and their id into y_labels
         for (x, y, w, h) in faces:
             roi = image_array[y:y+h, x:x+w]
@@ -51,11 +52,11 @@ for root, dirs, files in os.walk(image_dir):
             y_lables.append(id_)
 
 # Save labels into file
-with open("pickles/face-labels.pickle", "wb") as f:
+with open(BASE_DIR + "/Train/pickles/face-labels.pickle", "wb") as f:
     pickle.dump(label_ids, f)
 
 # Train items
 recognizer.train(x_train, np.array(y_lables))
-recognizer.save("recognizers/face-trainner.yml")
+recognizer.save(BASE_DIR + "/Train/recognizers/face-trainner.yml")
 
 print("Fine training")
