@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .utils.recognition import faces
 from .utils.dbconnector import dbconnector as db
+from .utils.isee_to_cost_calculator import cost_calculator
 import json
 
 def api(request, *args, **kwargs):
@@ -50,7 +51,7 @@ def login(request, *args, **kwargs):
                 output_data["NAME"] = ret[3]
                 output_data["SURNAME"] = ret[4]
                 output_data["CF"] = ret[5]
-                output_data["COST"] = ret[6]
+                output_data["COST"] = cost_calculator.cost_calculator(ret[6])
                 return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
     return JsonResponse({"message": "Request not valid."}, status=400)
 
@@ -86,5 +87,5 @@ def get_user_info(request, *args, **kargs):
             output_data["NAME"] = ret[1]
             output_data["SURNAME"] = ret[2]
             output_data["CF"] = ret[3]
-            output_data["COST"] = ret[4]
+            output_data["COST"] = cost_calculator.cost_calculator(ret[4])
             return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
