@@ -118,14 +118,14 @@ def get_attendance_list(request, *args, **kargs):
         cursor.execute(query)
         ret = tuple(cursor.fetchall())
         if not ret:
-            return JsonResponse({"message": "User not found."}, status=404)
+            return JsonResponse({"message": "OK", "data": []}, status=200)
         else:
             for attendance in ret:
                 attendance_entry = {
                     "user_id": attendance[0],
                     "attendance_id": attendance[1],
                     "paid": attendance[2],
-                    "date": json.dumps(attendance[3], indent=4, sort_keys=True, default=str)
+                    "date": json.dumps(attendance[3].isoformat(), indent=1, sort_keys=True, default=str)
                 }
                 output_data.append(attendance_entry)
             return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
@@ -159,7 +159,7 @@ def add_attendance(request, *args, **kargs):
             conn = db.dbconnector()
             try:
                 cursor = conn.cursor()
-                query = "INSERT INTO users_attendance(attendance_id, user_id, paid, time) VALUES (DEFAULT, '{}', '{}', current_timestamp())".format(input_data["USER_ID"], input_data["PAID"])
+                query = "INSERT INTO users_attendance(attendance_id, user_id, paid, date) VALUES (DEFAULT, '{}', '{}', current_timestamp())".format(input_data["USER_ID"], input_data["PAID"])
                 cursor.execute(query)
                 conn.commit()
                 return JsonResponse({"message": "OK"}, status=200) 

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
+import axios from 'axios';
 
 import "./Homepage.scss"
 import images from "../../constants/images"
@@ -32,12 +33,11 @@ function Homepage() {
 
 	useEffect (() => {
 		ReactSession.setStoreType("sessionStorage");
-			if (ReactSession.get("USER_EMAIL") === undefined)
-			{
-				navigate('/login');
-			}
-		}, []
-	)
+		if (ReactSession.get("USER_EMAIL") === undefined)
+		{
+			navigate('/login');
+		}
+	}, [])
 
 	return (
 		<>
@@ -56,6 +56,15 @@ function Homepage() {
 }
 
 function Home() {
+	const [attendanceList, setAttendanceList] = useState([]);
+
+	useEffect (() => {
+		axios.get('http://localhost:8000/api/get_attendance_list', { params: { id: ReactSession.get('USER_ID') } })
+		.then(function(response) {
+			setAttendanceList(JSON.parse(response.data.data));
+		})
+	}, [])
+	
 	return (
 		<div className="infoContainer">
 			<div className="leftContainer">
@@ -82,9 +91,12 @@ function Home() {
 						<p>Time</p>
 						<p>Paid</p>
 					</div>
-					<AttendanceRow dateTime={new Date()} price={3.0} />
-					<AttendanceRow dateTime={new Date()} price={3.0} />
-					<AttendanceRow dateTime={new Date()} price={3.0} />
+					{attendanceList.map((item, index) =>
+						<>
+							{Object(item).date}
+							<AttendanceRow dateTime={new Date(Object(item).date)} price={Object(item).paid}/>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
@@ -94,7 +106,7 @@ function AttendanceRow({ dateTime, price }: AttendanceRowProps) {
 	return (
 		<>
 			<div className="row">
-				<p>{`${dateTime.getDay()}/${dateTime.getMonth()}/${dateTime.getFullYear()}`}</p>
+				<p>{`${dateTime.getDay()}-${dateTime.getMonth()}-${dateTime.getFullYear()}`}</p>
 				<p>{`${dateTime.getHours()}:${dateTime.getMinutes()}`}</p>
 				<p>{price % 1 !== 0 ? price : `${price}.00`}</p>
 			</div>
