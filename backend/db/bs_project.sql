@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 16, 2022 at 07:12 PM
+-- Generation Time: Nov 19, 2022 at 05:05 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 7.4.29
 
@@ -31,8 +31,37 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` varchar(255) NOT NULL DEFAULT 'student'
+  `role` enum('admin','student') NOT NULL DEFAULT 'student'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `password`, `role`) VALUES
+(11, 'alessio@gmail.com', 'password', 'student'),
+(12, 'prova@gmail.com', 'password', 'admin');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users_attendance`
+--
+
+CREATE TABLE `users_attendance` (
+  `attendance_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `paid` float NOT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `users_attendance`
+--
+
+INSERT INTO `users_attendance` (`attendance_id`, `user_id`, `paid`, `date`) VALUES
+(24, 10, 5.6, '2022-11-19 14:33:48'),
+(25, 11, 3.6, '2022-11-19 14:34:22');
 
 -- --------------------------------------------------------
 
@@ -49,6 +78,14 @@ CREATE TABLE `users_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Dumping data for table `users_info`
+--
+
+INSERT INTO `users_info` (`id`, `name`, `surname`, `cf`, `isee`) VALUES
+(11, 'alessio', 'lucciola', 'ABCDEFGHILMNOPQR', 15000),
+(12, 'ale', 'luc', 'ABCDEFGHILMNOPQR', 15000);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -58,6 +95,12 @@ CREATE TABLE `users_info` (
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`email`);
+
+--
+-- Indexes for table `users_attendance`
+--
+ALTER TABLE `users_attendance`
+  ADD PRIMARY KEY (`attendance_id`);
 
 --
 -- Indexes for table `users_info`
@@ -73,7 +116,13 @@ ALTER TABLE `users_info`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `users_attendance`
+--
+ALTER TABLE `users_attendance`
+  MODIFY `attendance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
