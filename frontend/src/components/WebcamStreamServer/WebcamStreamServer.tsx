@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from "react"
+import React, { useCallback, useState, useRef, useEffect } from "react"
 import Webcam from "react-webcam"
 import Button from "../Button/Button"
 
@@ -6,7 +6,7 @@ type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
 	startRecordingText: string
 	endRecordingText: string
-	downloadName?: string
+	socket: WebSocket
 }
 /**
  * Webcam components that handles the video recording
@@ -14,56 +14,43 @@ type WebcamStreamCaptureProps = {
  * @param param0
  * @returns
  */
-const WebcamStreamServer = ({ style, startRecordingText, endRecordingText, downloadName }: WebcamStreamCaptureProps) => {
+const WebcamStreamServer = ({ style, startRecordingText, endRecordingText, socket }: WebcamStreamCaptureProps) => {
 	const webcamRef = useRef<any>()
-	const mediaRecorderRef = useRef<MediaRecorder>()
 	const [capturing, setCapturing] = useState(false)
-	const [recordedChunks, setRecordedChunks] = useState([])
+	const [imgSrc, setImgSrc] = useState<any>(null)
 
-	const handleStartCaptureClick = useCallback(() => {
-		setCapturing(true)
-		mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
-			mimeType: "video/webm",
+	const FPS = 15
+
+	useEffect(() => {
+		socket.addEventListener("message", (e: any) => {
+			setImgSrc(e.data)
 		})
-		mediaRecorderRef.current.addEventListener("dataavailable", handleDataAvailable)
-		mediaRecorderRef.current.start(1)
-	}, [webcamRef, setCapturing, mediaRecorderRef])
+	}, [socket])
 
-	const handleDataAvailable = useCallback(
-		({ data }: any) => {
-			if (data.size > 0) {
-				setRecordedChunks((prev) => prev.concat(data))
-			}
-		},
-		[setRecordedChunks]
-	)
-	const handleDownload = useCallback(() => {
-		if (recordedChunks.length) {
-			const blob = new Blob(recordedChunks, {
-				type: "video/webm",
-			})
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement("a")
-			document.body.appendChild(a)
-			a.setAttribute("display", "none")
-			a.href = url
-			a.download = "face_video.mp4"
-			a.click()
-			window.URL.revokeObjectURL(url)
-			setRecordedChunks([])
-		}
-	}, [recordedChunks])
+	const handleStartCaptureClick = useCallback(async () => {
+		setCapturing(true)
+
+		periodicScreenshot()
+	}, [webcamRef, setCapturing])
+
+	const periodicScreenshot = async () => {
+		setInterval(() => {
+			const screenshot = webcamRef.current.getScreenshot()
+			socket.send(screenshot)
+		}, 1000 / FPS)
+	}
 
 	const handleStopCaptureClick = useCallback(() => {
-		mediaRecorderRef.current?.stop()
 		setCapturing(false)
-		handleDownload()
-	}, [mediaRecorderRef, setCapturing, handleDownload])
+	}, [setCapturing])
 
 	return (
 		<>
-			<Webcam mirrored audio={false} ref={webcamRef} style={style} />
-			<Button text={capturing ? endRecordingText : startRecordingText} onClick={capturing ? handleStopCaptureClick : handleStartCaptureClick} shadow={true} />
+			<div style={{ display: "flex", flexDirection: "row" }}>
+				<Webcam mirrored audio={false} ref={webcamRef} style={style} screenshotFormat="image/jpeg" />
+				<Button text={capturing ? endRecordingText : startRecordingText} onClick={capturing ? handleStopCaptureClick : handleStartCaptureClick} shadow={true} />
+				{imgSrc && <img alt="stremed-video" src={imgSrc} />}
+			</div>
 		</>
 	)
 }
