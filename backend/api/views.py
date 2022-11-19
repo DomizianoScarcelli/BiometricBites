@@ -22,7 +22,7 @@ def login(request, *args, **kwargs):
         "NAME": "",
         "SURNAME": "",
         "CF": "",
-        "ISEE": ""
+        "COST": ""
     }
     
     if request.method == "POST":
@@ -50,6 +50,41 @@ def login(request, *args, **kwargs):
                 output_data["NAME"] = ret[3]
                 output_data["SURNAME"] = ret[4]
                 output_data["CF"] = ret[5]
-                output_data["ISEE"] = ret[6]
+                output_data["COST"] = ret[6]
                 return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
     return JsonResponse({"message": "Request not valid."}, status=400)
+
+@csrf_exempt 
+def get_user_info(request, *args, **kargs):
+    input_data = {
+        "ID": ""
+    }
+
+    output_data = {
+        "ID": "",
+        "NAME": "",
+        "SURNAME": "",
+        "CF": "",
+        "COST": ""
+    }
+
+    if request.method == "GET":
+        req_data = request.GET.get("id")
+        if req_data is None or not req_data.isnumeric():
+            return JsonResponse({"message": "ID not specified in the request."}, status=400)
+        input_data["ID"] = req_data
+        conn = db.dbconnector()
+        cursor = conn.cursor()
+        query = "SELECT id, name, surname, cf, isee FROM users_info WHERE id='{}'".format(input_data["ID"])
+        cursor.execute(query)
+        ret = tuple(cursor.fetchall())
+        if not ret:
+            return JsonResponse({"message": "User not found."}, status=404)
+        else:
+            ret = ret[0]
+            output_data["ID"] = ret[0]
+            output_data["NAME"] = ret[1]
+            output_data["SURNAME"] = ret[2]
+            output_data["CF"] = ret[3]
+            output_data["COST"] = ret[4]
+            return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
