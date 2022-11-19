@@ -43,7 +43,7 @@ function Homepage() {
 		<>
 		<div className="background">
 			<ProfileIconName name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ''} />
-			{ReactSession.get("USER_EMAIL") === 'admin' ? (
+			{ReactSession.get("USER_ROLE") === 'admin' ? (
 				// to implement
 				''
 			) : (
