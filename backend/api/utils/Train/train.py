@@ -9,11 +9,9 @@ BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 image_dir = BASE_DIR + "/Capture/images"
 
 # Classifier
-# TODO: find better ones
 face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
 
 # Recognizer
-# TODO: find better ones
 recognizer = cv2.face.LBPHFaceRecognizer_create() # Face recognizer model
 
 current_id = 0
@@ -38,13 +36,14 @@ for root, dirs, files in os.walk(image_dir):
         # Turn the image into a numpy array
         image_array = np.array(Image.open(path), "uint8") 
 
-        # TODO: tweak this
+        # Face recognition
         faces = face_cascade.detectMultiScale(
             image_array, # Input grayscale image.
-            scaleFactor=1.2, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-            minNeighbors=5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-            minSize=(20, 20) # Minimum rectangle size to be considered a face.
+            scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+            minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+            minSize=(30, 30) # Minimum rectangle size to be considered a face.
         )
+
         # Append the detected faces into x_train and their id into y_labels
         for (x, y, w, h) in faces:
             roi = image_array[y:y+h, x:x+w]

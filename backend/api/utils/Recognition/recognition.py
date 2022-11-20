@@ -8,11 +8,9 @@ print("Inizio riconoscimento...")
 BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 
 # Classifier
-# TODO: find better ones
 face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
 
 # Recognizer
-# TODO: find better ones
 recognizer = cv2.face.LBPHFaceRecognizer_create() # face recognizer
 
 # Read trained data
@@ -24,7 +22,10 @@ with open(BASE_DIR + "/Train/pickles/face-labels.pickle", "rb") as f:
     og_labels = pickle.load(f) 
     labels = {v:k for k,v in og_labels.items()} # Inverting key with value
 
+# Video parameters
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap.set(3, 640) # Set video width
+cap.set(4, 480) # Set video height
 
 while(True):
     # Capture frame-by-frame
@@ -33,12 +34,12 @@ while(True):
 	# Turn captured frame into gray scale
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # TODO: tweak this
+	# Face recognition
     faces = face_cascade.detectMultiScale(
         gray, # Input grayscale image.
-        scaleFactor=1.2, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-        minNeighbors=5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-        minSize=(20, 20) # Minimum rectangle size to be considered a face.
+        scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+        minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+        minSize=(30, 30) # Minimum rectangle size to be considered a face.
     )
 
 	# for each face...
