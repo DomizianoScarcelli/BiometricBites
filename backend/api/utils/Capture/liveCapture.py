@@ -33,20 +33,21 @@ def startCapturing():
 
         # For each face...
         for (x, y, w, h) in faces:
-            # ...pick its Region of Intrest (from eyes to mouth) and save it
+            # ...pick its Region of Intrest (from eyes to mouth) and save it as...
+            
+            # ...gray image...
             roi_gray = gray[y:y+h, x:x+w] 
             img_item = path + "/" + str(count) + "_gray.png"
             cv2.imwrite(img_item, roi_gray)
 
-            # Applying different filters to each captured frame
-            roi_color = frame[y:y+h, x:x+w]  
-            filters(roi_color, count)
+            # ...by applying different filters
+            #roi_color = frame[y:y+h, x:x+w]  
+            #filters_advanced(roi_color, count)
             
-            # TODO: test new methods
-            filters_new(roi_color, count)
+            filters_basic(roi_gray, count)
 
             # Show rectangle
-            cv2.rectangle(roi_color,(x,y),(x+w,y+h),(255,0,0),2)
+            cv2.rectangle(roi_gray,(x,y),(x+w,y+h),(255,0,0),2)
 
             count +=1
 
@@ -63,29 +64,64 @@ def startCapturing():
     cap.release()
     cv2.destroyAllWindows()
         
-def filters(roi_color, count):
+def filters_advanced(image, count):
     # applying hue saturation
-    hue_sat = apply_hue_saturation(roi_color.copy(), alpha=3, beta=3)
+    hue_sat = apply_hue_saturation(image.copy(), alpha=3, beta=3)
     img_item = path + "/" + str(count) + "_hue_sat.png"
     cv2.imwrite(img_item, hue_sat)
 
     # Applying sepia flter
-    sepia = apply_sepia(roi_color.copy(), intensity=.8)
+    sepia = apply_sepia(image.copy(), intensity=.8)
     img_item = path + "/" + str(count) + "_sepia.png"
     cv2.imwrite(img_item, sepia)
 
-    # Apply color overlay
-    color_overlay = apply_color_overlay(roi_color.copy(), intensity=.8, red=123, green=231)
+    # Applying color overlay
+    color_overlay = apply_color_overlay(image.copy(), intensity=.8, red=123, green=231)
     img_item = path + "/" + str(count) + "_color_overlay.png"
     cv2.imwrite(img_item, color_overlay)
     
-    # Apply invert filter
-    invert = apply_invert(roi_color.copy())
+    # Applying invert filter
+    invert = apply_invert(image.copy())
     img_item = path + "/" + str(count) + "_invert.png"
     cv2.imwrite(img_item, invert)
 
-def filters_new(roi_color, count):
-    return None
+def filters_basic(image, count):
+    # Invert image
+    flip = horizontal_flip(image.copy())
+    img_item = path + "/" + str(count) + "_flip.png"
+    cv2.imwrite(img_item, flip)
+
+    # Boosting constrast
+    # +0.9
+    contrast = increase_contrast(image.copy(), 0.9)
+    img_item = path + "/" + str(count) + "_cont1.png"
+    cv2.imwrite(img_item, contrast)
+
+    # +1.5
+    contrast = increase_contrast(image.copy(), 1.5)
+    img_item = path + "/" + str(count) + "_cont2.png"
+    cv2.imwrite(img_item, contrast)
+
+    # +2
+    contrast = increase_contrast(image.copy(), 2)
+    img_item = path + "/" + str(count) + "_cont3.png"
+    cv2.imwrite(img_item, contrast)
+
+    # Boosting brightness
+    # +0.1
+    brightness = increase_brightness(image.copy(), 0.1)
+    img_item = path + "/" + str(count) + "_bright1.png"
+    cv2.imwrite(img_item, brightness)
+
+    # +0.2
+    brightness = increase_brightness(image.copy(), 0.2)
+    img_item = path + "/" + str(count) + "_bright2.png"
+    cv2.imwrite(img_item, brightness)
+
+    # +0.5
+    brightness = increase_brightness(image.copy(), 0.5)
+    img_item = path + "/" + str(count) + "_bright3.png"
+    cv2.imwrite(img_item, brightness)
 
 user = input("Digita nome e cognome: ")
 user = user.replace(" ", "-").lower()

@@ -41,7 +41,7 @@ for root, dirs, files in os.walk(image_dir):
             image_array, # Input grayscale image.
             scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
             minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-            minSize=(30, 30) # Minimum rectangle size to be considered a face.
+            minSize = (30, 30) # Minimum rectangle size to be considered a face.
         )
 
         # Append the detected faces into x_train and their id into y_labels

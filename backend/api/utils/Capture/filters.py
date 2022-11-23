@@ -1,12 +1,17 @@
 import numpy as np
 import cv2
+import tensorflow as tf
 
 def verify_alpha_channel(frame):
     try:
-        frame.shape[3] # looking for the alpha channel
+        frame.shape[3] # Looking for the alpha channel
     except IndexError:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
     return frame
+
+############
+# ADVANCED #
+############
 
 def apply_hue_saturation(frame, alpha, beta):
     hsv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -44,3 +49,25 @@ def alpha_blend(frame_1, frame_2, mask):
 
 def apply_invert(frame):
     return cv2.bitwise_not(frame)
+
+#########
+# BASIC #
+#########
+
+def horizontal_flip(frame):
+    flip = tf.image.flip_left_right(frame)
+    encF = tf.image.encode_jpeg(flip)
+
+    return encF
+
+def increase_contrast(frame, factor):
+    contrast = tf.image.adjust_contrast(frame, factor)
+    encC = tf.image.encode_jpeg(contrast)
+
+    return encC
+
+def increase_brightness(frame, delta):
+    brightness = tf.image.adjust_brightness(frame, delta)
+    encB = tf.image.encode_jpeg(brightness)
+    
+    return encB
