@@ -25,19 +25,19 @@ def signup(email, password, role, name, surname, cf, isee):
         cursor.execute(query_two)
         conn.commit()
         return "User added to DB!"
-    except:
+    except SystemError as err:
         conn.rollback()
-        return "An error occurred!"
+        return err
 
 #Type the values here:
 user = {
-    "EMAIL": "prova@gmail.com",
-    "PASSWORD": "password",
-    "ROLE": "admin", #admin or student
-    "NAME": "ale",
-    "SURNAME": "luc",
-    "CF": "ABCDEFGHILMNOPQR", #16 characters
-    "ISEE": "15000"
+    "EMAIL": "prova@gmail.com", #Note this is a unique value (you can't add the same email for two different users)
+    "PASSWORD": "password", #varchar
+    "ROLE": "admin", #enum(admin, student)
+    "NAME": "ale", #varchar
+    "SURNAME": "luc", #varchar
+    "CF": "ABCDEFGHILMNOPQR", #varchar - 16 characters
+    "ISEE": "15000" #float
 }
 registration = signup(user.get("EMAIL"), user.get("PASSWORD"), user.get("ROLE"), user.get("NAME"), user.get("SURNAME"), user.get("CF"), user.get("ISEE"))
 print(registration)
