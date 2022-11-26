@@ -41,10 +41,11 @@ def startCapturing():
             cv2.imwrite(img_item, roi_gray)
 
             # ...by applying different filters
-            #roi_color = frame[y:y+h, x:x+w]  
-            #filters_advanced(roi_color, count)
+            roi_color = frame[y:y+h, x:x+w]  
+            filters_advanced(roi_color, count)
             
-            filters_basic(roi_gray, count)
+            # TODO: fix ryzen 5 5600G problem :(
+            # filters_basic(roi_gray, count)
 
             # Show rectangle
             cv2.rectangle(roi_gray,(x,y),(x+w,y+h),(255,0,0),2)
