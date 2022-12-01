@@ -1,10 +1,13 @@
 #Define all the API here by creating a new function with the name of the API
+from django.conf import settings
 from django.http import JsonResponse, QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from .utils.recognition import faces
 from .utils.dbconnector import dbconnector as db
 from .utils.isee_to_cost_calculator import cost_calculator
+import imghdr
 import json
+import os
 
 def api(request, *args, **kwargs):
     return JsonResponse({'message': 'Test Api'})
@@ -166,4 +169,52 @@ def add_attendance(request, *args, **kargs):
             except SystemError as err:
                 conn.rollback()
                 return JsonResponse({"message": err}, status=500)
+    return JsonResponse({"message": "Request not valid."}, status=400)
+
+@csrf_exempt
+def get_photo_list(request, *args, **kargs):
+    supported_types = ['jpeg', 'jpg', 'png']
+    input_data = {
+        "ID": ""
+    }
+
+    output_data = []
+
+    if request.method == "GET":
+        req_data = request.GET.get("id")
+        if req_data is None or not req_data.isnumeric():
+            return JsonResponse({"message": "ID not specified in the request."}, status=400)
+        input_data["ID"] = req_data
+        sample_path = os.path.join(settings.SAMPLES_ROOT, input_data["ID"])
+        if os.path.exists(sample_path):
+            for file in os.listdir(sample_path):
+                img_path = os.path.join(sample_path, file)
+                if imghdr.what(img_path) in supported_types:
+                    output_data.append(file)
+            return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
+        else:
+            return JsonResponse({"message": "The specified user has no photos."}, status=404)
+    return JsonResponse({"message": "Request not valid."}, status=400)
+
+@csrf_exempt
+def delete_photo(request, *args, **kargs):
+    input_data = {
+        "ID": "",
+        "NAME": ""
+    }
+
+    if request.method == "DELETE":
+        req_data = request.GET
+        if req_data.get("id") is None or not req_data.get("id").isnumeric():
+            return JsonResponse({"message": "ID not specified in the request."}, status=400)
+        if req_data.get("name") is None:
+            return JsonResponse({"message": "Sample name to delete not specified in the request."}, status=400)
+        input_data["ID"] = req_data.get("id")
+        input_data["NAME"] = req_data.get("name")
+        sample_path = os.path.join(settings.SAMPLES_ROOT, input_data["ID"], input_data["NAME"])
+        if os.path.exists(sample_path):
+            os.remove(sample_path)
+            return JsonResponse({"message": "OK"}, status=200)
+        else:
+            return JsonResponse({"message": "The photo which has to be deleted, doesn't exist."}, status=404)
     return JsonResponse({"message": "Request not valid."}, status=400)

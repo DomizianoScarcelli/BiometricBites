@@ -86,7 +86,6 @@ WSGI_APPLICATION = 'bsproject.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -99,6 +98,10 @@ DATABASES = {
         'DB_NAME': os.getenv('DB_NAME')
     }
 }
+
+#Media Folder (where to store samples)
+SAMPLES_ROOT =  os.path.join(BASE_DIR, 'samples')
+SAMPLES_URL = '/samples/'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
