@@ -2,7 +2,6 @@
 from django.conf import settings
 from django.http import JsonResponse, QueryDict
 from django.views.decorators.csrf import csrf_exempt
-from .utils.recognition import faces
 from .utils.dbconnector import dbconnector as db
 from .utils.isee_to_cost_calculator import cost_calculator
 import imghdr
