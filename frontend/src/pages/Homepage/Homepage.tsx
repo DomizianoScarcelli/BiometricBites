@@ -9,12 +9,13 @@ import ProfileIconName from "../../components/ProfileIconName/ProfileIconName"
 import Button from "../../components/Button/Button"
 
 type AttendanceRowProps = {
-	dateTime: Date
-	price: number
+	date: Date
+	paid: number
 }
 
 function Homepage() {
-	const [userPhoto, setUserPhoto] = useState([])
+	const [userPhoto, setUserPhoto] = useState([]);
+	const [attendanceList, setAttendanceList] = useState<AttendanceRowProps[]>([]);
 	const navigate = useNavigate();
 
 	const firstLetterUppercase = (str: string) => {
@@ -41,6 +42,10 @@ function Homepage() {
 			.then(function(response) {
 				setUserPhoto(JSON.parse(response.data.data));
 			})
+			axios.get('http://localhost:8000/api/get_attendance_list', { params: { id: ReactSession.get('USER_ID') } })
+			.then(function(response) {
+				setAttendanceList(JSON.parse(response.data.data));
+			})
 		}
 	}, [])
 
@@ -52,7 +57,7 @@ function Homepage() {
 				// to implement
 				''
 			) : (
-				<div className="centralContainer">{userPhoto.length > 0 ? <Home userPhoto = {userPhoto}/> : <UploadPhoto />}</div>
+				<div className="centralContainer">{userPhoto.length > 0 ? <Home userPhoto = {userPhoto} attendanceList = {attendanceList} /> : <UploadPhoto />}</div>
 			)}
 		</div>
 		<text onClick={logout}>Logout</text>
@@ -61,15 +66,7 @@ function Homepage() {
 }
 
 function Home(props: any) {
-	const [attendanceList, setAttendanceList] = useState([]);
 	const navigate = useNavigate();
-
-	useEffect (() => {
-		axios.get('http://localhost:8000/api/get_attendance_list', { params: { id: ReactSession.get('USER_ID') } })
-		.then(function(response) {
-			setAttendanceList(JSON.parse(response.data.data));
-		})
-	}, [])
 	
 	return (
 		<div className="infoContainer">
@@ -97,24 +94,23 @@ function Home(props: any) {
 						<p>Time</p>
 						<p>Paid</p>
 					</div>
-					{attendanceList.map((item, index) =>
-						<>
-							{Object(item).date}
-							<AttendanceRow dateTime={new Date(Object(item).date)} price={Object(item).paid}/>
-						</>
+					{props.attendanceList.map((item: AttendanceRowProps, index: number) =>
+						<div key={'attendance'+index}>
+							<AttendanceRow date={new Date(item.date)} paid={item.paid}/>
+						</div>
 					)}
 				</div>
 			</div>
 		</div>
 	)
 }
-function AttendanceRow({ dateTime, price }: AttendanceRowProps) {
+function AttendanceRow({ date, paid }: AttendanceRowProps) {
 	return (
 		<>
 			<div className="row">
-				<p>{`${dateTime.getDay()}-${dateTime.getMonth()}-${dateTime.getFullYear()}`}</p>
-				<p>{`${dateTime.getHours()}:${dateTime.getMinutes()}`}</p>
-				<p>{price % 1 !== 0 ? price : `${price}.00`}</p>
+				<p>{`${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`}</p>
+				<p>{`${date.getHours()}:${date.getMinutes()}`}</p>
+				<p>{paid % 1 !== 0 ? paid : `${paid}.00`}</p>
 			</div>
 		</>
 	)
