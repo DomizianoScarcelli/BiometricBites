@@ -44,26 +44,26 @@ while(True):
 
 	# For each face...
     for (x, y, w, h) in faces:
-    	roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
+        roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
 
 		# Use deep learned model to identify the person
-    	id_, conf = recognizer.predict(roi_gray)
+        id_, conf = recognizer.predict(roi_gray)
 
 		# If confidence is good...
-    	if conf >= 85:
+        if conf >= 85:
 			# ... write who he think he recognized
-    		font = cv2.FONT_HERSHEY_SIMPLEX
-    		name = labels[id_]
-    		color = (255, 255, 255)
-    		stroke = 2
-    		cv2.putText(frame, name, (x,y), font, 1, color, stroke, cv2.LINE_AA)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            name = labels[id_]
+            color = (255, 255, 255)
+            stroke = 2
+            cv2.putText(frame, name, (x,y), font, 1, color, stroke, cv2.LINE_AA)
 
 		# Draw a rectangle around the face
-    	color = (255, 0, 0) #BGR 0-255 
-    	stroke = 2
-    	end_cord_x = x + w
-    	end_cord_y = y + h
-    	cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
+        color = (255, 0, 0) #BGR 0-255 
+        stroke = 2
+        end_cord_x = x + w
+        end_cord_y = y + h
+        cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
 
     # Display the resulting frame
     cv2.imshow('frame',frame)
