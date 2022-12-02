@@ -49,12 +49,12 @@ function GetFaces() {
                         <p>Your Photos</p>
                     </div>
                     <div className='photoContainerItems'>
-                        {userPhoto.map((item: String, index: number) => (
+                        {userPhoto.length > 0 ? userPhoto.map((item: String, index: number) => (
                             <div className='photoItem' key={index}>
                                 <img src={'http://localhost:8000/samples/'+ReactSession.get('USER_ID')+'/'+item} alt={'user'+index}></img>
                                 <button onClick={() => deletePhoto(ReactSession.get('USER_ID'), item)}><ImBin /></button>
                             </div>
-                        ))}
+                        )) : 'You have no photo!'}
                     </div>
                 </div>
             </div>
