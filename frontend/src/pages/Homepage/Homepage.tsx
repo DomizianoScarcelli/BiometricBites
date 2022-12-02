@@ -57,6 +57,7 @@ function Homepage() {
 
 function Home() {
 	const [attendanceList, setAttendanceList] = useState([]);
+	const navigate = useNavigate();
 
 	useEffect (() => {
 		axios.get('http://localhost:8000/api/get_attendance_list', { params: { id: ReactSession.get('USER_ID') } })
@@ -76,7 +77,7 @@ function Home() {
 						console.log("Clicked add photo")
 					}}
 				/>
-				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {}} />
+				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {navigate('/get-faces')}}></Button>
 				<Button text="Your details" img={images.details_emoji} shadow={false} onClick={() => {}} />
 			</div>
 
