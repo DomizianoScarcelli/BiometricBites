@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import os
+import tensorflow as tf
 
 from filters import *
 
@@ -36,26 +37,36 @@ def startCapturing():
             # ...pick its Region of Intrest (from eyes to mouth) and save it as...
             
             # ...gray image...
-            roi_gray = gray[y:y+h, x:x+w] 
-            img_item = path + "/" + str(count) + "_gray.png"
-            cv2.imwrite(img_item, roi_gray)
+            roi_gray = gray[y:y+h, x:x+w]
+            roi_color = frame[y:y+h, x:x+w]  
+
+            img_item_gray = path + "/" + str(count) + "_gray.png"
+            cv2.imwrite(img_item_gray, roi_gray)
+
+            img_item_color = path + "/" + str(count) + "_color.png"
+            cv2.imwrite(img_item_color, roi_color)
+
+            image_gray = tf.io.read_file(img_item_gray)
+            image_gray = tf.image.decode_png(image_gray, 3)
+            # image_color = tf.io.read_file(img_item_color)
+            # image_color = tf.image.decode_png(image_color, 3)
 
             # ...by applying different filters
-            roi_color = frame[y:y+h, x:x+w]  
-            filters_advanced(roi_color, count)
+
             
-            # TODO: fix ryzen 5 5600G problem :(
-            # filters_basic(roi_gray, count)
+            filters_basic(image_gray, count)
+            # filters_basics(image_color, count)
+            # filters_advanced(roi_color, count)
 
             # Show rectangle
-            cv2.rectangle(roi_gray,(x,y),(x+w,y+h),(255,0,0),2)
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
 
             count +=1
 
         # Display the resulting frame
         cv2.imshow('frame',frame)
 
-        # Exit if..
+        # Exit if...
         if cv2.waitKey(1) & 0xFF == 27: # ...'ESC' pressed
             break
         elif count >= 100: # ...100 templates saved
@@ -66,7 +77,7 @@ def startCapturing():
     cv2.destroyAllWindows()
         
 def filters_advanced(image, count):
-    # applying hue saturation
+    # Applying hue saturation
     hue_sat = apply_hue_saturation(image.copy(), alpha=3, beta=3)
     img_item = path + "/" + str(count) + "_hue_sat.png"
     cv2.imwrite(img_item, hue_sat)
@@ -88,41 +99,43 @@ def filters_advanced(image, count):
 
 def filters_basic(image, count):
     # Invert image
-    flip = horizontal_flip(image.copy())
-    img_item = path + "/" + str(count) + "_flip.png"
-    cv2.imwrite(img_item, flip)
+    flip = horizontal_flip(image)
+    fnameF = tf.constant(path + "/" + str(count) + "_flip.png")
+    tf.io.write_file(fnameF, flip)
 
     # Boosting constrast
     # +0.9
-    contrast = increase_contrast(image.copy(), 0.9)
-    img_item = path + "/" + str(count) + "_cont1.png"
-    cv2.imwrite(img_item, contrast)
+    contrast = increase_contrast(image, 0.9)
+    fnameF = tf.constant(path + "/" + str(count) + "_cont1.png")
+    tf.io.write_file(fnameF, contrast)
 
     # +1.5
-    contrast = increase_contrast(image.copy(), 1.5)
-    img_item = path + "/" + str(count) + "_cont2.png"
-    cv2.imwrite(img_item, contrast)
+    contrast = increase_contrast(image, 1.5)
+    fnameF = tf.constant(path + "/" + str(count) + "_cont2.png")
+    tf.io.write_file(fnameF, contrast)
 
     # +2
-    contrast = increase_contrast(image.copy(), 2)
-    img_item = path + "/" + str(count) + "_cont3.png"
-    cv2.imwrite(img_item, contrast)
+    contrast = increase_contrast(image, 2)
+    fnameF = tf.constant(path + "/" + str(count) + "_cont3.png")
+    tf.io.write_file(fnameF, contrast)
 
     # Boosting brightness
-    # +0.1
-    brightness = increase_brightness(image.copy(), 0.1)
-    img_item = path + "/" + str(count) + "_bright1.png"
-    cv2.imwrite(img_item, brightness)
+    # -0.5
+    brightness = increase_brightness(image, -0.5)
+    fnameF = tf.constant(path + "/" + str(count) + "_bright1.png")
+    tf.io.write_file(fnameF, brightness)
+
+    # -0.2
+    brightness = increase_brightness(image, -0.2)
+    fnameF = tf.constant(path + "/" + str(count) + "_bright2.png")
+    tf.io.write_file(fnameF, brightness)
 
     # +0.2
-    brightness = increase_brightness(image.copy(), 0.2)
-    img_item = path + "/" + str(count) + "_bright2.png"
-    cv2.imwrite(img_item, brightness)
+    brightness = increase_brightness(image, 0.2)
+    fnameF = tf.constant(path + "/" + str(count) + "_bright3.png")
+    tf.io.write_file(fnameF, brightness)
 
-    # +0.5
-    brightness = increase_brightness(image.copy(), 0.5)
-    img_item = path + "/" + str(count) + "_bright3.png"
-    cv2.imwrite(img_item, brightness)
+print("Inizio cattura")
 
 user = input("Digita nome e cognome: ")
 user = user.replace(" ", "-").lower()
@@ -131,7 +144,7 @@ user = user.replace(" ", "-").lower()
 path = BASE_DIR + "/Capture/images/" + user
 os.makedirs(path, exist_ok=True)
 
-print("Inizio a catturare frame, premi ESC per uscire")
+print("Inizio a catturare frame, premi ESC se vuoi uscire prima")
 startCapturing()
 
 print("Fine cattura")
