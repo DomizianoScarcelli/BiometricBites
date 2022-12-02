@@ -33,7 +33,7 @@ for root, dirs, files in os.walk(image_dir):
             current_id += 1
         id_ = label_ids[label]
 
-        # TODO: Turn image into grayscale (unnecessary?)
+        # Turn image into grayscale
         image = Image.open(path).convert("L")
 
         # Turn the image into a numpy array
@@ -41,9 +41,6 @@ for root, dirs, files in os.walk(image_dir):
 
         x_train.append(image_array)
         y_lables.append(id_)
-
-        """"
-        TODO: unnecessary?
 
         # Face recognition
         faces = face_cascade.detectMultiScale(
@@ -58,7 +55,6 @@ for root, dirs, files in os.walk(image_dir):
             roi = image_array[y:y+h, x:x+w]
             x_train.append(roi)
             y_lables.append(id_)
-        """
 
 # Save labels into file
 with open(BASE_DIR + "/Train/pickles/face-labels.pickle", "wb") as f:

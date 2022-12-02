@@ -8,8 +8,8 @@ BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 # Classifier
 face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
 
-# Recognizer
-recognizer = cv2.face.LBPHFaceRecognizer_create() # face recognizer
+# Face recognizer
+recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 # Read trained data
 recognizer.read(BASE_DIR + "/Train/recognizers/face-trainner.yml")  
@@ -44,14 +44,13 @@ while(True):
 
 	# For each face...
     for (x, y, w, h) in faces:
-		# ROI: Region of interest, (ycord_start, ycord_end), the square in which the face was found
     	roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
 
 		# Use deep learned model to identify the person
     	id_, conf = recognizer.predict(roi_gray)
 
 		# If confidence is good...
-    	if conf >= 45:
+    	if conf >= 85:
 			# ... write who he think he recognized
     		font = cv2.FONT_HERSHEY_SIMPLEX
     		name = labels[id_]
