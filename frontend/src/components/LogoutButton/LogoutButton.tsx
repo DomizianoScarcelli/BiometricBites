@@ -16,6 +16,7 @@ const LogoutButton = () => {
 		ReactSession.set("USER_ROLE", "");
 		ReactSession.set("USER_ID", "");
 		ReactSession.set("USER_COST", "");
+		ReactSession.set("USER_CF", "");
 		navigate('/login');
 	}
 

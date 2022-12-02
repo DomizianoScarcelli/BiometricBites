@@ -39,6 +39,7 @@ function LoginPage() {
                 ReactSession.set("USER_ROLE", data['ROLE']);
                 ReactSession.set("USER_ID", data['ID']);
                 ReactSession.set("USER_COST", data['COST']);
+                ReactSession.set("USER_CF", data['CF']);
                 setLoadingButton(false);
                 setLoggedIn(true)
             } else {

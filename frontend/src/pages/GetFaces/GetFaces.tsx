@@ -3,8 +3,7 @@ import { ReactSession } from 'react-client-session';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-import { BackButton } from '../../components';
-import ProfileIconName from "../../components/ProfileIconName/ProfileIconName";
+import { BackButton, ProfileIconName } from '../../components';
 import { ImBin } from 'react-icons/im';
 import './GetFaces.scss'
 
@@ -62,5 +61,4 @@ function GetFaces() {
         </div>
 	)
 }
-//<img src={'http://localhost:8000/samples/'+ReactSession.get('USER_ID')+item} alt={'user'+{index}}></img>
 export default GetFaces

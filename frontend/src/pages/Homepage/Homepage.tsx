@@ -5,8 +5,7 @@ import axios from 'axios';
 
 import "./Homepage.scss";
 import images from "../../constants/images";
-import { LogoutButton } from '../../components';
-import ProfileIconName from "../../components/ProfileIconName/ProfileIconName";
+import { LogoutButton, ProfileIconName } from '../../components';
 import Button from "../../components/Button/Button";
 
 type AttendanceRowProps = {
@@ -69,7 +68,7 @@ function Home(props: any) {
 					}}
 				/>
 				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {navigate('/get-faces', { state: {userPhoto: props.userPhoto }})}}></Button>
-				<Button text="Your details" img={images.details_emoji} shadow={false} onClick={() => {}} />
+				<Button text="Your details" img={images.details_emoji} shadow={false} onClick={() => {navigate('/detail')}} />
 			</div>
 
 			<div className="history">
