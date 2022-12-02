@@ -14,7 +14,7 @@ type AttendanceRowProps = {
 }
 
 function Homepage() {
-	const [hasPhotos, setHasPhotos] = useState(true);
+	const [userPhoto, setUserPhoto] = useState([])
 	const navigate = useNavigate();
 
 	const firstLetterUppercase = (str: string) => {
@@ -36,6 +36,11 @@ function Homepage() {
 		if (ReactSession.get("USER_EMAIL") === undefined)
 		{
 			navigate('/login');
+		} else {
+			axios.get('http://localhost:8000/api/get_photo_list', { params: { id: ReactSession.get('USER_ID') } })
+			.then(function(response) {
+				setUserPhoto(JSON.parse(response.data.data));
+			})
 		}
 	}, [])
 
@@ -47,7 +52,7 @@ function Homepage() {
 				// to implement
 				''
 			) : (
-				<div className="centralContainer">{hasPhotos ? <Home /> : <UploadPhoto />}</div>
+				<div className="centralContainer">{userPhoto.length > 0 ? <Home userPhoto = {userPhoto}/> : <UploadPhoto />}</div>
 			)}
 		</div>
 		<text onClick={logout}>Logout</text>
@@ -55,7 +60,7 @@ function Homepage() {
 	)
 }
 
-function Home() {
+function Home(props: any) {
 	const [attendanceList, setAttendanceList] = useState([]);
 	const navigate = useNavigate();
 
@@ -77,7 +82,7 @@ function Home() {
 						console.log("Clicked add photo")
 					}}
 				/>
-				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {navigate('/get-faces')}}></Button>
+				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {navigate('/get-faces', { state: {userPhoto: props.userPhoto }})}}></Button>
 				<Button text="Your details" img={images.details_emoji} shadow={false} onClick={() => {}} />
 			</div>
 
