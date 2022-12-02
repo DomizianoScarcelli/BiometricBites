@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import axios from 'axios';
 
-import "./Homepage.scss"
-import images from "../../constants/images"
-import ProfileIconName from "../../components/ProfileIconName/ProfileIconName"
-import Button from "../../components/Button/Button"
+import "./Homepage.scss";
+import images from "../../constants/images";
+import { LogoutButton } from '../../components';
+import ProfileIconName from "../../components/ProfileIconName/ProfileIconName";
+import Button from "../../components/Button/Button";
 
 type AttendanceRowProps = {
 	date: Date
@@ -20,16 +21,6 @@ function Homepage() {
 
 	const firstLetterUppercase = (str: string) => {
 		return str.charAt(0).toUpperCase() + str.slice(1);
-	}
-
-	const logout = () => {
-		ReactSession.set("USER_EMAIL", "");
-		ReactSession.set("USER_NAME", "");
-		ReactSession.set("USER_SURNAME", "");
-		ReactSession.set("USER_ROLE", "");
-		ReactSession.set("USER_ID", "");
-		ReactSession.set("USER_COST", "");
-		navigate('/login');
 	}
 
 	useEffect (() => {
@@ -50,18 +41,16 @@ function Homepage() {
 	}, [])
 
 	return (
-		<>
 		<div className="background">
 			<ProfileIconName name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ''} />
+			<LogoutButton />
 			{ReactSession.get("USER_ROLE") === 'admin' ? (
 				// to implement
 				''
 			) : (
-				<div className="centralContainer">{userPhoto.length > 0 ? <Home userPhoto = {userPhoto} attendanceList = {attendanceList} /> : <UploadPhoto />}</div>
+				<div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList = {attendanceList} /> : <UploadPhoto />}</div>
 			)}
 		</div>
-		<text onClick={logout}>Logout</text>
-		</>
 	)
 }
 
