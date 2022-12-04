@@ -32,19 +32,19 @@ function DetailPage() {
                     </div>
                     <div className='detailContainerItems'>
                         <div className='detailItem'>
-                            <span><AiOutlineUser />  Name/Surname</span>
+                            <span><strong><AiOutlineUser />  Name/Surname</strong></span>
                             <span>{firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME"))}</span>
                         </div>
                         <div className='detailItem'>
-                            <span><AiOutlineMail />  Email:</span>
+                            <span><strong><AiOutlineMail />  Email:</strong></span>
                             <span>{ReactSession.get("USER_EMAIL")}</span>
                         </div>
                         <div className='detailItem'>
-                            <span><AiOutlineInfoCircle />  Fiscal Code:</span>
+                            <span><strong><AiOutlineInfoCircle />  Fiscal Code:</strong></span>
                             <span>{ReactSession.get("USER_CF")}</span>
                         </div>
                         <div className='detailItem'>
-                            <span><AiOutlineEuroCircle />  You Pay:</span>
+                            <span><strong><AiOutlineEuroCircle />  You Pay:</strong></span>
                             <span>{'€'+ReactSession.get("USER_COST")}</span>
                         </div>
                     </div>
