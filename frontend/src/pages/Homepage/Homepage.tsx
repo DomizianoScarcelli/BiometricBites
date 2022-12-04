@@ -1,61 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ReactSession } from 'react-client-session';
-import axios from 'axios';
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { ReactSession } from "react-client-session"
+import axios from "axios"
 
-import "./Homepage.scss";
-import images from "../../constants/images";
-import { LogoutButton, ProfileIconName } from '../../components';
-import Button from "../../components/Button/Button";
+import "./Homepage.scss"
+import images from "../../constants/images"
+import { LogoutButton, ProfileIconName } from "../../components"
+import Button from "../../components/Button/Button"
+import moment, { Moment } from "moment"
 
 type AttendanceRowProps = {
-	date: Date
+	date: Moment
 	paid: number
 }
 
+type AttendanceList = {
+	user_id: number
+	attendanceId: number
+	paid: number
+	date: string
+}
+
 function Homepage() {
-	const [userPhoto, setUserPhoto] = useState([]);
-	const [attendanceList, setAttendanceList] = useState<AttendanceRowProps[]>([]);
-	const navigate = useNavigate();
+	const [userPhoto, setUserPhoto] = useState<string[]>([])
+	const [attendanceList, setAttendanceList] = useState<AttendanceList[]>([])
+	const navigate = useNavigate()
 
 	const firstLetterUppercase = (str: string) => {
-		return str.charAt(0).toUpperCase() + str.slice(1);
+		return str.charAt(0).toUpperCase() + str.slice(1)
 	}
 
-	useEffect (() => {
-		ReactSession.setStoreType("sessionStorage");
-		if (ReactSession.get("USER_EMAIL") === undefined)
-		{
-			navigate('/login');
+	useEffect(() => {
+		ReactSession.setStoreType("sessionStorage")
+		if (ReactSession.get("USER_EMAIL") === undefined) {
+			navigate("/login")
 		} else {
-			axios.get('http://localhost:8000/api/get_photo_list', { params: { id: ReactSession.get('USER_ID') } })
-			.then(function(response) {
-				setUserPhoto(JSON.parse(response.data.data));
+			axios.get("http://localhost:8000/api/get_photo_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
+				setUserPhoto(JSON.parse(response.data.data))
 			})
-			axios.get('http://localhost:8000/api/get_attendance_list', { params: { id: ReactSession.get('USER_ID') } })
-			.then(function(response) {
-				setAttendanceList(JSON.parse(response.data.data));
+			axios.get("http://localhost:8000/api/get_attendance_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
+				setAttendanceList(JSON.parse(response.data.data))
 			})
 		}
 	}, [])
 
 	return (
 		<div className="background">
-			<ProfileIconName name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME"))+" "+firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ''} />
+			<ProfileIconName
+				name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME")) + " " + firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ""}
+			/>
 			<LogoutButton />
-			{ReactSession.get("USER_ROLE") === 'admin' ? (
+			{ReactSession.get("USER_ROLE") === "admin" ? (
 				// to implement
-				''
+				""
 			) : (
-				<div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList = {attendanceList} /> : <UploadPhoto />}</div>
+				<div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList={attendanceList} /> : <UploadPhoto />}</div>
 			)}
 		</div>
 	)
 }
 
-function Home(props: any) {
-	const navigate = useNavigate();
-	
+function Home({ attendanceList, userPhoto }: { attendanceList: AttendanceList[]; userPhoto?: string[] }) {
+	const navigate = useNavigate()
+
 	return (
 		<div className="infoContainer">
 			<div className="leftContainer">
@@ -67,8 +74,22 @@ function Home(props: any) {
 						console.log("Clicked add photo")
 					}}
 				/>
-				<Button text="Your photos" img={images.many_faces_emoji} shadow={false} onClick={() => {navigate('/get-faces', { state: {userPhoto: props.userPhoto }})}}></Button>
-				<Button text="Your details" img={images.details_emoji} shadow={false} onClick={() => {navigate('/detail')}} />
+				<Button
+					text="Your photos"
+					img={images.many_faces_emoji}
+					shadow={false}
+					onClick={() => {
+						navigate("/get-faces", { state: { userPhoto: userPhoto } })
+					}}
+				></Button>
+				<Button
+					text="Your details"
+					img={images.details_emoji}
+					shadow={false}
+					onClick={() => {
+						navigate("/detail")
+					}}
+				/>
 			</div>
 
 			<div className="history">
@@ -82,11 +103,11 @@ function Home(props: any) {
 						<p>Time</p>
 						<p>Paid</p>
 					</div>
-					{props.attendanceList.map((item: AttendanceRowProps, index: number) =>
-						<div key={'attendance'+index}>
-							<AttendanceRow date={new Date(item.date)} paid={item.paid}/>
+					{attendanceList.map((item: any, index: number) => (
+						<div key={"attendance" + index}>
+							<AttendanceRow date={moment(item.date, "YYYY MM DD HH:mm:ss")} paid={item.paid} />
 						</div>
-					)}
+					))}
 				</div>
 			</div>
 		</div>
@@ -96,8 +117,8 @@ function AttendanceRow({ date, paid }: AttendanceRowProps) {
 	return (
 		<>
 			<div className="row">
-				<p>{`${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`}</p>
-				<p>{`${date.getHours()}:${date.getMinutes()}`}</p>
+				<p>{`${date.format("DD-MM-YYYY")}`}</p>
+				<p>{`${date.format("HH:mm")}`}</p>
 				<p>{paid % 1 !== 0 ? paid : `${paid}.00`}</p>
 			</div>
 		</>
