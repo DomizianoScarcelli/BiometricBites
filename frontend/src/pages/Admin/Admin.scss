@@ -1,0 +1,27 @@
+.admin-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	gap: 5rem;
+	&__left {
+		display: flex;
+		position: relative;
+		flex-direction: column;
+		justify-content: flex-start;
+		gap: 1.5rem;
+		height: 40rem;
+		min-width: fit-content;
+	}
+	&__right {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		padding: 2rem;
+		align-items: center;
+		button {
+			width: 25rem;
+			height: 6rem;
+		}
+	}
+}

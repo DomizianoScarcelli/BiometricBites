@@ -71,7 +71,7 @@ function Home({ attendanceList, userPhoto }: { attendanceList: AttendanceList[];
 					img={images.selfie_emoji}
 					shadow={false}
 					onClick={() => {
-						console.log("Clicked add photo")
+						navigate("/add-face")
 					}}
 				/>
 				<Button
@@ -125,10 +125,19 @@ function AttendanceRow({ date, paid }: AttendanceRowProps) {
 	)
 }
 function UploadPhoto() {
+	const navigate = useNavigate()
+
 	return (
 		<>
 			<p>You haven't uploaded any photo yet, upload it in order to start using the recognition system!</p>
-			<Button text={`Upload a photo of \n your face!`} img={images.face_emoji} shadow={true} onClick={() => {}} />
+			<Button
+				text={`Upload a photo of \n your face!`}
+				img={images.face_emoji}
+				shadow={true}
+				onClick={() => {
+					navigate("/add-face")
+				}}
+			/>
 		</>
 	)
 }

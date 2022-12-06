@@ -1,11 +1,10 @@
-import React, { useCallback, useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Webcam from "react-webcam"
-import Button from "../Button/Button"
+import "./WebcamStreamServer.scss"
 
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
-	startRecordingText: string
-	endRecordingText: string
+	connected: boolean
 	socket: WebSocket
 }
 /**
@@ -14,24 +13,11 @@ type WebcamStreamCaptureProps = {
  * @param param0
  * @returns
  */
-const WebcamStreamServer = ({ style, startRecordingText, endRecordingText, socket }: WebcamStreamCaptureProps) => {
-	const webcamRef = useRef<any>()
-	const [capturing, setCapturing] = useState(false)
+const WebcamStreamServer = ({ style, connected, socket }: WebcamStreamCaptureProps) => {
+	const webcamRef = useRef<any>(null)
 	const [imgSrc, setImgSrc] = useState<any>(null)
 
 	const FPS = 15
-
-	useEffect(() => {
-		socket.addEventListener("message", (e: any) => {
-			setImgSrc(e.data)
-		})
-	}, [socket])
-
-	const handleStartCaptureClick = useCallback(async () => {
-		setCapturing(true)
-
-		periodicScreenshot()
-	}, [webcamRef, setCapturing])
 
 	const periodicScreenshot = async () => {
 		setInterval(() => {
@@ -40,17 +26,22 @@ const WebcamStreamServer = ({ style, startRecordingText, endRecordingText, socke
 		}, 1000 / FPS)
 	}
 
-	const handleStopCaptureClick = useCallback(() => {
-		setCapturing(false)
-	}, [setCapturing])
+	useEffect(() => {
+		socket.addEventListener("message", (e: any) => {
+			setImgSrc(e.data)
+		})
+	}, [socket])
+
+	useEffect(() => {
+		if (connected) {
+			periodicScreenshot()
+		}
+	}, [connected])
 
 	return (
 		<>
-			<div style={{ display: "flex", flexDirection: "row" }}>
-				<Webcam mirrored audio={false} ref={webcamRef} style={style} screenshotFormat="image/jpeg" />
-				<Button text={capturing ? endRecordingText : startRecordingText} onClick={capturing ? handleStopCaptureClick : handleStartCaptureClick} shadow={true} />
-				{imgSrc && <img alt="stremed-video" src={imgSrc} />}
-			</div>
+			<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={style} />
+			{imgSrc && connected && <img alt="stremed-video" src={imgSrc} style={{ ...style, zIndex: 5 }} />}
 		</>
 	)
 }
