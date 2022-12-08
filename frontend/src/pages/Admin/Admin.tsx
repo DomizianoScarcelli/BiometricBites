@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react"
 import WebcamStreamServer from "../../components/WebcamStreamServer/WebcamStreamServer"
 import "./Admin.scss"
-import { LogoutButton } from "../../components"
+import { LogoutButton, ProfileIconName } from "../../components"
+import images from "../../constants/images"
+import Button from "../../components/Button/Button"
 
 export default function Admin() {
 	const [socket, setSocket] = useState<WebSocket>(new WebSocket(`ws://127.0.0.1:8000/ws/socket-server/`))
@@ -9,13 +11,10 @@ export default function Admin() {
 
 	const webcamStyle: React.CSSProperties = {
 		textAlign: "center",
-		height: "35rem",
-		width: "50rem",
+		height: "60vh",
+		width: "auto",
 		objectFit: "cover",
 		borderRadius: "2rem",
-		position: "absolute",
-		top: "50%",
-		transform: "translate(-70%, -50%)",
 	}
 
 	const openSocketConnection = () => {
@@ -37,13 +36,32 @@ export default function Admin() {
 	useEffect(openSocketConnection, [])
 
 	return (
-		<div className="admin-container background">
-			<LogoutButton />
-			<div className="admin-container__left">
-				<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} />
-			</div>
-			<div className="admin-container__right">
-				<p>Test</p>
+		<div className="background">
+			<ProfileIconName name="Admin" />
+			<div className="admin-container">
+				<LogoutButton />
+				<div className="admin-container__left">
+					<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} />
+				</div>
+				<div className="admin-container__right">
+					<div className="student-details">
+						<h1>Domiziano Scarcelli</h1>
+						<div className="student-details__inner">
+							<div className="photo">
+								<img alt="student_photo" src={images.photo_of_face}></img>
+								<p>Accuracy: 80%</p>
+							</div>
+
+							<div className="price-to-pay">
+								<p>3.00 Euro</p>
+							</div>
+						</div>
+					</div>
+					<div className="actions">
+						<Button text="Ignore" shadow={true} onClick={() => {}} />
+						<Button text="Pay" shadow={true} onClick={() => {}} />
+					</div>
+				</div>
 			</div>
 		</div>
 	)

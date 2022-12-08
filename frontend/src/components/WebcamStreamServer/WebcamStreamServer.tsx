@@ -20,8 +20,10 @@ const WebcamStreamServer = ({ style, connected, socket }: WebcamStreamCapturePro
 	const FPS = 15
 
 	const periodicScreenshot = async () => {
-		setInterval(() => {
+		setInterval(async () => {
+			if (webcamRef.current === null) return
 			const screenshot = webcamRef.current.getScreenshot()
+
 			socket.send(screenshot)
 		}, 1000 / FPS)
 	}
@@ -40,8 +42,8 @@ const WebcamStreamServer = ({ style, connected, socket }: WebcamStreamCapturePro
 
 	return (
 		<>
-			<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={style} />
 			{imgSrc && connected && <img alt="stremed-video" src={imgSrc} style={{ ...style, zIndex: 5 }} />}
+			<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{ ...style, opacity: "0" }} />
 		</>
 	)
 }
