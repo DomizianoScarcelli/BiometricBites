@@ -1,86 +1,99 @@
 .admin-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-	width: 100vw;
-	gap: 3rem;
+	&__main {
+		display: flex;
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		margin-right: -50%;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		transform: translate(-50%, -50%);
+		padding: 1rem;
+	}
+
+	&__sections {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+	
 	&__left {
 		display: flex;
-		flex-direction: column;
-		height: 100%;
+		margin-right: 2rem;
 	}
+
 	&__right {
 		display: flex;
 		flex-direction: column;
-		align-items: start;
-		justify-content: flex-start;
-		width: fit-content;
-		height: 100%;
-		gap: 2rem;
+		gap: 1rem;
 
 		.actions {
 			display: flex;
-			width: 100%;
 			gap: 1rem;
+			width: 100%;
+			
 			button {
 				border-radius: 1rem;
 				width: 50%;
 				height: 4rem;
 			}
 		}
-	}
-}
 
-.student-details {
-	height: fit-content;
-	width: 40vw;
-	background-color: var(--primary-color);
-	border-radius: 1rem;
-	padding: 1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	align-items: center;
-	justify-content: center;
+		.student-details {
+			display: flex;
+			justify-content: center;
+			background-color: var(--primary-color);
+			border-radius: 1rem;
+			display: flex;
+			flex-direction: column;
+			padding: 1rem;
+			gap: 1rem;
+		
+			h1 {
+				margin: 0;
+				font-size: 1.75rem;
+				font-weight: 600;
+				color: black;
+			}
 
-	h1 {
-		font-size: 1.75rem;
-		font-weight: 600;
-		color: black;
-	}
+			&__inner {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 3rem;
 
-	&__inner {
-		display: flex;
-		width: inherit;
-		height: inherit;
-		justify-content: space-evenly;
-		align-items: center;
-	}
-
-	.photo {
-		p {
-			color: black;
-			font-size: 1.25rem;
-			font-weight: 500;
-		}
-	}
-
-	img {
-		height: 20vh;
-		width: auto;
-	}
-
-	.price-to-pay {
-		display: grid;
-		place-items: center;
-		background-color: var(--secondary-blue);
-		border-radius: 1rem;
-		padding: 0.75rem;
-		height: fit-content;
-		p {
-			font-size: 2rem;
-			font-weight: 500;
+				.photo {
+					position: relative;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+	
+					p {
+						color: black;
+						font-size: 1.25rem;
+						font-weight: 500;
+					}
+	
+					img {
+						width: 100%;
+					}
+				}
+			
+				.price-to-pay {
+					display: grid;
+					place-items: center;
+					background-color: var(--secondary-blue);
+					border-radius: 1rem;
+					padding: 0.75rem;
+					height: fit-content;
+					p {
+						font-size: 2rem;
+						font-weight: 500;
+					}
+				}
+			}
 		}
 	}
 }

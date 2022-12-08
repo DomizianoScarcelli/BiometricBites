@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import WebcamStreamServer from "../../components/WebcamStreamServer/WebcamStreamServer"
 import "./Admin.scss"
-import { LogoutButton, ProfileIconName } from "../../components"
 import images from "../../constants/images"
 import Button from "../../components/Button/Button"
 import Resolution from "../../types/Resolution"
@@ -19,8 +18,8 @@ export default function Admin() {
 
 	const webcamStyle: React.CSSProperties = {
 		textAlign: "center",
-		height: "60vh",
-		width: "auto",
+		height: "100%",
+		width: "100%",
 		objectFit: "cover",
 		borderRadius: "2rem",
 	}
@@ -42,30 +41,30 @@ export default function Admin() {
 	useEffect(openSocketConnection, [])
 
 	return (
-		<div className="background">
-			<ProfileIconName name="Admin" />
-			<div className="admin-container">
-				<LogoutButton />
-				<div className="admin-container__left">
-					<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} resolution={Resolution.MEDIUM} />
-				</div>
-				<div className="admin-container__right">
-					<div className="student-details">
-						<h1>Domiziano Scarcelli</h1>
-						<div className="student-details__inner">
-							<div className="photo">
-								<img alt="student_photo" src={images.photo_of_face}></img>
-								<p>Accuracy: 80%</p>
-							</div>
+		<div className="admin-container">
+			<div className="admin-container__main">
+				<div className="admin-container__sections">
+					<div className="admin-container__left">
+						<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} resolution={Resolution.MEDIUM} />
+					</div>
+					<div className="admin-container__right">
+						<div className="student-details">
+							<h1>Domiziano Scarcelli</h1>
+							<div className="student-details__inner">
+								<div className="photo">
+									<img alt="student_photo" src={images.photo_of_face}></img>
+									<p>Accuracy: 80%</p>
+								</div>
 
-							<div className="price-to-pay">
-								<p>3.00 Euro</p>
+								<div className="price-to-pay">
+									<p>3.00 Euro</p>
+								</div>
 							</div>
 						</div>
-					</div>
-					<div className="actions">
-						<Button text="Ignore" shadow={true} onClick={() => {}} />
-						<Button text="Pay" shadow={true} onClick={() => {}} />
+						<div className="actions">
+							<Button text="Ignore" shadow={true} onClick={() => {}} />
+							<Button text="Pay" shadow={true} onClick={() => {}} />
+						</div>
 					</div>
 				</div>
 			</div>
