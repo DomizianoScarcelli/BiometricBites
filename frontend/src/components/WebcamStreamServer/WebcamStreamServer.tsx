@@ -1,12 +1,13 @@
-import React, { useCallback, useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Webcam from "react-webcam"
-import Button from "../Button/Button"
+import "./WebcamStreamServer.scss"
+import Resolution from "../../types/Resolution.js"
 
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
-	startRecordingText: string
-	endRecordingText: string
+	connected: boolean
 	socket: WebSocket
+	resolution: Resolution
 }
 /**
  * Webcam components that handles the video recording
@@ -14,12 +15,21 @@ type WebcamStreamCaptureProps = {
  * @param param0
  * @returns
  */
-const WebcamStreamServer = ({ style, startRecordingText, endRecordingText, socket }: WebcamStreamCaptureProps) => {
-	const webcamRef = useRef<any>()
-	const [capturing, setCapturing] = useState(false)
+const WebcamStreamServer = ({ style, connected, socket, resolution }: WebcamStreamCaptureProps) => {
+	const webcamRef = useRef<any>(null)
 	const [imgSrc, setImgSrc] = useState<any>(null)
+	const [photoInterval, setPhotoInterval] = useState<any>(null)
 
 	const FPS = 15
+
+	const periodicScreenshot = async () => {
+		const photoInterval = setInterval(async () => {
+			if (webcamRef.current === null) return
+			const screenshot: string = webcamRef.current.getScreenshot()
+			socket.send(screenshot)
+		}, 1000 / FPS)
+		setPhotoInterval(photoInterval)
+	}
 
 	useEffect(() => {
 		socket.addEventListener("message", (e: any) => {
@@ -27,30 +37,18 @@ const WebcamStreamServer = ({ style, startRecordingText, endRecordingText, socke
 		})
 	}, [socket])
 
-	const handleStartCaptureClick = useCallback(async () => {
-		setCapturing(true)
-
-		periodicScreenshot()
-	}, [webcamRef, setCapturing])
-
-	const periodicScreenshot = async () => {
-		setInterval(() => {
-			const screenshot = webcamRef.current.getScreenshot()
-			socket.send(screenshot)
-		}, 1000 / FPS)
-	}
-
-	const handleStopCaptureClick = useCallback(() => {
-		setCapturing(false)
-	}, [setCapturing])
+	useEffect(() => {
+		if (connected) {
+			periodicScreenshot()
+		} else {
+			if (photoInterval !== null) photoInterval.clearInterval()
+		}
+	}, [connected])
 
 	return (
 		<>
-			<div style={{ display: "flex", flexDirection: "row" }}>
-				<Webcam mirrored audio={false} ref={webcamRef} style={style} screenshotFormat="image/jpeg" />
-				<Button text={capturing ? endRecordingText : startRecordingText} onClick={capturing ? handleStopCaptureClick : handleStartCaptureClick} shadow={true} />
-				{imgSrc && <img alt="stremed-video" src={imgSrc} />}
-			</div>
+			{imgSrc && connected && <img alt="stremed-video" src={imgSrc} style={{ ...style, zIndex: 5 }} />}
+			<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{ ...style, opacity: "0", height: resolution }} />
 		</>
 	)
 }

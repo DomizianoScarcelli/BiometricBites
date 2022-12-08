@@ -13,8 +13,13 @@ class FrameConsumer(WebsocketConsumer):
        }))
     
     def receive(self, text_data):
-        img = b64str_to_opencvimg(text_data)
-        cv2.line(img,(0,0),(511,511),(255,0,0),5)
-        b64_img = opencvimg_to_b64_str(img)
-        self.send(text_data=b64_img)
+        try:
+            img = b64str_to_opencvimg(text_data)
+            cv2.line(img,(0,0),(511,511),(255,0,0),5)
+            b64_img = opencvimg_to_b64_str(img)
+            self.send(text_data=b64_img)
+        except:
+            print("No photo")
+        
+       
 

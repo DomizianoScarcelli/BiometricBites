@@ -9,6 +9,8 @@ import { LogoutButton, ProfileIconName } from "../../components"
 import Button from "../../components/Button/Button"
 import moment, { Moment } from "moment"
 
+import Admin from "../Admin/Admin"
+
 type AttendanceRowProps = {
 	date: Moment
 	paid: number
@@ -50,12 +52,7 @@ function Homepage() {
 				name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME")) + " " + firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ""}
 			/>
 			<LogoutButton />
-			{ReactSession.get("USER_ROLE") === "admin" ? (
-				// to implement
-				""
-			) : (
-				<div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList={attendanceList} /> : <UploadPhoto />}</div>
-			)}
+			{ReactSession.get("USER_ROLE") === "admin" ? <Admin /> : <div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList={attendanceList} /> : <UploadPhoto />}</div>}
 		</div>
 	)
 }
@@ -71,7 +68,7 @@ function Home({ attendanceList, userPhoto }: { attendanceList: AttendanceList[];
 					img={images.selfie_emoji}
 					shadow={false}
 					onClick={() => {
-						console.log("Clicked add photo")
+						navigate("/add-face")
 					}}
 				/>
 				<Button
@@ -125,10 +122,19 @@ function AttendanceRow({ date, paid }: AttendanceRowProps) {
 	)
 }
 function UploadPhoto() {
+	const navigate = useNavigate()
+
 	return (
 		<>
 			<p>You haven't uploaded any photo yet, upload it in order to start using the recognition system!</p>
-			<Button text={`Upload a photo of \n your face!`} img={images.face_emoji} shadow={true} onClick={() => {}} />
+			<Button
+				text={`Upload a photo of \n your face!`}
+				img={images.face_emoji}
+				shadow={true}
+				onClick={() => {
+					navigate("/add-face")
+				}}
+			/>
 		</>
 	)
 }
