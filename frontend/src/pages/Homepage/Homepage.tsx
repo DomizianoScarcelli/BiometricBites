@@ -36,12 +36,14 @@ function Homepage() {
 		if (ReactSession.get("USER_EMAIL") === undefined) {
 			navigate("/login")
 		} else {
-			axios.get("http://localhost:8000/api/get_photo_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
-				setUserPhoto(JSON.parse(response.data.data))
-			})
-			axios.get("http://localhost:8000/api/get_attendance_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
-				setAttendanceList(JSON.parse(response.data.data))
-			})
+				if (ReactSession.get("USER_ROLE") === "student") {
+					axios.get("http://localhost:8000/api/get_photo_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
+					setUserPhoto(JSON.parse(response.data.data))
+				})
+				axios.get("http://localhost:8000/api/get_attendance_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
+					setAttendanceList(JSON.parse(response.data.data))
+				})
+			}
 		}
 	}, [])
 
