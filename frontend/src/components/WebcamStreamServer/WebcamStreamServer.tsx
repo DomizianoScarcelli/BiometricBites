@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react"
 import Webcam from "react-webcam"
 import "./WebcamStreamServer.scss"
+import Resolution from "../../types/Resolution.js"
 
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
 	connected: boolean
 	socket: WebSocket
+	resolution: Resolution
 }
 /**
  * Webcam components that handles the video recording
@@ -13,19 +15,20 @@ type WebcamStreamCaptureProps = {
  * @param param0
  * @returns
  */
-const WebcamStreamServer = ({ style, connected, socket }: WebcamStreamCaptureProps) => {
+const WebcamStreamServer = ({ style, connected, socket, resolution }: WebcamStreamCaptureProps) => {
 	const webcamRef = useRef<any>(null)
 	const [imgSrc, setImgSrc] = useState<any>(null)
+	const [photoInterval, setPhotoInterval] = useState<any>(null)
 
 	const FPS = 15
 
 	const periodicScreenshot = async () => {
-		setInterval(async () => {
+		const photoInterval = setInterval(async () => {
 			if (webcamRef.current === null) return
-			const screenshot = webcamRef.current.getScreenshot()
-
+			const screenshot: string = webcamRef.current.getScreenshot()
 			socket.send(screenshot)
 		}, 1000 / FPS)
+		setPhotoInterval(photoInterval)
 	}
 
 	useEffect(() => {
@@ -37,13 +40,15 @@ const WebcamStreamServer = ({ style, connected, socket }: WebcamStreamCapturePro
 	useEffect(() => {
 		if (connected) {
 			periodicScreenshot()
+		} else {
+			if (photoInterval !== null) photoInterval.clearInterval()
 		}
 	}, [connected])
 
 	return (
 		<>
 			{imgSrc && connected && <img alt="stremed-video" src={imgSrc} style={{ ...style, zIndex: 5 }} />}
-			<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{ ...style, opacity: "0" }} />
+			<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{ ...style, opacity: "0", height: resolution }} />
 		</>
 	)
 }

@@ -4,10 +4,18 @@ import "./Admin.scss"
 import { LogoutButton, ProfileIconName } from "../../components"
 import images from "../../constants/images"
 import Button from "../../components/Button/Button"
+import Resolution from "../../types/Resolution"
+
+type Person = {
+	name: string
+	id: string
+	amountToPay: number
+}
 
 export default function Admin() {
 	const [socket, setSocket] = useState<WebSocket>(new WebSocket(`ws://127.0.0.1:8000/ws/socket-server/`))
 	const [connected, setConnected] = useState<boolean>(false)
+	const [lastPerson, setLastPerson] = useState<Person>()
 
 	const webcamStyle: React.CSSProperties = {
 		textAlign: "center",
@@ -24,12 +32,10 @@ export default function Admin() {
 
 		socket.addEventListener("open", (e: any) => {
 			setConnected(true)
-			console.log("Connected to server")
 		})
 
 		socket.addEventListener("close", (e: any) => {
 			setConnected(false)
-			console.log("Disconnected from server")
 		})
 	}
 
@@ -41,7 +47,7 @@ export default function Admin() {
 			<div className="admin-container">
 				<LogoutButton />
 				<div className="admin-container__left">
-					<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} />
+					<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} resolution={Resolution.MEDIUM} />
 				</div>
 				<div className="admin-container__right">
 					<div className="student-details">
