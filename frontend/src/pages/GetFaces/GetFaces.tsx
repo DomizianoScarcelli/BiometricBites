@@ -40,7 +40,7 @@ function GetFaces() {
             navigate('/');
         }
         refreshPhoto();
-	}, [])
+	}, [navigate])
 	
 	return (
         <div className='background'>

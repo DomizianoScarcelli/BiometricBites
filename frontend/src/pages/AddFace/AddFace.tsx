@@ -29,7 +29,7 @@ function AddFace() {
         {
             navigate('/');
         }
-	}, [])
+	}, [navigate])
 	
 
 	return (

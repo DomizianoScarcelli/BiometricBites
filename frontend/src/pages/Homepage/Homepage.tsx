@@ -44,7 +44,7 @@ function Homepage() {
 				})
 			}
 		}
-	}, [])
+	}, [navigate])
 
 	return (
 		<div className="background">

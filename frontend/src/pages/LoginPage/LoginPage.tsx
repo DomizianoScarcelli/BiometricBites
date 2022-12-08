@@ -17,7 +17,7 @@ function LoginPage() {
         if (loggedIn || (ReactSession.get("USER_EMAIL") && ReactSession.get("USER_ROLE"))) {
             return navigate('/');
         }
-    }, [loggedIn])
+    }, [loggedIn, navigate])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();

@@ -23,7 +23,7 @@ function DetailPage() {
         {
             navigate('/');
         }
-	}, [])
+	}, [navigate])
 	
 	return (
         <div className='background'>
