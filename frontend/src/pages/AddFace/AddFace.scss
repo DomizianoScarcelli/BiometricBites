@@ -23,3 +23,17 @@
 		}
 	}
 }
+
+.center {
+	display: grid;
+	place-content: center;
+}
+
+.centralContainer {
+	.buttons {
+		display: flex;
+		flex-direction: row;
+		gap: 5rem;
+		width: 60vw;
+	}
+}

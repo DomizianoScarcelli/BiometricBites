@@ -4,21 +4,6 @@
 	}
 }
 
-.centralContainer {
-	margin: auto;
-	display: flex;
-	flex-direction: column;
-	max-width: 50vw;
-	justify-content: center;
-	align-items: center;
-	gap: 5rem;
-	padding-top: 5rem;
-
-	p {
-		text-align: center;
-	}
-}
-
 .infoContainer {
 	display: flex;
 	flex-direction: row;
