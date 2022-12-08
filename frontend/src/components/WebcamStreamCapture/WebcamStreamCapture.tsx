@@ -1,11 +1,10 @@
-import React, { useCallback, useState, useRef } from "react"
+import React, { useCallback, useState, useRef, useEffect } from "react"
 import Webcam from "react-webcam"
 import Button from "../Button/Button"
+import { useCountdown } from "usehooks-ts"
 
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
-	startRecordingText: string
-	endRecordingText: string
 	downloadName?: string
 }
 /**
@@ -14,11 +13,19 @@ type WebcamStreamCaptureProps = {
  * @param param0
  * @returns
  */
-const WebcamStreamCapture = ({ style, startRecordingText, endRecordingText, downloadName }: WebcamStreamCaptureProps) => {
+const WebcamStreamCapture = ({ style, downloadName }: WebcamStreamCaptureProps) => {
 	const webcamRef = useRef<any>()
 	const mediaRecorderRef = useRef<MediaRecorder>()
 	const [capturing, setCapturing] = useState(false)
 	const [recordedChunks, setRecordedChunks] = useState([])
+	const [count, { startCountdown }] = useCountdown({
+		countStart: 10,
+		intervalMs: 1000,
+	})
+
+	useEffect(() => {
+		if (count === 0) handleStopCaptureClick()
+	}, [count])
 
 	const handleStartCaptureClick = useCallback(() => {
 		setCapturing(true)
@@ -27,6 +34,7 @@ const WebcamStreamCapture = ({ style, startRecordingText, endRecordingText, down
 		})
 		mediaRecorderRef.current.addEventListener("dataavailable", handleDataAvailable)
 		mediaRecorderRef.current.start(1)
+		startCountdown()
 	}, [webcamRef, setCapturing, mediaRecorderRef])
 
 	const handleDataAvailable = useCallback(
@@ -63,7 +71,7 @@ const WebcamStreamCapture = ({ style, startRecordingText, endRecordingText, down
 	return (
 		<>
 			<Webcam mirrored audio={false} ref={webcamRef} style={style} />
-			<Button text={capturing ? endRecordingText : startRecordingText} onClick={capturing ? handleStopCaptureClick : handleStartCaptureClick} shadow={true} />
+			<Button text={capturing ? count.toString() : "Start recording"} onClick={capturing ? () => {} : handleStartCaptureClick} shadow={true} />
 		</>
 	)
 }

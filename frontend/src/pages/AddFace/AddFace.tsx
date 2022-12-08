@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import Webcam from "react-webcam"
 import "./AddFace.scss"
 import Button from "../../components/Button/Button"
@@ -14,7 +14,11 @@ const webcamStyle: React.CSSProperties = {
 }
 
 function AddFace() {
-	return (
+	const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
+
+	return uploadCompleted ? (
+		<UploadCompleted />
+	) : (
 		<>
 			<div className="add_face-container background">
 				<BackButton link="/" />
@@ -30,12 +34,15 @@ function AddFace() {
 				</div>
 
 				<div className="add_face-container__right">
-					{/* <Webcam audio={false} screenshotFormat="image/jpeg" style={webcamStyle} /> */}
-					<WebcamStreamCapture startRecordingText="Start video capturing" endRecordingText="End video capturing" style={webcamStyle} />
+					<WebcamStreamCapture style={webcamStyle} />
 				</div>
 			</div>
 		</>
 	)
+}
+
+function UploadCompleted() {
+	return <div className="background"></div>
 }
 
 export default AddFace

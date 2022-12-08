@@ -9,6 +9,8 @@ import { LogoutButton, ProfileIconName } from "../../components"
 import Button from "../../components/Button/Button"
 import moment, { Moment } from "moment"
 
+import Admin from "../Admin/Admin"
+
 type AttendanceRowProps = {
 	date: Moment
 	paid: number
@@ -50,12 +52,7 @@ function Homepage() {
 				name={ReactSession.get("USER_EMAIL") !== undefined ? firstLetterUppercase(ReactSession.get("USER_NAME")) + " " + firstLetterUppercase(ReactSession.get("USER_SURNAME")) : ""}
 			/>
 			<LogoutButton />
-			{ReactSession.get("USER_ROLE") === "admin" ? (
-				// to implement
-				""
-			) : (
-				<div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList={attendanceList} /> : <UploadPhoto />}</div>
-			)}
+			{ReactSession.get("USER_ROLE") === "admin" ? <Admin /> : <div className="centralContainer">{userPhoto.length > 0 ? <Home attendanceList={attendanceList} /> : <UploadPhoto />}</div>}
 		</div>
 	)
 }
