@@ -19,6 +19,10 @@ function DetailPage() {
 		{
 			navigate('/login');
 		}
+        if (ReactSession.get("USER_ROLE") === "admin")
+        {
+            navigate('/');
+        }
 	}, [])
 	
 	return (

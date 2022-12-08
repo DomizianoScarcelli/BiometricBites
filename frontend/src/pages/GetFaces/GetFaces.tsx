@@ -34,9 +34,12 @@ function GetFaces() {
 		if (ReactSession.get("USER_EMAIL") === undefined)
 		{
 			navigate('/login');
-		} else {
-            refreshPhoto();
+		}
+        if (ReactSession.get("USER_ROLE") === "admin")
+        {
+            navigate('/');
         }
+        refreshPhoto();
 	}, [])
 	
 	return (

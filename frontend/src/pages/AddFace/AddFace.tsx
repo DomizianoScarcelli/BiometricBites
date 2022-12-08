@@ -1,4 +1,4 @@
-import React, { useState, createContext } from "react";
+import React, { useState, useEffect, createContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactSession } from 'react-client-session';
 import Webcam from "react-webcam";
@@ -18,7 +18,21 @@ const webcamStyle: React.CSSProperties = {
 const AddFaceContext = createContext({ uploadCompleted: false, setUploadCompleted: (value: boolean) => {} })
 
 function AddFace() {
-	const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
+	const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
+	const navigate = useNavigate();
+
+	useEffect (() => {
+        ReactSession.setStoreType("sessionStorage");
+		if (ReactSession.get("USER_EMAIL") === undefined)
+		{
+			navigate('/login');
+		}
+        if (ReactSession.get("USER_ROLE") === "admin")
+        {
+            navigate('/');
+        }
+	}, [])
+	
 
 	return (
 		<AddFaceContext.Provider value={{ uploadCompleted, setUploadCompleted }}>

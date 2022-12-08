@@ -23,9 +23,9 @@ type AttendanceList = {
 }
 
 function Homepage() {
-	const [userPhoto, setUserPhoto] = useState<string[]>([])
-	const [attendanceList, setAttendanceList] = useState<AttendanceList[]>([])
-	const navigate = useNavigate()
+	const [userPhoto, setUserPhoto] = useState<string[]>([]);
+	const [attendanceList, setAttendanceList] = useState<AttendanceList[]>([]);
+	const navigate = useNavigate();
 
 	const firstLetterUppercase = (str: string) => {
 		return str.charAt(0).toUpperCase() + str.slice(1)

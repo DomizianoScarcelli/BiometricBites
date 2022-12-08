@@ -18,7 +18,6 @@ const App = () => {
 				<Routes>
 					<Route path="/" element={<Layout />}>
 						<Route index element={<Homepage />} />
-						<Route path="admin" element={<Admin />} />
 						<Route path="add-face" element={<AddFace />} />
 						<Route path="get-faces" element={<GetFaces />} />
 						<Route path="login" element={<LoginPage />} />
