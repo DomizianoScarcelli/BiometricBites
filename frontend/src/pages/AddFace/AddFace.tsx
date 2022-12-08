@@ -1,11 +1,11 @@
-import React, { useState, createContext } from "react"
-import { useNavigate } from "react-router-dom"
-import images from "../../constants/images"
-import Webcam from "react-webcam"
-import "./AddFace.scss"
-import Button from "../../components/Button/Button"
-import WebcamStreamCapture from "../../components/WebcamStreamCapture/WebcamStreamCapture"
-import BackButton from "../../components/BackButton/BackButton"
+import React, { useState, createContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from 'react-client-session';
+import Webcam from "react-webcam";
+
+import "./AddFace.scss";
+import { BackButton, Button } from "../../components";
+import WebcamStreamCapture from "../../components/WebcamStreamCapture/WebcamStreamCapture";
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
