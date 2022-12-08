@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react"
-import WebcamStreamServer from "../../components/WebcamStreamServer/WebcamStreamServer"
-import "./Admin.scss"
-import images from "../../constants/images"
-import Button from "../../components/Button/Button"
-import Resolution from "../../types/Resolution"
+import React, { useEffect, useState } from "react";
+
+import "./Admin.scss";
+import { images, types } from "../../constants";
+import { Button, WebcamStreamServer } from "../../components";
 
 type Person = {
 	name: string
@@ -45,7 +44,7 @@ export default function Admin() {
 			<div className="admin-container__main">
 				<div className="admin-container__sections">
 					<div className="admin-container__left">
-						<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} resolution={Resolution.MEDIUM} />
+						<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} resolution={types.resolution.MEDIUM} />
 					</div>
 					<div className="admin-container__right">
 						<div className="student-details">

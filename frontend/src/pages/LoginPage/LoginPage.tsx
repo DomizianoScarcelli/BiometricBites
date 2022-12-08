@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { ReactSession } from 'react-client-session';
+import axios from "axios";
 
 import { Popup } from '../../components';
 import "./LoginPage.scss";

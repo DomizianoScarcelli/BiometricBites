@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { ReactSession } from "react-client-session"
-import axios from "axios"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
+import axios from "axios";
 
 import "./Homepage.scss";
-import images from "../../constants/images";
+import { images } from "../../constants";
 import { LogoutButton, ProfileIconName, Button } from "../../components";
+import { Admin } from "../../pages";
 import moment, { Moment } from "moment";
-
-import Admin from "../Admin/Admin"
 
 type AttendanceRowProps = {
 	date: Moment

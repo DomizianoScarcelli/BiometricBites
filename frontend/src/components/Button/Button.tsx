@@ -16,7 +16,7 @@ const Button = ({ text, img, shadow, onClick }: ButtonProps) => {
 				<p>
 					{/* Strange trick to use \n in the text props */}
 					{text.split("\n").map((str, index) => (
-						<p key={"row"+index}>{str}</p>
+						<span key={"row"+index}>{str}</span>
 					))}
 				</p>
 				{img ? <img alt={`${img}`} src={img}></img> : <></>}
