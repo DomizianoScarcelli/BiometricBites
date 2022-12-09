@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ReactSession } from "react-client-session";
-import axios from "axios";
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { ReactSession } from "react-client-session"
+import axios from "axios"
 
-import "./Homepage.scss";
-import { images } from "../../constants";
-import { LogoutButton, ProfileIconName, Button } from "../../components";
-import { Admin } from "../../pages";
-import moment, { Moment } from "moment";
+import "./Homepage.scss"
+import { images } from "../../constants"
+import { LogoutButton, ProfileIconName, Button } from "../../components"
+import { Admin } from "../../pages"
+import moment, { Moment } from "moment"
 
 type AttendanceRowProps = {
 	date: Moment
@@ -22,9 +22,9 @@ type AttendanceList = {
 }
 
 function Homepage() {
-	const [userPhoto, setUserPhoto] = useState<string[]>([]);
-	const [attendanceList, setAttendanceList] = useState<AttendanceList[]>([]);
-	const navigate = useNavigate();
+	const [userPhoto, setUserPhoto] = useState<string[]>([])
+	const [attendanceList, setAttendanceList] = useState<AttendanceList[]>([])
+	const navigate = useNavigate()
 
 	const firstLetterUppercase = (str: string) => {
 		return str.charAt(0).toUpperCase() + str.slice(1)
@@ -35,8 +35,8 @@ function Homepage() {
 		if (ReactSession.get("USER_EMAIL") === undefined) {
 			navigate("/login")
 		} else {
-				if (ReactSession.get("USER_ROLE") === "student") {
-					axios.get("http://localhost:8000/api/get_photo_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
+			if (ReactSession.get("USER_ROLE") === "student") {
+				axios.get("http://localhost:8000/api/get_photo_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
 					setUserPhoto(JSON.parse(response.data.data))
 				})
 				axios.get("http://localhost:8000/api/get_attendance_list", { params: { id: ReactSession.get("USER_ID") } }).then(function (response) {
@@ -64,7 +64,7 @@ function Home({ attendanceList, userPhoto }: { attendanceList: AttendanceList[];
 		<div className="infoContainer">
 			<div className="leftContainer">
 				<Button
-					text="Add another photo!"
+					text="Add other photos!"
 					img={images.selfie_emoji}
 					shadow={false}
 					onClick={() => {

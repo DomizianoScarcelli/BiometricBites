@@ -9,7 +9,7 @@
 		justify-content: flex-start;
 		gap: 1.5rem;
 		height: 40rem;
-		min-width: fit-content;
+		width: 40rem;
 	}
 	&__right {
 		display: flex;
@@ -34,6 +34,29 @@
 		display: flex;
 		flex-direction: row;
 		gap: 5rem;
-		width: 60vw;
+		width: 40vw;
 	}
+}
+
+.photos {
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+	justify-content: flex-start;
+	align-items: center;
+
+	img {
+		border-radius: 1rem;
+		height: 10vw;
+		width: auto;
+	}
+}
+
+.istruction {
+	margin-top: 2rem;
+	padding: 2rem 1rem 2rem 1rem;
+	font-size: 2rem;
+	background-color: var(--secondary-blue);
+	border-radius: 1rem;
+	color: var(--primary-color);
 }
