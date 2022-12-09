@@ -1,9 +1,9 @@
-import React, { useState, useEffect, createContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { ReactSession } from 'react-client-session';
+import React, { useState, useEffect, createContext } from "react"
+import { useNavigate } from "react-router-dom"
+import { ReactSession } from "react-client-session"
 
-import "./AddFace.scss";
-import { BackButton, Button, WebcamStreamCapture } from "../../components";
+import "./AddFace.scss"
+import { BackButton, Button, WebcamStreamCapture } from "../../components"
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
@@ -13,57 +13,51 @@ const webcamStyle: React.CSSProperties = {
 	borderRadius: "2rem",
 }
 
-const AddFaceContext = createContext({ uploadCompleted: false, setUploadCompleted: (value: boolean) => {} })
-
 function AddFace() {
-	const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
-	const navigate = useNavigate();
+	const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
+	const navigate = useNavigate()
 
-	useEffect (() => {
-        ReactSession.setStoreType("sessionStorage");
-		if (ReactSession.get("USER_EMAIL") === undefined)
-		{
-			navigate('/login');
+	useEffect(() => {
+		ReactSession.setStoreType("sessionStorage")
+		if (ReactSession.get("USER_EMAIL") === undefined) {
+			navigate("/login")
 		}
-        if (ReactSession.get("USER_ROLE") === "admin")
-        {
-            navigate('/');
-        }
+		if (ReactSession.get("USER_ROLE") === "admin") {
+			navigate("/")
+		}
 	}, [navigate])
-	
 
-	return (
-		<AddFaceContext.Provider value={{ uploadCompleted, setUploadCompleted }}>
-			{uploadCompleted ? (
-				<UploadCompleted setUploadCompleted={setUploadCompleted} />
-			) : (
-				<>
-					<div className="add_face-container background">
-						<BackButton link="/" />
-						<div className="add_face-container__left">
-							<p>
-								<b>Make sure that</b>
-							</p>
-							<p>The face is at the center of the frame</p>
-							<p>There are no objects or hair covering the face</p>
-							<p>The whole face is visible inside of the frame</p>
-							<p>The environment is well lit</p>
-							<p>The face is angled towards the camera</p>
-						</div>
+	return uploadCompleted ? (
+		<UploadCompleted setUploadCompleted={setUploadCompleted} />
+	) : (
+		<>
+			<div className="add_face-container background">
+				<BackButton link="/" />
+				<div className="add_face-container__left">
+					<p>
+						<b>Make sure that</b>
+					</p>
+					<p>The face is at the center of the frame</p>
+					<p>There are no objects or hair covering the face</p>
+					<p>The whole face is visible inside of the frame</p>
+					<p>The environment is well lit</p>
+					<p>The face is angled towards the camera</p>
+				</div>
 
-						<div className="add_face-container__right">
-							<WebcamStreamCapture style={webcamStyle} />
-						</div>
-					</div>
-				</>
-			)}
-		</AddFaceContext.Provider>
+				<div className="add_face-container__right">
+					<WebcamStreamCapture style={webcamStyle} />
+				</div>
+			</div>
+		</>
 	)
 }
 
-function UploadCompleted({ setUploadCompleted }: { setUploadCompleted: (value: boolean) => void }) {
-	const navigate = useNavigate()
+type UploadedCompletedProps = {
+	setUploadCompleted: (value: boolean) => void
+}
 
+const UploadCompleted = ({ setUploadCompleted }: UploadedCompletedProps) => {
+	const navigate = useNavigate()
 	return (
 		<>
 			<div className="background center">
@@ -92,5 +86,4 @@ function UploadCompleted({ setUploadCompleted }: { setUploadCompleted: (value: b
 	)
 }
 
-export { AddFaceContext }
 export default AddFace
