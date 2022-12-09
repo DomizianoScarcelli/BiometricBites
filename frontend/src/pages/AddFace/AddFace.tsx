@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { ReactSession } from "react-client-session"
+import Webcam from "react-webcam"
 
 import "./AddFace.scss"
-import { BackButton, Button, WebcamStreamCapture } from "../../components"
+import { BackButton, Button } from "../../components"
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
@@ -14,8 +15,34 @@ const webcamStyle: React.CSSProperties = {
 }
 
 function AddFace() {
-	const [uploadCompleted, setUploadCompleted] = useState<boolean>(false)
 	const navigate = useNavigate()
+	const webcamRef = useRef<any>()
+	const [photoList, setPhotoList] = useState<Array<string>>([])
+	const [instruction, setInstruction] = useState<string>("")
+
+	const takePhoto = () => {
+		const screenshot: string = webcamRef.current.getScreenshot()
+		setPhotoList([...photoList, screenshot])
+		console.log(photoList)
+	}
+
+	useEffect(() => {
+		const decideIstruction = (): string => {
+			switch (photoList.length) {
+				case 0:
+					return "Take a photo of your face in your neutral expression!"
+				case 1:
+					return "Take a photo of your face while smiling!"
+				case 2:
+					return "Take a photo on one of your profiles!"
+				case 3:
+					return "Take a photo on the opposite profile!"
+				default:
+					return ""
+			}
+		}
+		setInstruction(decideIstruction)
+	}, [photoList.length])
 
 	useEffect(() => {
 		ReactSession.setStoreType("sessionStorage")
@@ -27,8 +54,8 @@ function AddFace() {
 		}
 	}, [navigate])
 
-	return uploadCompleted ? (
-		<UploadCompleted setUploadCompleted={setUploadCompleted} />
+	return photoList.length === 4 ? (
+		<ConfirmUpload photoList={photoList} setPhotoList={setPhotoList} />
 	) : (
 		<>
 			<div className="add_face-container background">
@@ -41,22 +68,75 @@ function AddFace() {
 					<p>There are no objects or hair covering the face</p>
 					<p>The whole face is visible inside of the frame</p>
 					<p>The environment is well lit</p>
-					<p>The face is angled towards the camera</p>
+					<p className="istruction">{instruction}</p>
+					<div className="photos">
+						{photoList.map((photo, index) => (
+							<img key={index} src={photo} alt="Face" />
+						))}
+					</div>
 				</div>
 
 				<div className="add_face-container__right">
-					<WebcamStreamCapture style={webcamStyle} setUploadCompleted={setUploadCompleted} />
+					<>
+						<Webcam mirrored audio={false} ref={webcamRef} style={webcamStyle} />
+						<Button text={"Take photo"} onClick={takePhoto} shadow={true} />
+					</>
 				</div>
 			</div>
 		</>
 	)
 }
 
-type UploadedCompletedProps = {
-	setUploadCompleted: (value: boolean) => void
+type ConfirmUploadProps = {
+	photoList: Array<string>
+	setPhotoList: (value: Array<string>) => void
 }
 
-const UploadCompleted = ({ setUploadCompleted }: UploadedCompletedProps) => {
+const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
+	const [uploadComplete, setUploadComplete] = useState<boolean>(false)
+
+	const handleUploadPhoto = () => {
+		//Make the api request to upload the photos
+		setUploadComplete(true)
+		setPhotoList([])
+	}
+
+	return uploadComplete ? (
+		<UploadCompleted setUploadComplete={setUploadComplete} />
+	) : (
+		<>
+			<div className="background center">
+				<div className="centralContainer">
+					<p>These are your photos</p>
+					<div className="photos">
+						{photoList.map((photo, index) => (
+							<img key={index} src={photo} alt="Face" />
+						))}
+					</div>
+					<p>Want to upload them?</p>
+					<div className="buttons">
+						<Button
+							text={`Retake photos`}
+							shadow={true}
+							onClick={() => {
+								setPhotoList([])
+							}}
+						/>
+						<Button
+							text={`Upload photos`}
+							shadow={true}
+							onClick={() => {
+								handleUploadPhoto()
+							}}
+						/>
+					</div>
+				</div>
+			</div>
+		</>
+	)
+}
+
+const UploadCompleted = ({ setUploadComplete }: { setUploadComplete: (value: boolean) => void }) => {
 	const navigate = useNavigate()
 	return (
 		<>
@@ -75,7 +155,7 @@ const UploadCompleted = ({ setUploadCompleted }: UploadedCompletedProps) => {
 							text={`Upload another video!`}
 							shadow={true}
 							onClick={() => {
-								setUploadCompleted(false)
+								setUploadComplete(false)
 								navigate("/add-face")
 							}}
 						/>
