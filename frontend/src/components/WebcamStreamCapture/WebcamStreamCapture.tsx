@@ -2,11 +2,11 @@ import React, { useCallback, useState, useRef, useEffect, useContext } from "rea
 import Webcam from "react-webcam"
 import Button from "../Button/Button"
 import { useCountdown } from "usehooks-ts"
-import { AddFaceContext } from "../../pages/AddFace/AddFace"
 
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
 	downloadName?: string
+	setUploadCompleted: (value: boolean) => void
 }
 /**
  * Webcam components that handles the video recording
@@ -14,7 +14,7 @@ type WebcamStreamCaptureProps = {
  * @param param0
  * @returns
  */
-const WebcamStreamCapture = ({ style, downloadName }: WebcamStreamCaptureProps) => {
+const WebcamStreamCapture = ({ style, downloadName, setUploadCompleted }: WebcamStreamCaptureProps) => {
 	const webcamRef = useRef<any>()
 	const mediaRecorderRef = useRef<MediaRecorder>()
 	const [capturing, setCapturing] = useState(false)
@@ -23,7 +23,6 @@ const WebcamStreamCapture = ({ style, downloadName }: WebcamStreamCaptureProps) 
 		countStart: 10,
 		intervalMs: 1000,
 	})
-	const { uploadCompleted, setUploadCompleted } = useContext(AddFaceContext)
 
 	useEffect(() => {
 		if (count === 0) handleStopCaptureClick()

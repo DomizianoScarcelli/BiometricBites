@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { ReactSession } from "react-client-session"
 
@@ -45,7 +45,7 @@ function AddFace() {
 				</div>
 
 				<div className="add_face-container__right">
-					<WebcamStreamCapture style={webcamStyle} />
+					<WebcamStreamCapture style={webcamStyle} setUploadCompleted={setUploadCompleted} />
 				</div>
 			</div>
 		</>
