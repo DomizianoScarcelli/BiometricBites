@@ -227,12 +227,15 @@ def upload_photo_enrollment(request, *args, **kargs):
     Takes the list of photos that the user made in order to enroll himself and trains the model.
     """
     if request.method == "POST":
-        req_data = json.loads(request.POST.get("photoList"))
+        req_data = request.POST
         if req_data is None:
             return JsonResponse({"message": "Photo data not specified in the request in the field 'data'."}, status=400)
-        for index, img in enumerate(req_data):
+
+        photo_list = json.loads(req_data.get("photoList"))
+        id = request.POST.get("id")
+        for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
-            # TODO: do training with the image here
-            cv2.imwrite(f"image_{index}.jpeg", opencv_img) #TODO: remove this line since it's just for testing
+            #TODO: you can process the image here, or in another moment by accessing the samples/id folder
+            cv2.imwrite(f"{settings.SAMPLES_ROOT}/{id}/image_{index}.jpeg", opencv_img) 
         return JsonResponse({"message": "Photo uploaded correctly"}, status=200)
         

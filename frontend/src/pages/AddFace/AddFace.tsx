@@ -101,6 +101,7 @@ const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
 		//Make the api request to upload the photos
 		let formData = new FormData()
 		formData.append("photoList", JSON.stringify(photoList))
+		formData.append("id", ReactSession.get("USER_ID"))
 		await axios.post("http://localhost:8000/api/upload_photo_enrollment", formData)
 		setUploadComplete(true)
 	}
