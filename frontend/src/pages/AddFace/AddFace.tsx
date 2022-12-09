@@ -156,7 +156,7 @@ const UploadCompleted = ({ setUploadComplete }: { setUploadComplete: (value: boo
 							}}
 						/>
 						<Button
-							text={`Upload another video!`}
+							text={`Upload other photos!`}
 							shadow={true}
 							onClick={() => {
 								setUploadComplete(false)
