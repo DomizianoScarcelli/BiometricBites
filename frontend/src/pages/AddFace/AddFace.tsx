@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { ReactSession } from "react-client-session"
 import Webcam from "react-webcam"
 
 import "./AddFace.scss"
 import { BackButton, Button } from "../../components"
+
+import axios from "axios"
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
@@ -19,12 +21,6 @@ function AddFace() {
 	const webcamRef = useRef<any>()
 	const [photoList, setPhotoList] = useState<Array<string>>([])
 	const [instruction, setInstruction] = useState<string>("")
-
-	const takePhoto = () => {
-		const screenshot: string = webcamRef.current.getScreenshot()
-		setPhotoList([...photoList, screenshot])
-		console.log(photoList)
-	}
 
 	useEffect(() => {
 		const decideIstruction = (): string => {
@@ -43,6 +39,12 @@ function AddFace() {
 		}
 		setInstruction(decideIstruction)
 	}, [photoList.length])
+
+	const takePhoto = () => {
+		const screenshot: string = webcamRef.current.getScreenshot()
+		setPhotoList([...photoList, screenshot])
+		console.log(photoList)
+	}
 
 	useEffect(() => {
 		ReactSession.setStoreType("sessionStorage")
@@ -78,7 +80,7 @@ function AddFace() {
 
 				<div className="add_face-container__right">
 					<>
-						<Webcam mirrored audio={false} ref={webcamRef} style={webcamStyle} />
+						<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={webcamStyle} />
 						<Button text={"Take photo"} onClick={takePhoto} shadow={true} />
 					</>
 				</div>
@@ -95,10 +97,12 @@ type ConfirmUploadProps = {
 const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
 	const [uploadComplete, setUploadComplete] = useState<boolean>(false)
 
-	const handleUploadPhoto = () => {
+	const handleUploadPhoto = async () => {
 		//Make the api request to upload the photos
+		let formData = new FormData()
+		formData.append("photoList", JSON.stringify(photoList))
+		await axios.post("http://localhost:8000/api/upload_photo_enrollment", formData)
 		setUploadComplete(true)
-		setPhotoList([])
 	}
 
 	return uploadComplete ? (
@@ -113,7 +117,7 @@ const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
 							<img key={index} src={photo} alt="Face" />
 						))}
 					</div>
-					<p>Want to upload them?</p>
+					<p>Do you want to upload them?</p>
 					<div className="buttons">
 						<Button
 							text={`Retake photos`}

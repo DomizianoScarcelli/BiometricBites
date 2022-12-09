@@ -7,6 +7,8 @@ from .utils.isee_to_cost_calculator import cost_calculator
 import imghdr
 import json
 import os
+from .utils.encoding.encoding import b64str_to_opencvimg
+import cv2
 
 def api(request, *args, **kwargs):
     return JsonResponse({'message': 'Test Api'})
@@ -217,3 +219,20 @@ def delete_photo(request, *args, **kargs):
         else:
             return JsonResponse({"message": "The photo which has to be deleted, doesn't exist."}, status=404)
     return JsonResponse({"message": "Request not valid."}, status=400)
+
+
+@csrf_exempt 
+def upload_photo_enrollment(request, *args, **kargs):
+    """
+    Takes the list of photos that the user made in order to enroll himself and trains the model.
+    """
+    if request.method == "POST":
+        req_data = json.loads(request.POST.get("photoList"))
+        if req_data is None:
+            return JsonResponse({"message": "Photo data not specified in the request in the field 'data'."}, status=400)
+        for index, img in enumerate(req_data):
+            opencv_img = b64str_to_opencvimg(img)
+            # TODO: do training with the image here
+            cv2.imwrite(f"image_{index}.jpeg", opencv_img) #TODO: remove this line since it's just for testing
+        return JsonResponse({"message": "Photo uploaded correctly"}, status=200)
+        
