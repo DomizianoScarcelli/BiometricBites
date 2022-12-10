@@ -20,18 +20,8 @@ with open(BASE_DIR + "/Train/pickles/face-labels.pickle", "rb") as f:
     og_labels = pickle.load(f) 
     labels = {v:k for k,v in og_labels.items()} # Inverting key with value
 
-print("Inizio riconoscimento...")
-
-# Video parameters
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-cap.set(3, 640) # Set video width
-cap.set(4, 480) # Set video height
-
-while(True):
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-
-	# Turn captured frame into gray scale
+def recognize(frame: str):
+    # Turn captured frame into gray scale
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 	# Face recognition
@@ -64,14 +54,4 @@ while(True):
         end_cord_x = x + w
         end_cord_y = y + h
         cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
-
-    # Display the resulting frame
-    cv2.imshow('frame',frame)
-
-    # Exit if..
-    if cv2.waitKey(1) & 0xFF == 27: # ...'ESC' pressed
-        break
-
-# When everything done, release the capture
-cap.release()
-cv2.destroyAllWindows()
+    return frame
