@@ -26,7 +26,4 @@ def get_user_info(user_id):
         output_data["SURNAME"] = ret[2]
         output_data["CF"] = ret[3]
         output_data["COST"] = cost_calculator.cost_calculator(ret[4])
-        print(output_data)
         return output_data
-
-get_user_info(11)
