@@ -8,6 +8,7 @@ from keras_vggface import utils
 from keras.models import load_model
 
 # returns a compiled model identical to the previous one
+# TODO: aggiusta percorsi assoluti
 model = load_model(
     "/Users/dov/Library/Mobile Documents/com~apple~CloudDocs/dovsync/Documenti Universita/Biometric Systems/Project/Repos.nosync/BS-Project/backend/api/utils/Train/recognizers/transfer_learning_trained_face_cnn_model.h5")
 
@@ -20,26 +21,27 @@ BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 face_label_filename = BASE_DIR + '/Train/pickles/' + 'face-labels.pickle'
 with open(face_label_filename, "rb") as f: 
     class_dictionary = pickle.load(f)
-
 class_list = [value for _, value in class_dictionary.items()]
-print(class_list)
-
-
-# Video parameters
-cap = cv2.VideoCapture(0)
 
 facecascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
 
-while(True):
-    # Capture frame-by-frame
-    ret, frame = cap.read()
+def detect_faces(frame):
+    gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = facecascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+    for (x_, y_, w, h) in faces:
+        # draw the face detected
+        cv2.rectangle(frame, (x_, y_), (x_+w, y_+h), (255, 0, 0), 2)
+    return frame
+
+
+def recognize(frame):
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = facecascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
     image_array = np.array(frame, "uint8")
 
     for (x_, y_, w, h) in faces:
         # draw the face detected
-        face_detect = cv2.rectangle(frame, (x_, y_), (x_+w, y_+h), (255, 0, 255), 2)
+        cv2.rectangle(frame, (x_, y_), (x_+w, y_+h), (255, 0, 0), 2)
 
         # resize the detected face to 224x224
         size = (image_width, image_height)
@@ -61,16 +63,21 @@ while(True):
         color = (255, 255, 255)
         stroke = 2
         cv2.putText(frame, predicted_label, (x_,y_), font, 1, color, stroke, cv2.LINE_AA)
+    return frame
 
 
-    # Display the resulting frame
-    cv2.imshow('frame', frame)
-
-    # Exit if..
-    if cv2.waitKey(1) & 0xFF == 27: # ...'ESC' pressed
-        break
-
-# When everything done, release the capture
-cap.release()
-cv2.destroyAllWindows()
+# Video parameters
+# cap = cv2.VideoCapture(0)
+# while(True):
+#     # Capture frame-by-frame
+#     ret, frame = cap.read()
+#     frame = recognize(frame)
+#     # Display the resulting frame
+#     cv2.imshow('frame', frame)
+#     # Exit if..
+#     if cv2.waitKey(1) & 0xFF == 27: # ...'ESC' pressed
+#         break
+# # When everything done, release the capture
+# cap.release()
+# cv2.destroyAllWindows()
 

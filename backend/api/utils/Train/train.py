@@ -7,6 +7,7 @@ import numpy as np
 
 # from bsproject import settings
 
+# TODO: aggiusta percorsi assoluti
 BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 image_dir = "/Users/dov/Library/Mobile Documents/com~apple~CloudDocs/dovsync/Documenti Universita/Biometric Systems/Project/Repos.nosync/BS-Project/backend/samples"
 
