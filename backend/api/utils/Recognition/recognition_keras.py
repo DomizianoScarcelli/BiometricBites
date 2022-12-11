@@ -54,9 +54,13 @@ while(True):
         # making prediction
         predicted_prob = model.predict(x)
         print(predicted_prob)
-        print(predicted_prob[0].argmax())
-        print("Predicted face: " + class_list[predicted_prob[0].argmax()])
+        predicted_label = class_list[predicted_prob[0].argmax()]
+        print("Predicted face: " + predicted_label)
         print("============================\n")
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        color = (255, 255, 255)
+        stroke = 2
+        cv2.putText(frame, predicted_label, (x_,y_), font, 1, color, stroke, cv2.LINE_AA)
 
 
     # Display the resulting frame
