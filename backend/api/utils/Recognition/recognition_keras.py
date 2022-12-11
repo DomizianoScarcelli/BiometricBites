@@ -3,7 +3,6 @@ import os
 import cv2
 import pickle
 from keras_preprocessing.image import img_to_array
-from keras_vggface.vggface import VGGFace
 from keras_vggface import utils
 from keras.models import load_model
 
@@ -54,11 +53,14 @@ def recognize(frame):
         x = utils.preprocess_input(x, version=1)
 
         # making prediction
+        #TODO: now the threshold isn't considered, meaning the prediction is always made even if the probability is too low. 
         predicted_prob = model.predict(x)
         print(predicted_prob)
         predicted_label = class_list[predicted_prob[0].argmax()]
         print("Predicted face: " + predicted_label)
         print("============================\n")
+
+        # draw the predicted label
         font = cv2.FONT_HERSHEY_SIMPLEX
         color = (255, 255, 255)
         stroke = 2
