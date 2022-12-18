@@ -8,8 +8,12 @@ import imghdr
 import json
 import os
 from .utils.encoding.encoding import b64str_to_opencvimg
-from .utils.Capture.capture import capture
 import cv2
+
+from .utils.Capture.applyFilters import applyFilters
+from .utils.Train.trainLBPHF import trainLBPHF
+from .utils.Train.trainSVC import trainSVC
+
 
 def api(request, *args, **kwargs):
     return JsonResponse({'message': 'Test Api'})
@@ -234,13 +238,21 @@ def upload_photo_enrollment(request, *args, **kargs):
 
         photo_list = json.loads(req_data.get("photoList"))
         id = request.POST.get("id")
-        os.makedirs(f"{settings.SAMPLES_ROOT}/{id}", exist_ok=True)
+        image_dir = f"{settings.SAMPLES_ROOT}/{id}"
+        os.makedirs(image_dir, exist_ok=True)
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
+
             #TODO: you can process the image here, or in another moment by accessing the samples/id folder
+
             # apply filters
-            frames = capture(opencv_img)
+            frames = applyFilters(opencv_img)
             for i, frame in enumerate(frames):
                 cv2.imwrite(f"{settings.SAMPLES_ROOT}/{id}/image_{index}.{i}.jpeg", frame)
+
+        #recognize faces and train
+        trainLBPHF(image_dir)
+        trainSVC(image_dir)
+
         return JsonResponse({"message": "Photo uploaded correctly"}, status=200)
         
