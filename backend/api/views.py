@@ -238,8 +238,7 @@ def upload_photo_enrollment(request, *args, **kargs):
 
         photo_list = json.loads(req_data.get("photoList"))
         id = request.POST.get("id")
-        image_dir = f"{settings.SAMPLES_ROOT}/{id}"
-        os.makedirs(image_dir, exist_ok=True)
+        os.makedirs(f"{settings.SAMPLES_ROOT}/{id}", exist_ok=True)
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
 
@@ -251,6 +250,7 @@ def upload_photo_enrollment(request, *args, **kargs):
                 cv2.imwrite(f"{settings.SAMPLES_ROOT}/{id}/image_{index}.{i}.jpeg", frame)
 
         #recognize faces and train
+        image_dir = f"{settings.SAMPLES_ROOT}"
         trainLBPHF(image_dir)
         trainSVC(image_dir)
 

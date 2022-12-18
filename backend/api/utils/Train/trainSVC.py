@@ -36,7 +36,7 @@ def trainSVC(image_dir):
     print("Stiamo generando il tuo file di encodings..")
     data = {"encodings": knownEncodings, "names": knownNames}
 
-    f = open(BASE_DIR + "/Train/recognizers/face_encodings", "wb")
+    f = open(BASE_DIR + "/Train/recognizers/face_encodings.pickle", "wb")
     f.write(pickle.dumps(data))
     f.close()
 

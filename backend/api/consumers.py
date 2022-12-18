@@ -4,8 +4,8 @@ from asgiref.sync import async_to_sync
 import cv2
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
 
-from .utils.Recognition.recognitionLBPHF import recognize
-# from .utils.Recognition.recognitionSVC import recognize
+# from .utils.Recognition.recognitionLBPHF import recognize
+from .utils.Recognition.recognitionSVC import recognize
 
 class FrameConsumer(WebsocketConsumer):
     def connect(self):
