@@ -233,6 +233,7 @@ def upload_photo_enrollment(request, *args, **kargs):
 
         photo_list = json.loads(req_data.get("photoList"))
         id = request.POST.get("id")
+        os.makedirs(f"{settings.SAMPLES_ROOT}/{id}", exist_ok=True)
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
             #TODO: you can process the image here, or in another moment by accessing the samples/id folder
