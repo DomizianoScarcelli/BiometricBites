@@ -8,6 +8,7 @@ import imghdr
 import json
 import os
 from .utils.encoding.encoding import b64str_to_opencvimg
+from .utils.Capture.capture import capture
 import cv2
 
 def api(request, *args, **kwargs):
@@ -237,6 +238,9 @@ def upload_photo_enrollment(request, *args, **kargs):
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
             #TODO: you can process the image here, or in another moment by accessing the samples/id folder
-            cv2.imwrite(f"{settings.SAMPLES_ROOT}/{id}/image_{index}.jpeg", opencv_img) 
+            # apply filters
+            frames = capture(opencv_img)
+            for i, frame in enumerate(frames):
+                cv2.imwrite(f"{settings.SAMPLES_ROOT}/{id}/image_{index}.{i}.jpeg", frame)
         return JsonResponse({"message": "Photo uploaded correctly"}, status=200)
         
