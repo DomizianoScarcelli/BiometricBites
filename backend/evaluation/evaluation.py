@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, roc_curve
 from scipy.spatial import distance
 from evaluation import Gallery
 
@@ -28,6 +29,7 @@ def compute_similarities(template_list):
         all_similarities.append(row_similarities)
     return genuine_claims, impostor_claims, all_similarities
 
+#OpenSet Identification Multiple Template
 def open_set_identification_eval(template_list, threshold):
     genuine_claims, impostor_claims, all_similarities = compute_similarities(template_list)
     DI = [0 for _ in range(template_list)] #Detection and Identification
@@ -70,3 +72,28 @@ def open_set_identification_eval(template_list, threshold):
             DIR[k] = DI[k] / genuine_claims + DIR[k-1]
         return DIR, FRR, FAR, GRR
 
+#Verification Single Template
+def verification_eval(template_list, threshold):
+    genuine_claims, impostor_claims, all_similarities = compute_similarities(template_list)
+    GA = GR = FA = FR = 0
+    for template_i, i in enumerate(0, len(template_list)): #for every row (probe)
+        cur_probe = template_i
+        for template_j, j in enumerate(1, len(template_list)): #for every column (template)
+            cur_template = template_j
+            if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
+                cur_similarity = all_similarities[i][j]
+                if cur_similarity >= threshold: #If the templates are similar enough
+                    if cur_probe == cur_template: #the identity!! (to change)
+                        GA += 1
+                    else:
+                        FA += 1
+                else:
+                    if cur_probe == cur_template:
+                        FR += 1
+                    else:
+                        GR += 1
+    GAR = GA / genuine_claims
+    GRR = GR / impostor_claims
+    FAR = FA / impostor_claims
+    FRR = FR / genuine_claims
+    return GA, GR, FA, FR
