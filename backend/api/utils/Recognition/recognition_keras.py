@@ -6,10 +6,9 @@ from keras_preprocessing.image import img_to_array
 from keras_vggface import utils
 from keras.models import load_model
 
-# returns a compiled model identical to the previous one
-# TODO: aggiusta percorsi assoluti
-model = load_model(
-    "/Users/dov/Library/Mobile Documents/com~apple~CloudDocs/dovsync/Documenti Universita/Biometric Systems/Project/Repos.nosync/BS-Project/backend/api/utils/Train/recognizers/transfer_learning_trained_face_cnn_model.h5")
+from bsproject.settings import MODELS_ROOT, LABELS_ROOT
+
+model = load_model(os.path.join(MODELS_ROOT, 'transfer_learning_trained_face_cnn_model.h5'))
 
 # dimension of images
 image_width = 224
@@ -17,12 +16,13 @@ image_height = 224
 BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
 
 # load the training labels
-face_label_filename = BASE_DIR + '/Train/pickles/' + 'face-labels.pickle'
+face_label_filename =os.path.join(LABELS_ROOT, "face-labels.pickle")
+
 with open(face_label_filename, "rb") as f: 
     class_dictionary = pickle.load(f)
 class_list = [value for _, value in class_dictionary.items()]
 
-facecascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
+facecascade = cv2.CascadeClassifier(cv2.data.haarcascades + '/haarcascade_frontalface_default.xml')
 
 def detect_faces(frame):
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -66,20 +66,4 @@ def recognize(frame):
         stroke = 2
         cv2.putText(frame, predicted_label, (x_,y_), font, 1, color, stroke, cv2.LINE_AA)
     return frame
-
-
-# Video parameters
-# cap = cv2.VideoCapture(0)
-# while(True):
-#     # Capture frame-by-frame
-#     ret, frame = cap.read()
-#     frame = recognize(frame)
-#     # Display the resulting frame
-#     cv2.imshow('frame', frame)
-#     # Exit if..
-#     if cv2.waitKey(1) & 0xFF == 27: # ...'ESC' pressed
-#         break
-# # When everything done, release the capture
-# cap.release()
-# cv2.destroyAllWindows()
 

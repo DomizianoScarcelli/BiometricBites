@@ -236,6 +236,8 @@ def upload_photo_enrollment(request, *args, **kargs):
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
             #TODO: you can process the image here, or in another moment by accessing the samples/id folder
-            cv2.imwrite(f"{settings.SAMPLES_ROOT}/{id}/image_{index}.jpeg", opencv_img) 
+            img_path = os.path.join(settings.SAMPLES_ROOT, id)
+            os.makedirs(img_path, exist_ok=True)
+            cv2.imwrite(os.path.join(img_path, f"image_{index}.jpeg"), opencv_img) 
         return JsonResponse({"message": "Photo uploaded correctly"}, status=200)
         

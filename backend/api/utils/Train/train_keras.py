@@ -1,7 +1,4 @@
 import os
-import pandas as pd
-import numpy as np
-import keras
 import pickle
 import matplotlib.pyplot as plt
 
@@ -12,14 +9,13 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
 from keras.optimizers import Adam
 from keras_vggface.vggface import VGGFace
-from keras.models import load_model
+
+from bsproject.settings import MODELS_ROOT, LABELS_ROOT, SAMPLES_ROOT
 
 train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
-BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
-
 train_generator = train_datagen.flow_from_directory(
-    '/Users/dov/Library/Mobile Documents/com~apple~CloudDocs/dovsync/Documenti Universita/Biometric Systems/Project/Repos.nosync/BS-Project/backend/samples',
+    SAMPLES_ROOT,
     target_size=(224,224),
     color_mode='rgb',
     batch_size=32,
@@ -66,17 +62,14 @@ model.fit(train_generator,
 
 
 # creates a HDF5 file
-model.save(
-    BASE_DIR + "/Train/recognizers/"+
-    'transfer_learning_trained' +
-    '_face_cnn_model.h5')
+model.save(os.path.join(MODELS_ROOT, 'transfer_learning_trained_face_cnn_model.h5'))
 
 class_dictionary = train_generator.class_indices
 class_dictionary = {
     value:key for key, value in class_dictionary.items()
 }
 # save the class dictionary to pickle
-face_label_filename = BASE_DIR + '/Train/pickles/' + 'face-labels.pickle'
+face_label_filename = os.path.join(LABELS_ROOT, 'face-labels.pickle')
 if os.path.exists(face_label_filename):
     os.remove(face_label_filename)
 with open(face_label_filename, 'wb') as f: 

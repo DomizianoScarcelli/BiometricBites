@@ -1,10 +1,9 @@
 import cv2
 import os
-import pickle
 import numpy as np
 from PIL import Image
 
-import matplotlib.pyplot as plt
+from bsproject.settings import SAMPLES_ROOT
 
 image_width = 224
 image_height = 224
@@ -12,14 +11,11 @@ image_height = 224
 # for detecting faces
 facecascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# set the directory containing the images
-images_dir = "/Users/dov/Library/Mobile Documents/com~apple~CloudDocs/dovsync/Documenti Universita/Biometric Systems/Project/Repos.nosync/BS-Project/backend/samples"
-
 current_id = 0
 label_ids = {}
 
 # iterates through all the files in each subdirectories
-for root, _, files in os.walk(images_dir):
+for root, _, files in os.walk(SAMPLES_ROOT):
     for file in files:
         # path of the image
         path = os.path.join(root, file)

@@ -103,6 +103,11 @@ DATABASES = {
 SAMPLES_ROOT =  os.path.join(BASE_DIR, 'samples')
 SAMPLES_URL = '/samples/'
 
+# Model dolfer
+MODELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "Train", "recognizers")
+LABELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "Train", "pickles")  
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
