@@ -10,6 +10,13 @@ import os
 from .utils.encoding.encoding import b64str_to_opencvimg
 import cv2
 
+from .utils.Recognition.vggface.train import train_model
+from .utils.Recognition.vggface.preprocessing import preprocess_images
+
+from .utils.http.ResponseThen import ResponseThen
+
+
+
 def api(request, *args, **kwargs):
     return JsonResponse({'message': 'Test Api'})
 
@@ -230,14 +237,20 @@ def upload_photo_enrollment(request, *args, **kargs):
         req_data = request.POST
         if req_data is None:
             return JsonResponse({"message": "Photo data not specified in the request in the field 'data'."}, status=400)
-
         photo_list = json.loads(req_data.get("photoList"))
         id = request.POST.get("id")
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
-            #TODO: you can process the image here, or in another moment by accessing the samples/id folder
             img_path = os.path.join(settings.SAMPLES_ROOT, id)
             os.makedirs(img_path, exist_ok=True)
-            cv2.imwrite(os.path.join(img_path, f"image_{index}.jpeg"), opencv_img) 
-        return JsonResponse({"message": "Photo uploaded correctly"}, status=200)
+            cv2.imwrite(os.path.join(img_path, f"image_{index}.jpeg"), opencv_img)
+
+        # TODO: In the future, here it's possible to export this function in another file in order to 
+        # make it work with different face recognition models.
+        def train_pipeline():
+            preprocess_images()
+            train_model()
+
+        json_response = JsonResponse({"message": "Photo uploaded correctly"}, status=200)
+        return ResponseThen(json_response, train_pipeline)
         
