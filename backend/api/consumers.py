@@ -3,7 +3,7 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import cv2
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
-from .utils.Recognition.recognition_keras import recognize, detect_faces
+from .utils.Recognition.vggface.recognition import recognize, detect_faces
 
 class FrameConsumer(WebsocketConsumer):
     def connect(self):

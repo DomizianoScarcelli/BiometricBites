@@ -1,13 +1,10 @@
 import os
 import pickle
-import matplotlib.pyplot as plt
 
 from keras.layers import Dense, GlobalAveragePooling2D
-from keras.preprocessing import image
 from keras.applications.mobilenet import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
-from keras.optimizers import Adam
 from keras_vggface.vggface import VGGFace
 
 from bsproject.settings import MODELS_ROOT, LABELS_ROOT, SAMPLES_ROOT
