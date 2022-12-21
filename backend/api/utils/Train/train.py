@@ -5,8 +5,11 @@ import pickle
 from PIL import Image
 import numpy as np
 
+# from bsproject import settings
+
+# TODO: aggiusta percorsi assoluti
 BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
-image_dir = BASE_DIR + "/Capture/images"
+image_dir = "/Users/dov/Library/Mobile Documents/com~apple~CloudDocs/dovsync/Documenti Universita/Biometric Systems/Project/Repos.nosync/BS-Project/backend/samples"
 
 # Classifier
 face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
@@ -20,7 +23,6 @@ y_lables = [] # Number related to labels
 x_train = [] # Numbers of the pixel values
 
 print("Inizio training...")
-
 # For each file in the image directory
 for root, dirs, files in os.walk(image_dir):
     for file in files:
@@ -57,11 +59,20 @@ for root, dirs, files in os.walk(image_dir):
             y_lables.append(id_)
 
 # Save labels into file
+if os.path.exists(BASE_DIR + "/Train/pickles/face-labels.pickle"):
+    os.remove(BASE_DIR + "/Train/pickles/face-labels.pickle")
 with open(BASE_DIR + "/Train/pickles/face-labels.pickle", "wb") as f:
     pickle.dump(label_ids, f)
 
 # Train items
+TRAIN_DIR = BASE_DIR + "/Train/recognizers/face-trainner.yml"
+# if os.path.exists(TRAIN_DIR):
+#     recognizer.read(TRAIN_DIR)
+#     recognizer.update(x_train, np.array(y_lables))
+# else:
+if os.path.exists(TRAIN_DIR):
+    os.remove(TRAIN_DIR)
 recognizer.train(x_train, np.array(y_lables))
-recognizer.save(BASE_DIR + "/Train/recognizers/face-trainner.yml")
+recognizer.write(TRAIN_DIR)
 
 print("Fine training")
