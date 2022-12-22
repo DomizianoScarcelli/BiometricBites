@@ -239,6 +239,7 @@ def upload_photo_enrollment(request, *args, **kargs):
             return JsonResponse({"message": "Photo data not specified in the request in the field 'data'."}, status=400)
         photo_list = json.loads(req_data.get("photoList"))
         id = request.POST.get("id")
+        os.makedirs(f"{settings.SAMPLES_ROOT}/{id}", exist_ok=True)
         for index, img in enumerate(photo_list):
             opencv_img = b64str_to_opencvimg(img)
             img_path = os.path.join(settings.SAMPLES_ROOT, id)

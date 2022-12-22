@@ -5,6 +5,9 @@ import cv2
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
 from .utils.Recognition.vggface.recognition import recognize, detect_faces
 
+# from .utils.Recognition.recognitionLBPHF import recognize
+from .utils.Recognition.recognitionSVC import recognize
+
 class FrameConsumer(WebsocketConsumer):
     def connect(self):
        self.accept()
@@ -23,7 +26,3 @@ class FrameConsumer(WebsocketConsumer):
             self.send(text_data=b64_img)
         except:
             print("No photo")
-
-        
-       
-

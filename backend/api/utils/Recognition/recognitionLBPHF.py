@@ -20,8 +20,8 @@ with open(BASE_DIR + "/Train/pickles/face-labels.pickle", "rb") as f:
     og_labels = pickle.load(f) 
     labels = {v:k for k,v in og_labels.items()} # Inverting key with value
 
-def recognize(frame: str):
-    # Turn captured frame into gray scale
+def recognize(frame):
+	# Turn captured frame into gray scale
     gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 	# Face recognition
@@ -38,6 +38,7 @@ def recognize(frame: str):
 
 		# Use deep learned model to identify the person
         id_, conf = recognizer.predict(roi_gray)
+        print(conf)
 
 		# If confidence is good...
         if conf >= 85:
