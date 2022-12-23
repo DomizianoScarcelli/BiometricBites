@@ -7,6 +7,9 @@ from PIL import Image
 from bsproject.paths import SAMPLES_ROOT, LABELS_ROOT, MODELS_ROOT
 
 class Classifier():
+    """
+    Abstract class, this shouldn't be instanced, but it describes the common fields and methods that a classifier have.
+    """
     def __init__(self) -> None:
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         self.side_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
@@ -23,6 +26,9 @@ class Classifier():
         return "processed" in file_name
     
     def draw_label(self, frame, label, x, y):
+        """
+        Draw the predicted lable on the frame.
+        """
         font = cv2.FONT_HERSHEY_SIMPLEX
         color = (255, 255, 255)
         stroke = 2
@@ -105,7 +111,9 @@ class Classifier():
                     new_path = os.path.join(root, new_file_name)
                     im.save(new_path)
 
-    #TODO: now it's never used 
+    #TODO: now it's never used.
+    #TODO: IMPORTANTE: se questo metodo viene utilizzato per VGGFace, le immagini devono essere per forza scalate a 224x224, altrimenti
+    # la rete non funziona.
     def apply_filters(self, frame):
         # group frames
         frames = []
