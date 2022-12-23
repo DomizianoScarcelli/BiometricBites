@@ -25,11 +25,11 @@ SAMPLES_ROOT =  os.path.join(BASE_DIR, 'samples')
 SAMPLES_URL = '/samples/'
 
 # Model dolfer
-MODELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "recognizers")
+MODELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "saved_models")
 LABELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "pickles")  
 
 # Choose the used classifier between LBPHF(), SVC() and VGGFACE()
-CLASSIFIER = LBPHF()
+CLASSIFIER = SVC()
 
 dotenv.read_dotenv(BASE_DIR / '.env')
 

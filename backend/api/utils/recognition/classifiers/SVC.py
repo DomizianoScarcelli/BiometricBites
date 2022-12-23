@@ -32,6 +32,7 @@ class SVC(Classifier):
             self.classifier = pickle.load(pickle_file)
     
     def train(self):
+        self.load_classifier()
         knownEncodings = []
         knownNames = []
 
