@@ -4,10 +4,8 @@ import os
 import tensorflow as tf
 from numpy import asarray
 
-BASE_DIR = os.path.dirname(os.path.dirname( __file__ ))
-
 # Classifier
-face_cascade = cv2.CascadeClassifier(BASE_DIR + '/cascades/data/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + '/haarcascade_frontalface_default.xml')
 
 def applyFilters(frame):
     # group frames
