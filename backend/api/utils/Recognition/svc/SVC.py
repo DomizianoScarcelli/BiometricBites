@@ -44,6 +44,8 @@ class SVC(Classifier):
                     knownEncodings.append(frame_encodings[0])
                     knownNames.append(name)
                 count += 1
+        
+        print(f"Know encodings: {knownEncodings}") #TODO: known encodings ritorna un array vuoto e quindi il training da errore
 
         print("Stiamo generando il tuo file di encodings..")
         data = {"encodings": np.array(knownEncodings), "names": np.array(knownNames)}

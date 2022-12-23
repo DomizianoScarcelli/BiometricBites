@@ -23,6 +23,8 @@ class Classifier():
         """
         return "processed" in file_name
 
+    #TODO: per ora questo process_images è uguale anche a quello di VGGFACE, e quindi non vengono applicati i vari filtri.
+    # È da sistemare visto che in SVC e LBPHF vanno salvate le immagini filtrate. Non l'ho fatto ora perchè mi da qualche errore.
     def preprocess_images(self):
         """
         Detect frontal and profile faces inside the image, crops them, applies some filters and saves them in the same directory, deleting the original images.
@@ -89,7 +91,7 @@ class Classifier():
                     image_array = np.array(resized_image, "uint8")
 
                     # remove the original image
-                    os.remove(path)
+                    if os.path.exists(path): os.remove(path)
 
                     # replace the image with only the face
                     im = Image.fromarray(image_array)
@@ -97,38 +99,6 @@ class Classifier():
                     new_path = os.path.join(root, new_file_name)
                     im.save(new_path)
 
-    # def preprocess_images(self):
-    #     current_id = 0
-    #     label_ids = {}
-    #     for root, _, files in os.walk(self.image_dir):
-    #         for file in files:
-    #             # if self.is_image_preprocessed(file):
-    #             #     print(f"---Photo {file} skipped because it is already preprocessed---\n")
-    #             #     continue
-    #             # path of the image
-    #             path = os.path.join(root, file)
-
-    #             # get the label name (name of the person)
-    #             label = os.path.basename(root).replace(" ", ".").lower()
-
-    #             # add the label (key) and its number (value)
-    #             if not label in label_ids:
-    #                 label_ids[label] = current_id
-    #                 current_id += 1
-
-    #             # load the image
-    #             img = cv2.imread(path)
-    #             frames_with_filter = self.apply_filters(img)
-    #             #remove the original image
-    #             os.remove(path)
-    #             for index, frame in enumerate(frames_with_filter):
-    #                 print(type(frame))
-    #                 print(frame)
-    #                 im = Image.fromarray(frame)
-    #                 new_file_name = f"{file.split('.')[0]}_{index}_processed.jpg"
-    #                 new_path = os.path.join(root, new_file_name)
-    #                 im.save(new_path)
-    
     def apply_filters(self, frame):
         # group frames
         frames = []

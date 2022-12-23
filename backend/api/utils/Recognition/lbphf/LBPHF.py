@@ -16,7 +16,8 @@ class LBPHF(Classifier):
     
     def load_recognizer(self):
         recognizer_path = os.path.join(self.models_root, "face-trainner.yml")
-        self.recognizer.read(recognizer_path)  
+        if os.path.exists(recognizer_path):
+            self.recognizer.read(recognizer_path)  
 
     def recognize(self, frame):
         # Turn captured frame into gray scale
@@ -36,7 +37,7 @@ class LBPHF(Classifier):
 
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
-            print(conf)
+            print(id_, conf)
 
             # If confidence is good...
             if conf >= 85:
@@ -57,7 +58,7 @@ class LBPHF(Classifier):
     
     def train(self):
         current_id = 0
-        label_ids = {}
+        label_ids = self.labels
         y_lables = [] # Number related to labels
         x_train = [] # Numbers of the pixel values
 
