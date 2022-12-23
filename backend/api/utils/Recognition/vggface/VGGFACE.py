@@ -23,10 +23,15 @@ class VGGFACE(Classifier):
         self.model = load_model(os.path.join(self.models_root, 'transfer_learning_trained_face_cnn_model.h5'))
         self.image_width = 224
         self.image_height = 224
+        self.pickle_file_name = "face_labels_vggface.pickle"
         self.labels = self.load_labels()
+
         
     def load_labels(self):
-        with open(os.path.join(self.labels_root, 'face-labels.pickle'), "rb") as f: 
+        label_path = os.path.join(self.labels_root, self.pickle_file_name)
+        if not os.path.exists(label_path):
+            class_dictionary = {}
+        with open(label_path, "rb") as f: 
             class_dictionary = pickle.load(f)
         return [value for _, value in class_dictionary.items()]
 

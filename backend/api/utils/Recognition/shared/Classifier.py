@@ -13,7 +13,6 @@ class Classifier():
         self.image_dir = SAMPLES_ROOT
         self.models_root = MODELS_ROOT
         self.labels_root = LABELS_ROOT
-        self.labels = self.load_labels()
         self.image_width = 224
         self.image_height = 224
 
@@ -142,14 +141,6 @@ class Classifier():
         frames.append(np.asarray(brightness))
             
         return frames
-
-    def load_labels(self):
-        labels_path = os.path.join(self.labels_root, "/face-labels.pickle")
-        if not os.path.exists(labels_path): return {}
-        with open(labels_path, "rb") as f:
-            og_labels = pickle.load(f) 
-            labels = {v:k for k,v in og_labels.items()} # Inverting key with value
-        return labels
     
     def detect_faces(self, frame):
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

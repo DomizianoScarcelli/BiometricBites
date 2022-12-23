@@ -12,10 +12,20 @@ class LBPHF(Classifier):
         super().__init__()
         self.recognizer = cv2.face.LBPHFaceRecognizer_create()
         self.load_recognizer()
-        self.labels = super().load_labels()
-    
+        self.pickle_file_name = "face_labels_lbphf.pickle"
+        self.labels = self.load_labels()
+
+    def load_labels(self):
+        labels_path = os.path.join(self.labels_root, self.pickle_file_name)
+        if not os.path.exists(labels_path): 
+            return {}
+        with open(labels_path, "rb") as f:
+            og_labels = pickle.load(f) 
+            labels = {v:k for k,v in og_labels.items()} # Inverting key with value
+        return labels
+
     def load_recognizer(self):
-        recognizer_path = os.path.join(self.models_root, "face-trainner.yml")
+        recognizer_path = os.path.join(self.models_root, "lbphf_model.yml")
         if os.path.exists(recognizer_path):
             self.recognizer.read(recognizer_path)  
 
@@ -71,7 +81,7 @@ class LBPHF(Classifier):
                 label = os.path.basename(os.path.dirname(path)).replace(" ", "-").lower() # Save the label of each image
                 
                 # Assign id to labels
-                if not label in label_ids: 
+                if not label in label_ids:
                     label_ids[label] = current_id
                     current_id += 1
                 id_ = label_ids[label]
@@ -100,12 +110,12 @@ class LBPHF(Classifier):
                     y_lables.append(id_)
 
         # Save labels into file
-        label_path = os.path.join(self.labels_root, "face-labels.pickle")
+        label_path = os.path.join(self.labels_root, self.pickle_file_name)
         with open(label_path, "wb") as f:
             pickle.dump(label_ids, f)
 
         # Train items
-        train_path = os.path.join(self.models_root, "face-trainner.yml")
+        train_path = os.path.join(self.models_root, "lbphf_model.yml")
         if os.path.exists(train_path):
             self.recognizer.read(train_path)
         self.recognizer.update(x_train, np.array(y_lables))
