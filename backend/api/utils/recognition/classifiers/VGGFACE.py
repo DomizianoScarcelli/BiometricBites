@@ -205,12 +205,20 @@ class VGGFACE(Classifier):
             x = utils.preprocess_input(x, version=1)
 
             # making prediction
-            #TODO: now the threshold isn't considered, meaning the prediction is always made even if the probability is too low. 
             predicted_prob = model.predict(x)
             print(predicted_prob)
-            predicted_label = self.labels[predicted_prob[0].argmax()]
-            print("Predicted face: " + predicted_label)
-            print("============================\n")
 
-            super().draw_label(frame, predicted_label, x_, y_)
+            if predicted_prob[0][0] >= .8:
+
+                predicted_label = self.labels[predicted_prob[0].argmax()]
+                print("Predicted face: " + predicted_label)
+                print("============================\n")
+
+                super().draw_label(frame, predicted_label, x_, y_)
+            else:
+                predicted_label = "Unknown"
+                print("Predicted face: " + predicted_label)
+                print("============================\n")
+                super().draw_label(frame, predicted_label, x_, y_)
+
         return frame
