@@ -18,6 +18,16 @@ class Classifier():
         self.labels_root = LABELS_ROOT
         self.image_width = 224
         self.image_height = 224
+        self.create_necessary_folders()
+
+    def create_necessary_folders(self):
+        """
+        It creates labels and models folders if they don't already exist.
+        """
+        if not os.path.exists(self.labels_root):
+            os.makedirs(self.labels_root)
+        if not os.path.exists(self.models_root):
+            os.makedirs(self.models_root)
 
     def is_image_preprocessed(self, file_name):
         """
