@@ -14,9 +14,9 @@ import os
 import dotenv
 from pathlib import Path
 
-from api.utils.recognition.lbphf.LBPHF import LBPHF
-from api.utils.recognition.svc.SVC import SVC
-from api.utils.recognition.vggface.VGGFACE import VGGFACE
+from api.utils.recognition.classifiers.LBPHF import LBPHF
+from api.utils.recognition.classifiers.SVC import SVC
+from api.utils.recognition.classifiers.VGGFACE import VGGFACE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +28,7 @@ SAMPLES_URL = '/samples/'
 MODELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "recognizers")
 LABELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "pickles")  
 
-# Choose the used classifier between LBPHF, SVC and VGGFACE
+# Choose the used classifier between LBPHF(), SVC() and VGGFACE()
 CLASSIFIER = LBPHF()
 
 dotenv.read_dotenv(BASE_DIR / '.env')

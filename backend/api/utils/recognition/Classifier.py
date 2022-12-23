@@ -21,6 +21,13 @@ class Classifier():
         Check if the image is already preprocessed.
         """
         return "processed" in file_name
+    
+    def draw_label(self, frame, label, x, y):
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        color = (255, 255, 255)
+        stroke = 2
+        cv2.putText(frame, label, (x,y), font, 1, color, stroke, cv2.LINE_AA)
+        return frame
 
     #TODO: per ora questo process_images è uguale anche a quello di VGGFACE, e quindi non vengono applicati i vari filtri.
     # È da sistemare visto che in SVC e LBPHF vanno salvate le immagini filtrate. Non l'ho fatto ora perchè mi da qualche errore.
@@ -98,6 +105,7 @@ class Classifier():
                     new_path = os.path.join(root, new_file_name)
                     im.save(new_path)
 
+    #TODO: now it's never used 
     def apply_filters(self, frame):
         # group frames
         frames = []

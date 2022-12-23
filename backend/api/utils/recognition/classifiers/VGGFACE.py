@@ -3,7 +3,7 @@ import cv2
 import pickle
 import face_recognition
 import numpy as np
-from api.utils.recognition.shared.Classifier import Classifier
+from api.utils.recognition.Classifier import Classifier
 
 from PIL import Image
 
@@ -212,9 +212,5 @@ class VGGFACE(Classifier):
             print("Predicted face: " + predicted_label)
             print("============================\n")
 
-            # draw the predicted label
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            color = (255, 255, 255)
-            stroke = 2
-            cv2.putText(frame, predicted_label, (x_,y_), font, 1, color, stroke, cv2.LINE_AA)
+            super().draw_label(frame, predicted_label, x_, y_)
         return frame
