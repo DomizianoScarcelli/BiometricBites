@@ -178,7 +178,7 @@ class VGGFACE(Classifier):
             value:key for key, value in class_dictionary.items()
         }
         # save the class dictionary to pickle
-        face_label_filename = os.path.join(self.labels_root, 'face-labels.pickle')
+        face_label_filename = os.path.join(self.labels_root, self.pickle_file_name)
         if os.path.exists(face_label_filename):
             os.remove(face_label_filename)
         with open(face_label_filename, 'wb') as f: 
@@ -209,12 +209,11 @@ class VGGFACE(Classifier):
             print(predicted_prob)
 
             if predicted_prob[0][0] >= .8:
-
                 predicted_label = self.labels[predicted_prob[0].argmax()]
                 print("Predicted face: " + predicted_label)
                 print("============================\n")
 
-                super().draw_label(frame, predicted_label, x_, y_)
+                super().draw_label(frame, str(predicted_label), x_, y_)
             else:
                 predicted_label = "Unknown"
                 print("Predicted face: " + predicted_label)
