@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { ReactSession } from "react-client-session"
-import Webcam from "react-webcam"
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
+import Webcam from "react-webcam";
+import { CameraOptions, useFaceDetection } from 'react-use-face-detection';
+import FaceDetection from '@mediapipe/face_detection';
+import { Camera } from '@mediapipe/camera_utils';
+import axios from "axios";
 
-import "./AddFace.scss"
-import { BackButton, Button } from "../../components"
-
-import axios from "axios"
+import "./AddFace.scss";
+import { BackButton, Button } from "../../components";
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
@@ -18,9 +20,28 @@ const webcamStyle: React.CSSProperties = {
 
 function AddFace() {
 	const navigate = useNavigate()
-	const webcamRef = useRef<any>()
+	//const webcamRef = useRef<any>()
 	const [photoList, setPhotoList] = useState<Array<string>>([])
 	const [instruction, setInstruction] = useState<string>("")
+	const [isUserDetected, setIsUserDetected] = useState<boolean>(false)
+	const [detectionTimer, setDetectionTimer] = useState<number>(1000)
+
+	const { webcamRef, boundingBox, isLoading, detected, facesDetected }: any = useFaceDetection({
+		faceDetectionOptions: {
+			model: 'short',
+		},
+		faceDetection: new FaceDetection.FaceDetection({
+			locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
+		}),
+		camera: ({ mediaSrc, onFrame, width, height }: CameraOptions) =>
+			new Camera(mediaSrc, { onFrame, width, height }),
+	});
+	
+	
+	useEffect(() => {
+		if (detected) setIsUserDetected(true)
+		else setIsUserDetected(false)
+	  }, [detected]);
 
 	useEffect(() => {
 		const decideIstruction = (): string => {
@@ -80,8 +101,8 @@ function AddFace() {
 
 				<div className="add_face-container__right">
 					<>
-						<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={webcamStyle} />
-						<Button text={"Take photo"} onClick={takePhoto} shadow={true} />
+						<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" forceScreenshotSourceSize style={webcamStyle} />
+						{isUserDetected ? (<Button text={"Take photo"} onClick={takePhoto} shadow={true} />) : (<Button text={"User not identified!"} onClick={() => {}} shadow={true} />)}
 					</>
 				</div>
 			</div>
