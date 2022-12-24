@@ -1,12 +1,9 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
-from asgiref.sync import async_to_sync
 import cv2
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
-from .utils.Recognition.vggface.recognition import recognize, detect_faces
-
-# from .utils.Recognition.recognitionLBPHF import recognize
-from .utils.Recognition.recognitionSVC import recognize
+# from .utils.recognition.recognitionLBPHF import recognize
+from bsproject.settings import CLASSIFIER
 
 class FrameConsumer(WebsocketConsumer):
     def connect(self):
@@ -16,13 +13,14 @@ class FrameConsumer(WebsocketConsumer):
         "message": "Your are now connected"
        }))
        self.count = 0
+       self.classifier = CLASSIFIER
     
     def receive(self, text_data):
         self.count += 1
         try:
             img = b64str_to_opencvimg(text_data)
-            if self.count % 3 == 0: processed_frame =  recognize(img) if self.count % 3 == 0 else detect_faces(img)
+            processed_frame = self.classifier.recognize(img) if self.count % 3 == 0 else self.classifier.detect_faces(img)
             b64_img = opencvimg_to_b64_str(processed_frame)
             self.send(text_data=b64_img)
-        except:
-            print("No photo")
+        except Exception as e:
+            print("ERROR : "+str(e))

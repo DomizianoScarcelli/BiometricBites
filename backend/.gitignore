@@ -6,5 +6,5 @@ pyvenv.cfg
 __pycache__
 .DS_Store
 .env
-recognizers
+saved_models
 pickles
