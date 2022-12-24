@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { ReactSession } from "react-client-session"
-import Webcam from "react-webcam"
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
+import Webcam from "react-webcam";
+import axios from "axios";
 
-import "./AddFace.scss"
-import { BackButton, Button } from "../../components"
-
-import axios from "axios"
+import "./AddFace.scss";
+import { BackButton, Button } from "../../components";
 
 const webcamStyle: React.CSSProperties = {
 	textAlign: "center",
@@ -104,6 +103,7 @@ const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
 		formData.append("id", ReactSession.get("USER_ID"))
 		await axios.post("http://localhost:8000/api/upload_photo_enrollment", formData)
 		setUploadComplete(true)
+		setPhotoList([])
 	}
 
 	return uploadComplete ? (
