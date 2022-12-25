@@ -84,7 +84,7 @@ function AddFace() {
 				<BackButton link="/" />
 				<div className="add_face-container__left">
 					<p>
-						<b>Make sure that</b>
+						<b>Make sure that:</b>
 					</p>
 					<p>The face is at the center of the frame</p>
 					<p>There are no objects or hair covering the face</p>
