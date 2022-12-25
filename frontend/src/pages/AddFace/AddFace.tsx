@@ -24,7 +24,6 @@ function AddFace() {
 	const [photoList, setPhotoList] = useState<Array<string>>([])
 	const [instruction, setInstruction] = useState<string>("")
 	const [isUserDetected, setIsUserDetected] = useState<boolean>(false)
-	const [detectionTimer, setDetectionTimer] = useState<number>(1000)
 
 	const { webcamRef, boundingBox, isLoading, detected, facesDetected }: any = useFaceDetection({
 		faceDetectionOptions: {
