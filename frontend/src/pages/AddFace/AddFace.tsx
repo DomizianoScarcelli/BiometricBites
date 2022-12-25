@@ -127,7 +127,7 @@ const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
 	}
 
 	return uploadComplete ? (
-		<UploadCompleted setUploadComplete={setUploadComplete} />
+		<UploadCompleted setUploadComplete={setUploadComplete} setPhoto={setPhotoList}/>
 	) : (
 		<>
 			<div className="background center">
@@ -161,7 +161,12 @@ const ConfirmUpload = ({ photoList, setPhotoList }: ConfirmUploadProps) => {
 	)
 }
 
-const UploadCompleted = ({ setUploadComplete }: { setUploadComplete: (value: boolean) => void }) => {
+type UploadCompletedProps = {
+	setUploadComplete: (value: boolean) => void
+	setPhoto: (value: Array<string>) => void
+}
+
+const UploadCompleted = ({ setUploadComplete, setPhoto }: UploadCompletedProps) => {
 	const navigate = useNavigate()
 	return (
 		<>
@@ -181,6 +186,7 @@ const UploadCompleted = ({ setUploadComplete }: { setUploadComplete: (value: boo
 							shadow={true}
 							onClick={() => {
 								setUploadComplete(false)
+								setPhoto([])
 								navigate("/add-face")
 							}}
 						/>
