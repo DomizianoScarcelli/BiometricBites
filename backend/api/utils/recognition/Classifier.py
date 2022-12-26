@@ -84,6 +84,9 @@ class Classifier():
                 img_gray = cv2.cvtColor(imgtest, cv2.COLOR_BGR2GRAY)
                 image_array = np.array(imgtest, "uint8")
 
+                # apply filters
+                # TODO: sistema funzione "apply_filters" e richiamala qui
+
                 # get the faces detected in the image
                 frontal_faces = frontal_face_cascade.detectMultiScale(img_gray, scaleFactor=1.1, minNeighbors=5)
                 profile_faces = np.array([])
@@ -126,7 +129,6 @@ class Classifier():
     # la rete non funziona.
     def apply_filters(self, frame):
         # group frames
-        frames = []
             
         image = tf.cast(tf.convert_to_tensor(frame), tf.uint8)
         image_gray = tf.image.rgb_to_grayscale(image)
@@ -135,7 +137,6 @@ class Classifier():
         frames.append(frame)
         frames.append(np.asarray(image_gray))
 
-        # ...by applying different filters
         # Invert image
         flip = tf.image.flip_left_right(image_gray)
         frames.append(np.asarray(flip))

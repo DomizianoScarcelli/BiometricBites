@@ -20,19 +20,28 @@ class VGGFACE(Classifier):
     def __init__(self) -> None:
         super().__init__()
         self.side_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
-        self.model = load_model(os.path.join(self.models_root, 'transfer_learning_trained_face_cnn_model.h5'))
+        self.model = self.find_model()
         self.image_width = 224
         self.image_height = 224
         self.pickle_file_name = "face_labels_vggface.pickle"
         self.labels = self.load_labels()
+
+
+    def find_model(self):
+        model_path = os.path.join(self.models_root, 'vggface_model.h5')
+        if not os.path.exists(model_path):
+            return None
+        else:
+            return load_mode(model_path)
 
         
     def load_labels(self):
         label_path = os.path.join(self.labels_root, self.pickle_file_name)
         if not os.path.exists(label_path):
             class_dictionary = {}
-        with open(label_path, "rb") as f: 
-            class_dictionary = pickle.load(f)
+        else:
+            with open(label_path, "rb") as f: 
+                class_dictionary = pickle.load(f)
         return [value for _, value in class_dictionary.items()]
 
         
@@ -171,14 +180,14 @@ class VGGFACE(Classifier):
 
 
         # creates a HDF5 file
-        model.save(os.path.join(self.models_root, 'transfer_learning_trained_face_cnn_model.h5'))
+        model.save(os.path.join(self.models_root, 'vggface_model.h5'))
 
         class_dictionary = train_generator.class_indices
         class_dictionary = {
             value:key for key, value in class_dictionary.items()
         }
         # save the class dictionary to pickle
-        face_label_filename = os.path.join(self.labels_root, 'face-labels.pickle')
+        face_label_filename = os.path.join(self.labels_root, self.pickle_file_name)
         if os.path.exists(face_label_filename):
             os.remove(face_label_filename)
         with open(face_label_filename, 'wb') as f: 
@@ -205,12 +214,19 @@ class VGGFACE(Classifier):
             x = utils.preprocess_input(x, version=1)
 
             # making prediction
-            #TODO: now the threshold isn't considered, meaning the prediction is always made even if the probability is too low. 
             predicted_prob = model.predict(x)
             print(predicted_prob)
-            predicted_label = self.labels[predicted_prob[0].argmax()]
-            print("Predicted face: " + predicted_label)
-            print("============================\n")
 
-            super().draw_label(frame, predicted_label, x_, y_)
+            if predicted_prob[0][0] >= .8:
+                predicted_label = self.labels[predicted_prob[0].argmax()]
+                print("Predicted face: " + str(predicted_label))
+                print("============================\n")
+
+                super().draw_label(frame, str(predicted_label), x_, y_)
+            else:
+                predicted_label = "Unknown"
+                print("Predicted face: " + predicted_label)
+                print("============================\n")
+                super().draw_label(frame, predicted_label, x_, y_)
+
         return frame

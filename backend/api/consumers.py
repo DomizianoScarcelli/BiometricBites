@@ -2,7 +2,6 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 import cv2
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
-# from .utils.recognition.recognitionLBPHF import recognize
 from bsproject.settings import CLASSIFIER
 
 class FrameConsumer(WebsocketConsumer):

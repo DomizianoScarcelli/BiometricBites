@@ -59,7 +59,7 @@ class SVC(Classifier):
         print("Stiamo generando il tuo file di encodings..")
         data = {"encodings": np.array(knownEncodings), "names": np.array(knownNames)}
 
-        f = open(os.path.join(self.labels_root, "face_encodings.pickle"), "wb")
+        f = open(os.path.join(self.labels_root, self.pickle_file_name), "wb")
         f.write(pickle.dumps(data))
         f.close()
 
