@@ -18,7 +18,7 @@
 		justify-content: center;
 		max-width: 60vw;
 	}
-	
+
 	&__left {
 		display: flex;
 		margin-right: 2rem;
@@ -33,7 +33,7 @@
 			display: flex;
 			gap: 1rem;
 			width: 100%;
-			
+
 			button {
 				border-radius: 1rem;
 				width: 50%;
@@ -42,6 +42,7 @@
 		}
 
 		.student-details {
+			//TODO: fix the small size if no student
 			display: flex;
 			justify-content: center;
 			background-color: var(--primary-color);
@@ -50,7 +51,7 @@
 			flex-direction: column;
 			padding: 1rem;
 			gap: 1rem;
-		
+
 			h1 {
 				margin: 0;
 				font-size: 1.75rem;
@@ -70,18 +71,18 @@
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
-	
+
 					p {
 						color: black;
 						font-size: 1.25rem;
 						font-weight: 500;
 					}
-	
+
 					img {
 						width: 100%;
 					}
 				}
-			
+
 				.price-to-pay {
 					display: grid;
 					place-items: center;

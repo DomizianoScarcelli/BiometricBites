@@ -3,6 +3,8 @@ import Webcam from "react-webcam"
 import "./WebcamStreamServer.scss"
 import Resolution from "../../types/Resolution.js"
 
+import { RecognitionInfo } from "../../pages/Admin/Admin"
+
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
 	connected: boolean
@@ -33,7 +35,9 @@ const WebcamStreamServer = ({ style, connected, socket, resolution }: WebcamStre
 
 	useEffect(() => {
 		socket.addEventListener("message", (e: any) => {
-			setImgSrc(e.data)
+			const data = JSON.parse(e.data)
+			const frame = data["FRAME"]
+			setImgSrc(frame)
 		})
 	}, [socket])
 

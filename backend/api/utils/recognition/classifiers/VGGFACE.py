@@ -195,11 +195,14 @@ class VGGFACE(Classifier):
         with open(face_label_filename, 'wb') as f: 
             pickle.dump(class_dictionary, f)
 
-    def recognize(self, frame):
+    def recognize(self, frame: str):
         model = self.model
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
         image_array = np.array(frame, "uint8")
+
+        if len(faces) == 0:
+            return frame, None, 1
 
         for (x_, y_, w, h) in faces:
             # draw the face detected
@@ -232,4 +235,4 @@ class VGGFACE(Classifier):
                 print("============================\n")
                 super().draw_label(frame, predicted_label, x_, y_)
 
-        return frame
+        return frame, predicted_label, predicted_identity_prob
