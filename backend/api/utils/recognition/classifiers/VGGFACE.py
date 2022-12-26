@@ -20,19 +20,28 @@ class VGGFACE(Classifier):
     def __init__(self) -> None:
         super().__init__()
         self.side_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
-        self.model = load_model(os.path.join(self.models_root, 'vggface_model.h5'))
+        self.model = self.find_model()
         self.image_width = 224
         self.image_height = 224
         self.pickle_file_name = "face_labels_vggface.pickle"
         self.labels = self.load_labels()
+
+
+    def find_model(self):
+        model_path = os.path.join(self.models_root, 'vggface_model.h5')
+        if not os.path.exists(model_path):
+            return None
+        else:
+            return load_mode(model_path)
 
         
     def load_labels(self):
         label_path = os.path.join(self.labels_root, self.pickle_file_name)
         if not os.path.exists(label_path):
             class_dictionary = {}
-        with open(label_path, "rb") as f: 
-            class_dictionary = pickle.load(f)
+        else:
+            with open(label_path, "rb") as f: 
+                class_dictionary = pickle.load(f)
         return [value for _, value in class_dictionary.items()]
 
         
