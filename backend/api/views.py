@@ -10,7 +10,6 @@ import os
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
 from matplotlib.image import imread
 import cv2
-import re
 
 from .utils.http.ResponseThen import ResponseThen
 
