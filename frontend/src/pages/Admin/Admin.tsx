@@ -154,10 +154,12 @@ export default function Admin() {
 								</>
 							)}
 						</div>
-						<div className="actions">
-							<Button text="Ignore" shadow={true} onClick={() => {}} />
-							<Button text="Pay" shadow={true} onClick={() => {}} />
-						</div>
+						{recognitionArray.length !== 0 && (
+							<div className="actions">
+								<Button text="Ignore" shadow={true} onClick={() => {}} />
+								<Button text="Pay" shadow={true} onClick={() => {}} />
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
