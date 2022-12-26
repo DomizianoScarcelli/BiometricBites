@@ -20,7 +20,7 @@ class VGGFACE(Classifier):
     def __init__(self) -> None:
         super().__init__()
         self.side_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
-        self.model = load_model(os.path.join(self.models_root, 'transfer_learning_trained_face_cnn_model.h5'))
+        self.model = load_model(os.path.join(self.models_root, 'vggface_model.h5'))
         self.image_width = 224
         self.image_height = 224
         self.pickle_file_name = "face_labels_vggface.pickle"
@@ -171,7 +171,7 @@ class VGGFACE(Classifier):
 
 
         # creates a HDF5 file
-        model.save(os.path.join(self.models_root, 'transfer_learning_trained_face_cnn_model.h5'))
+        model.save(os.path.join(self.models_root, 'vggface_model.h5'))
 
         class_dictionary = train_generator.class_indices
         class_dictionary = {
