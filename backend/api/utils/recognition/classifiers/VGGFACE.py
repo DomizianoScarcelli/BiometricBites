@@ -182,6 +182,8 @@ class VGGFACE(Classifier):
         # creates a HDF5 file
         model.save(os.path.join(self.models_root, 'vggface_model.h5'))
 
+        self.model = self.find_model()
+
         class_dictionary = train_generator.class_indices
         class_dictionary = {
             value:key for key, value in class_dictionary.items()
@@ -217,7 +219,8 @@ class VGGFACE(Classifier):
             predicted_prob = model.predict(x)
             print(predicted_prob)
 
-            if predicted_prob[0][0] >= .8:
+            predicted_identity_prob = predicted_prob[0][predicted_prob[0].argmax()] #The probability of the person with higest probability
+            if predicted_identity_prob >= .8:
                 predicted_label = self.labels[predicted_prob[0].argmax()]
                 print("Predicted face: " + str(predicted_label))
                 print("============================\n")

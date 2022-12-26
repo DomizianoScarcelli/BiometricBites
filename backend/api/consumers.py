@@ -13,12 +13,13 @@ class FrameConsumer(WebsocketConsumer):
        }))
        self.count = 0
        self.classifier = CLASSIFIER
+       self.DELTA_RECOGNITION = 5
     
     def receive(self, text_data):
         self.count += 1
         try:
             img = b64str_to_opencvimg(text_data)
-            processed_frame = self.classifier.recognize(img) if self.count % 3 == 0 else self.classifier.detect_faces(img)
+            processed_frame = self.classifier.recognize(img) if self.count % self.DELTA_RECOGNITION == 0 else self.classifier.detect_faces(img)
             b64_img = opencvimg_to_b64_str(processed_frame)
             self.send(text_data=b64_img)
         except Exception as e:
