@@ -32,7 +32,7 @@ class VGGFACE(Classifier):
         if not os.path.exists(model_path):
             return None
         else:
-            return load_mode(model_path)
+            return load_model(model_path)
 
         
     def load_labels(self):
