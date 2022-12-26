@@ -210,7 +210,7 @@ class VGGFACE(Classifier):
 
             if predicted_prob[0][0] >= .8:
                 predicted_label = self.labels[predicted_prob[0].argmax()]
-                print("Predicted face: " + predicted_label)
+                print("Predicted face: " + str(predicted_label))
                 print("============================\n")
 
                 super().draw_label(frame, str(predicted_label), x_, y_)
