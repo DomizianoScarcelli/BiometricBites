@@ -3,20 +3,24 @@
 	justify-content: center;
 	align-items: center;
 	gap: 5rem;
+
 	&__left {
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
-		gap: 1.5rem;
+		align-items: center;
+		padding: 2rem;
+		gap: 2rem;
 		height: 40rem;
-		width: 40rem;
+		width: 50%;
+		
 	}
 	&__right {
 		display: flex;
 		flex-direction: column;
 		gap: 2rem;
-		padding: 2rem;
 		align-items: center;
+		width: 50%;
 		button {
 			width: 25rem;
 			height: 6rem;
