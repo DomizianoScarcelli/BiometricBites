@@ -10,6 +10,7 @@ import os
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
 from matplotlib.image import imread
 import cv2
+import re
 
 from .utils.http.ResponseThen import ResponseThen
 
@@ -245,7 +246,9 @@ def upload_photo_enrollment(request, *args, **kargs):
             opencv_img = b64str_to_opencvimg(img)
             img_path = os.path.join(settings.SAMPLES_ROOT, id)
             os.makedirs(img_path, exist_ok=True)
-            cv2.imwrite(os.path.join(img_path, f"image_{index}.jpeg"), opencv_img)
+            processed_images = os.listdir(os.path.join(settings.SAMPLES_ROOT, id))
+            starting_index = len(processed_images) + 4
+            cv2.imwrite(os.path.join(img_path, f"image_{starting_index + index}.jpeg"), opencv_img)
 
         def train_pipeline():
             classifier.preprocess_images()
