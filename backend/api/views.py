@@ -7,7 +7,8 @@ from .utils.isee_to_cost_calculator import cost_calculator
 import imghdr
 import json
 import os
-from .utils.encoding.encoding import b64str_to_opencvimg
+from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
+from matplotlib.image import imread
 import cv2
 
 from .utils.http.ResponseThen import ResponseThen
@@ -197,7 +198,8 @@ def get_photo_list(request, *args, **kargs):
             for file in os.listdir(sample_path):
                 img_path = os.path.join(sample_path, file)
                 if imghdr.what(img_path) in supported_types:
-                    output_data.append(file)
+                    img = opencvimg_to_b64_str(imread(img_path))
+                    output_data.append([file, img])
             return JsonResponse({"message": "OK", "data": json.dumps(output_data)}, status=200)
         else:
             return JsonResponse({"message": "The specified user has no photos."}, status=404)
