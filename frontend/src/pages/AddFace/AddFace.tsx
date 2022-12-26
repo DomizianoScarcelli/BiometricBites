@@ -101,7 +101,7 @@ function AddFace() {
 				<div className="add_face-container__right">
 					<>
 						<Webcam mirrored audio={false} ref={webcamRef} screenshotFormat="image/jpeg" forceScreenshotSourceSize style={webcamStyle} />
-						{isUserDetected ? (<Button text={"Take photo"} onClick={takePhoto} shadow={true} />) : (<Button text={"User not identified!"} onClick={() => {}} shadow={true} />)}
+						{isUserDetected || (!isUserDetected && isLoading) ? (<Button text={"Take photo"} onClick={takePhoto} shadow={true} />) : (<Button text={"User not identified!"} onClick={() => {}} shadow={true} />)}
 					</>
 				</div>
 			</div>
