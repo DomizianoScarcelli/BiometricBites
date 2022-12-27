@@ -246,8 +246,14 @@ def upload_photo_enrollment(request, *args, **kargs):
             img_path = os.path.join(settings.SAMPLES_ROOT, id)
             os.makedirs(img_path, exist_ok=True)
             processed_images = os.listdir(os.path.join(settings.SAMPLES_ROOT, id))
-            starting_index = len(processed_images) + 4
-            cv2.imwrite(os.path.join(img_path, f"image_{starting_index + index}.jpeg"), opencv_img)
+            print(f"Processed images: {processed_images}")
+            starting_index = 0
+            while True:
+                is_in_index = [str(starting_index) in img for img in processed_images]
+                print(f"Starting index: {starting_index}, {is_in_index}")
+                if any(is_in_index): starting_index += 1
+                else: break
+            cv2.imwrite(os.path.join(img_path, f"image_{starting_index}.jpeg"), opencv_img)
 
         def train_pipeline():
             classifier.preprocess_images()

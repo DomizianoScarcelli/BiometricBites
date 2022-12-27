@@ -60,6 +60,7 @@ class LBPHF(Classifier):
             end_cord_x = x + w
             end_cord_y = y + h
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
+            
 
             
         return frame
@@ -118,5 +119,5 @@ class LBPHF(Classifier):
             self.recognizer.read(train_path)
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
-
+        self.load_recognizer()
         print("Fine training")
