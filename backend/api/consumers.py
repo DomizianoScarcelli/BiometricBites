@@ -3,7 +3,7 @@ from channels.generic.websocket import WebsocketConsumer
 import cv2
 from .utils.encoding.encoding import b64str_to_opencvimg, opencvimg_to_b64_str
 from bsproject.settings import CLASSIFIER
-from .utils.user_info.user_info import get_user_info
+from .utils.user_info.user_info import get_user_info, get_profile_pic
 import numpy as np
 
 class FrameConsumer(WebsocketConsumer):
@@ -31,6 +31,7 @@ class FrameConsumer(WebsocketConsumer):
         #     SURNAME: str,
         #     CF: str,
         #     COST: int
+        #     PROFILE_IMG: str
         # }
         #   SIMILARITY: str
         #     
@@ -44,6 +45,8 @@ class FrameConsumer(WebsocketConsumer):
             identity_data["FACE_PRESENT"] = id is not None
             identity_data["USER_INFO"] = get_user_info(id) if id is not None else None
             identity_data["RECOGNITION_PHASE"] = True
+            if id is not None:
+                identity_data["USER_INFO"]["PROFILE_IMG"] = get_profile_pic(id)
         else:
             processed_frame, face_present = self.classifier.detect_faces(img)
             similarity = 1.0

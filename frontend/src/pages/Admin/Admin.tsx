@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, createContext } from "react"
 
 import "./Admin.scss"
 import { images, types } from "../../constants"
@@ -10,6 +10,7 @@ type Person = {
 	surname: string
 	cf: string
 	toPay: number
+	profileImg?: string
 }
 
 type RecognitionInfo = {
@@ -20,13 +21,23 @@ type RecognitionInfo = {
 	similarity: number
 }
 
+interface AdminContextInterface {
+	socket: WebSocket | undefined
+	setSocket: (value: WebSocket | undefined) => void
+}
+
+export let AdminContext = createContext<AdminContextInterface>({
+	socket: undefined,
+	setSocket: () => {},
+})
+
 export default function Admin() {
-	const [socket, setSocket] = useState<WebSocket>(new WebSocket(`ws://127.0.0.1:8000/ws/socket-server/`))
-	const [connected, setConnected] = useState<boolean>(false)
+	const [socket, setSocket] = useState<WebSocket>()
 	const [recognitionArray, setRecognitionArray] = useState<Person[]>([])
 	const [similarity, setSimilarity] = useState<number>(1)
 	const [currentPerson, setCurrentPerson] = useState<Person>()
 	const [similarityArray, setSimilarityArray] = useState<number[]>([])
+	const [userProfilePic, setUserProfilePic] = useState(images.photo_of_face)
 
 	const webcamStyle: React.CSSProperties = {
 		textAlign: "center",
@@ -34,22 +45,6 @@ export default function Admin() {
 		width: "100%",
 		objectFit: "cover",
 		borderRadius: "2rem",
-	}
-
-	const openSocketConnection = () => {
-		const url = `ws://127.0.0.1:8000/ws/socket-server/`
-		const socket: WebSocket = new WebSocket(url)
-		setSocket(socket)
-
-		socket.addEventListener("open", (e: any) => {
-			setConnected(true)
-		})
-
-		socket.addEventListener("close", (e: any) => {
-			setConnected(false)
-		})
-
-		socket.addEventListener("message", handleSocketReception)
 	}
 
 	const computeAccuracy = () => {
@@ -97,6 +92,7 @@ export default function Admin() {
 			surname: userInfo["SURNAME"],
 			cf: userInfo["CF"],
 			toPay: userInfo["COST"],
+			profileImg: userInfo["PROFILE_IMG"],
 		}
 	}
 
@@ -118,52 +114,60 @@ export default function Admin() {
 	}
 
 	useEffect(() => {
-		setCurrentPerson(getMostFrequentPerson)
+		const lastPerson = currentPerson
+		const person = getMostFrequentPerson()
+		if (JSON.stringify(person) === JSON.stringify(lastPerson)) return
+		setCurrentPerson(person)
+		if (person?.profileImg) setUserProfilePic(person.profileImg)
 	}, [recognitionArray])
 
 	useEffect(() => {
 		setSimilarity(computeAccuracy)
 	}, [similarityArray])
 
-	useEffect(openSocketConnection, [])
+	useEffect(() => {
+		socket?.addEventListener("message", handleSocketReception)
+	}, [socket])
 
 	return (
-		<div className="admin-container">
-			<div className="admin-container__main">
-				<div className="admin-container__sections">
-					<div className="admin-container__left">
-						<WebcamStreamServer connected={connected} socket={socket} style={webcamStyle} resolution={types.resolution.MEDIUM} />
-					</div>
-					<div className="admin-container__right">
-						<div className="student-details">
-							{recognitionArray.length === 0 ? (
-								<h1>Waiting for a student</h1>
-							) : (
-								<>
-									<h1>{`${currentPerson?.name} ${currentPerson?.surname}`}</h1>
-									<div className="student-details__inner">
-										<div className="photo">
-											<img alt="student_photo" src={images.photo_of_face}></img>
-											<p>{`Accuracy: ${similarity * 100}% `}</p>
-										</div>
+		<AdminContext.Provider value={{ socket: socket, setSocket: setSocket }}>
+			<div className="admin-container">
+				<div className="admin-container__main">
+					<div className="admin-container__sections">
+						<div className="admin-container__left">
+							<WebcamStreamServer style={webcamStyle} resolution={types.resolution.MEDIUM} />
+						</div>
+						<div className="admin-container__right">
+							<div className="student-details">
+								{recognitionArray.length === 0 ? (
+									<h1>Waiting for a student</h1>
+								) : (
+									<>
+										<h1>{`${currentPerson?.name} ${currentPerson?.surname}`}</h1>
+										<div className="student-details__inner">
+											<div className="photo">
+												<img alt="student_photo" src={userProfilePic}></img>
+												<p>{`Accuracy: ${(Math.round(similarity * 100) / 100) * 100}% `}</p>
+											</div>
 
-										<div className="price-to-pay">
-											<p>{`${currentPerson?.toPay} Euro`}</p>
+											<div className="price-to-pay">
+												<p>{`${currentPerson?.toPay} Euro`}</p>
+											</div>
 										</div>
-									</div>
-								</>
+									</>
+								)}
+							</div>
+							{recognitionArray.length !== 0 && (
+								<div className="actions">
+									<Button text="Ignore" shadow={true} onClick={() => {}} />
+									<Button text="Pay" shadow={true} onClick={() => {}} />
+								</div>
 							)}
 						</div>
-						{recognitionArray.length !== 0 && (
-							<div className="actions">
-								<Button text="Ignore" shadow={true} onClick={() => {}} />
-								<Button text="Pay" shadow={true} onClick={() => {}} />
-							</div>
-						)}
 					</div>
 				</div>
 			</div>
-		</div>
+		</AdminContext.Provider>
 	)
 }
 

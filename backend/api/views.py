@@ -261,4 +261,3 @@ def upload_photo_enrollment(request, *args, **kargs):
 
         json_response = JsonResponse({"message": "Photo uploaded correctly"}, status=200)
         return ResponseThen(json_response, train_pipeline)
-        
