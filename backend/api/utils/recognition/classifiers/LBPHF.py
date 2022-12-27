@@ -11,12 +11,11 @@ class LBPHF(Classifier):
     def __init__(self):
         super().__init__()
         self.recognizer = cv2.face.LBPHFaceRecognizer_create()
-        self.load_recognizer()
-        self.pickle_file_name = "face_labels_lbphf.pickle"
-        self.labels = self.load_labels()
+        self.labels_file_name = "face_labels_lbphf.pickle"
+        self.model_file_name = "lbphf_model.yml"
 
     def load_labels(self):
-        labels_path = os.path.join(self.labels_root, self.pickle_file_name)
+        labels_path = os.path.join(self.labels_root, self.labels_file_name)
         if not os.path.exists(labels_path): 
             return {}
         with open(labels_path, "rb") as f:
@@ -25,15 +24,13 @@ class LBPHF(Classifier):
         return labels
 
     def load_recognizer(self):
-        recognizer_path = os.path.join(self.models_root, "lbphf_model.yml")
+        recognizer_path = os.path.join(self.models_root, self.model_file_name)
         if os.path.exists(recognizer_path):
             self.recognizer.read(recognizer_path)  
-
-    
     
     def train(self):
         current_id = 0
-        label_ids = self.labels
+        label_ids = self.load_labels()
         y_lables = [] # Number related to labels
         x_train = [] # Numbers of the pixel values
 
@@ -75,18 +72,22 @@ class LBPHF(Classifier):
                     y_lables.append(id_)
 
         # Save labels into file
-        label_path = os.path.join(self.labels_root, self.pickle_file_name)
+        label_path = os.path.join(self.labels_root, self.labels_file_name)
         with open(label_path, "wb") as f:
             pickle.dump(label_ids, f)
 
         # Train items
-        train_path = os.path.join(self.models_root, "lbphf_model.yml")
+        train_path = os.path.join(self.models_root, self.model_file_name)
         if os.path.exists(train_path):
             self.recognizer.read(train_path)
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
+
+        # reload labels and recognizer
+        self.labels = self.load_labels()
+        self.load_recognizer()
+
         print("Fine training")
-        
 
     def recognize(self, frame):
         # Turn captured frame into gray scale
@@ -111,14 +112,11 @@ class LBPHF(Classifier):
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
 
-            
             # If confidence is good...
             if conf >= 85:
                 # ... write who he think he recognized
                 name = self.labels[id_]
                 super().draw_label(frame, name, x, y)
-            
-            print(name)
             # Draw a rectangle around the face
             color = (255, 0, 0) #BGR 0-255 
             stroke = 2
