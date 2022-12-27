@@ -13,7 +13,7 @@ type ButtonProps = {
 const Button = ({ text, img, shadow, isActive, onClick }: ButtonProps) => {
 	const style = {
 		boxShadow: shadow ? "4px 5px 19px rgba(var(--shadow-color-rgb), 0.5)" : "",
-		opacity: isActive ? 1 : 0.5,
+		opacity: isActive === false ? 0.5 : 1,
 	}
 	return (
 		<>
