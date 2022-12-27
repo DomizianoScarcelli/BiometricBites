@@ -31,11 +31,11 @@ def signup(email, password, role, name, surname, cf, isee):
 
 #Type the values here:
 user = {
-    "EMAIL": "prova@gmail.com", #Note this is a unique value (you can't add the same email for two different users)
+    "EMAIL": "will@gmail.com", #Note this is a unique value (you can't add the same email for two different users)
     "PASSWORD": "password", #varchar
-    "ROLE": "admin", #enum(admin, student)
-    "NAME": "ale", #varchar
-    "SURNAME": "luc", #varchar
+    "ROLE": "student", #enum(admin, student)
+    "NAME": "will", #varchar
+    "SURNAME": "smith", #varchar
     "CF": "ABCDEFGHILMNOPQR", #varchar - 16 characters
     "ISEE": "15000" #float
 }

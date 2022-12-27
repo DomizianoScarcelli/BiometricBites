@@ -1,8 +1,9 @@
-import React, { useEffect, useState, createContext } from "react"
+import React, { useEffect, useState, createContext } from "react";
+import axios from "axios";
 
-import "./Admin.scss"
-import { images, types } from "../../constants"
-import { Button, WebcamStreamServer } from "../../components"
+import "./Admin.scss";
+import { images, types } from "../../constants";
+import { Button, WebcamStreamServer, Popup } from "../../components";
 
 type Person = {
 	id: string
@@ -32,13 +33,16 @@ export let AdminContext = createContext<AdminContextInterface>({
 })
 
 export default function Admin() {
-	const [socket, setSocket] = useState<WebSocket>()
-	const [recognitionArray, setRecognitionArray] = useState<Person[]>([])
-	const [similarity, setSimilarity] = useState<number>(1)
-	const [currentPerson, setCurrentPerson] = useState<Person>()
-	const [similarityArray, setSimilarityArray] = useState<number[]>([])
-	const [userProfilePic, setUserProfilePic] = useState(images.photo_of_face)
-	const [isUnknown, setUnknown] = useState<boolean>(false)
+	const [socket, setSocket] = useState<WebSocket>();
+	const [recognitionArray, setRecognitionArray] = useState<Person[]>([]);
+	const [similarity, setSimilarity] = useState<number>(1);
+	const [currentPerson, setCurrentPerson] = useState<Person>();
+	const [similarityArray, setSimilarityArray] = useState<number[]>([]);
+	const [userProfilePic, setUserProfilePic] = useState(images.photo_of_face);
+	const [isUnknown, setUnknown] = useState<boolean>(false);
+	const [lastPayer, setLastPayer] = useState<Person>();
+	const [paymentDone, setPaymentDone] = useState<boolean>(false);
+	const [popup, setPopup] = useState({trigger: false, title: '', description: ''});
 
 	const webcamStyle: React.CSSProperties = {
 		textAlign: "center",
@@ -123,6 +127,31 @@ export default function Admin() {
 		return maxPerson!
 	}
 
+	const addAttendance = (currentPerson: Person | undefined): void => {
+		if (currentPerson !== undefined) {
+			let formData = {
+				user_id: currentPerson.id,
+				paid: currentPerson.toPay.toString()
+			}
+			console.log(currentPerson.id)
+			axios.put('http://localhost:8000/api/add_attendance', formData )
+			.then(function(response) {
+				if (response.status === 200) {
+					setPaymentDone(true);
+					setLastPayer(currentPerson);
+					setPopup({'trigger': true, 'title': 'Payment done!', 'description': `The student ${currentPerson?.name} ${currentPerson?.surname} has successfully payed!`});
+				}
+			})
+			.catch(function(error) {
+				setPopup({'trigger': true, 'title': 'An error occurred!', 'description': error.response.data.message});
+			})
+		}
+	}
+
+	const closePopup = () => {
+        setPopup({...popup, 'trigger': false});
+    }
+
 	useEffect(() => {
 		const lastPerson = currentPerson
 		const person = getMostFrequentPerson()
@@ -140,42 +169,45 @@ export default function Admin() {
 	}, [socket])
 
 	return (
-		<AdminContext.Provider value={{ socket: socket, setSocket: setSocket }}>
-			<div className="admin-container">
-				<div className="admin-container__main">
-					<div className="admin-container__sections">
-						<div className="admin-container__left">
-							<WebcamStreamServer style={webcamStyle} resolution={types.resolution.MEDIUM} />
-						</div>
-						<div className="admin-container__right">
-							<div className="student-details">
-								{recognitionArray.length === 0 && !isUnknown ? (
-									<h1>Waiting for a person</h1>
-								) : (
-									<>
-										<h1>{isUnknown ? "Person not registered" : `${currentPerson?.name} ${currentPerson?.surname}`}</h1>
-										<div className="student-details__inner">
-											<div className="photo">
-												<img alt="student_photo" src={isUnknown ? images.unknown_person : userProfilePic}></img>
-												{!isUnknown && <p>{`Accuracy: ${(Math.round(similarity * 100) / 100) * 100}% `}</p>}
-											</div>
-
-											<div className="price-to-pay">
-												<p>{`${isUnknown ? "7.00" : currentPerson?.toPay} Euro`}</p>
-											</div>
-										</div>
-									</>
-								)}
+		<>
+			<AdminContext.Provider value={{ socket: socket, setSocket: setSocket }}>
+				<div className="admin-container">
+					<div className="admin-container__main">
+						<div className="admin-container__sections">
+							<div className="admin-container__left">
+								<WebcamStreamServer style={webcamStyle} resolution={types.resolution.MEDIUM} />
 							</div>
+							<div className="admin-container__right">
+								<div className="student-details">
+									{(recognitionArray.length === 0 && !isUnknown) ? (
+										<h1>Waiting for a person</h1>
+									) : (
+										<>
+											<h1>{isUnknown ? "Person not registered" : `${currentPerson?.name} ${currentPerson?.surname}`}</h1>
+											<div className="student-details__inner">
+												<div className="photo">
+													<img alt="student_photo" src={isUnknown ? images.unknown_person : userProfilePic}></img>
+													{!isUnknown && <p>{`Accuracy: ${(Math.round(similarity * 100) / 100) * 100}% `}</p>}
+												</div>
 
-							<div className="actions">
-								<Button text="Pay" shadow={recognitionArray.length !== 0} isActive={recognitionArray.length !== 0} onClick={() => {}} />
+												<div className="price-to-pay">
+													<p>{`${isUnknown ? "7.00" : currentPerson?.toPay} Euro`}</p>
+												</div>
+											</div>
+										</>
+									)}
+								</div>
+
+								<div className="actions">
+									<Button text="Pay" shadow={recognitionArray.length !== 0} isActive={recognitionArray.length !== 0} onClick={() => {addAttendance(currentPerson)}} />
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</AdminContext.Provider>
+			</AdminContext.Provider>
+			<Popup trigger={popup['trigger']} title={popup['title']} description={popup['description']} onClick={closePopup} />
+		</>
 	)
 }
 

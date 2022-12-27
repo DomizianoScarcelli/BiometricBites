@@ -157,16 +157,16 @@ def add_attendance(request, *args, **kargs):
     }
 
     if request.method == "PUT":
-        req_data = QueryDict(request.body)
+        req_data = json.loads(list(QueryDict(request.body).keys())[0])
         for key, value in req_data.items():
             if key == "user_id":
+                print("ok")
                 input_data["USER_ID"] = value
             if key == "paid":
                 input_data["PAID"] = value
         if input_data["USER_ID"] == "" or input_data["PAID"] == "":
             return JsonResponse({"message": "Parameters not valid."}, status=400)
         else:
-            print(input_data)
             conn = db.dbconnector()
             try:
                 cursor = conn.cursor()
