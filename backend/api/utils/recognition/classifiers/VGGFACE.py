@@ -10,7 +10,7 @@ from PIL import Image
 from keras_preprocessing.image import img_to_array
 from keras_vggface import utils
 from keras.models import load_model
-from keras.layers import Dense, GlobalAveragePooling2D
+from keras.layers import Dense, GlobalAveragePooling2D, Convolution2D, Flatten, MaxPooling2D, Dropout
 from keras.applications.mobilenet import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
@@ -143,11 +143,12 @@ class VGGFACE(Classifier):
         train_generator.class_indices.values()
         NO_CLASSES = len(train_generator.class_indices.values())
 
-        model = VGGFace(include_top=False,
+
+        self.model = VGGFace(include_top=False,
         model='vgg16',
         input_shape=(224, 224, 3))
 
-        x = model.output
+        x = self.model.output
 
         x = GlobalAveragePooling2D()(x)
 
@@ -158,31 +159,29 @@ class VGGFACE(Classifier):
         # final layer with softmax activation
         preds = Dense(NO_CLASSES, activation='softmax')(x)
 
-        model = Model(inputs=model.inputs, outputs=preds)
-        model.summary()
+
+        self.model = Model(inputs=self.model.inputs, outputs=preds)
+        self.model.summary()
 
         # don't train the first 19 layers - 0..18
-        for layer in model.layers[:19]:
+        for layer in self.model.layers[:19]:
             layer.trainable = False
 
         # train the rest of the layers - 19 onwards
-        for layer in model.layers[19:]:
+        for layer in self.model.layers[19:]:
             layer.trainable = True
 
-        model.compile(optimizer='Adam',
+        self.model.compile(optimizer='Adam',
             loss='categorical_crossentropy',
             metrics=['accuracy'])
 
-        model.fit(train_generator,
+        self.model.fit(train_generator,
         batch_size = 1,
         verbose = 1,
         epochs = 20)
 
-
         # creates a HDF5 file
-        model.save(os.path.join(self.models_root, 'vggface_model.h5'))
-
-        self.model = self.find_model()
+        self.model.save(os.path.join(self.models_root, 'vggface_model.h5'))
 
         class_dictionary = train_generator.class_indices
         class_dictionary = {
@@ -196,7 +195,6 @@ class VGGFACE(Classifier):
             pickle.dump(class_dictionary, f)
 
     def recognize(self, frame: str):
-        model = self.model
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
         image_array = np.array(frame, "uint8")
@@ -219,7 +217,7 @@ class VGGFACE(Classifier):
             x = utils.preprocess_input(x, version=1)
 
             # making prediction
-            predicted_prob = model.predict(x)
+            predicted_prob = self.model.predict(x)
             print(predicted_prob)
 
             predicted_identity_prob = predicted_prob[0][predicted_prob[0].argmax()] #The probability of the person with higest probability
@@ -227,7 +225,6 @@ class VGGFACE(Classifier):
                 predicted_label = self.labels[predicted_prob[0].argmax()]
                 print("Predicted face: " + str(predicted_label))
                 print("============================\n")
-
                 super().draw_label(frame, str(predicted_label), x_, y_)
             else:
                 predicted_label = "Unknown"
@@ -236,3 +233,38 @@ class VGGFACE(Classifier):
                 super().draw_label(frame, predicted_label, x_, y_)
 
         return frame, predicted_label, predicted_identity_prob
+
+# CLASS_INDEX = None
+# @keras_modules_injection
+# def test_my_decode_predictions(*args, **kwargs):
+#     return my_decode_predictions(*args, **kwargs)
+
+
+# def my_decode_predictions(preds, top=5, **kwargs):
+#     global CLASS_INDEX
+
+#     backend, _, _, keras_utils = get_submodules_from_kwargs(kwargs)
+
+#     # if len(preds.shape) != 2 or preds.shape[1] != 1000:
+#     #     raise ValueError('`decode_predictions` expects '
+#     #                      'a batch of predictions '
+#     #                      '(i.e. a 2D array of shape (samples, 1000)). '
+#     #                      'Found array with shape: ' + str(preds.shape))
+#     if CLASS_INDEX is None:
+#         fpath = keras_utils.get_file(
+#             'imagenet_class_index.json',
+#             CLASS_INDEX_PATH,
+#             cache_subdir='models',
+#             file_hash='c2c37ea517e94d9795004a39431a14cb')
+#         with open(fpath) as f:
+#             CLASS_INDEX = json.load(f)
+#     results = []
+#     for pred in preds:
+#         top_indices = pred.argsort()[-top:][::-1]
+#         result = [tuple(CLASS_INDEX[str(i)]) + (pred[i],) for i in top_indices]
+#         result.sort(key=lambda x: x[2], reverse=True)
+#         results.append(result)
+#     return results
+
+
+# print('Predicted: ', test_my_decode_predictions(pred, top=10))
