@@ -29,7 +29,7 @@ MODELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "saved_model
 LABELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "pickles")  
 
 # Choose the used classifier between LBPHF(), SVC() and VGGFACE()
-CLASSIFIER = SVC()
+CLASSIFIER = LBPHF()
 
 dotenv.read_dotenv(BASE_DIR / '.env')
 
