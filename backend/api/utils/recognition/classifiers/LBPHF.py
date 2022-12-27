@@ -29,45 +29,7 @@ class LBPHF(Classifier):
         if os.path.exists(recognizer_path):
             self.recognizer.read(recognizer_path)  
 
-    def recognize(self, frame):
-        # Turn captured frame into gray scale
-        gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # Face recognition
-        faces = self.face_cascade.detectMultiScale(
-            gray, # Input grayscale image.
-            scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-            minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-            minSize = (30, 30) # Minimum rectangle size to be considered a face.
-        )
-        if len(faces) == 0:
-            name = None
-        else:
-            name = "unknown"
-        conf = 1
-        # For each face...
-        for (x, y, w, h) in faces:
-            roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
-
-            # Use deep learned model to identify the person
-            id_, conf = self.recognizer.predict(roi_gray)
-
-            
-            # If confidence is good...
-            if conf >= 85:
-                # ... write who he think he recognized
-                name = self.labels[id_]
-                super().draw_label(frame, name, x, y)
-            
-            print(name)
-            # Draw a rectangle around the face
-            color = (255, 0, 0) #BGR 0-255 
-            stroke = 2
-            end_cord_x = x + w
-            end_cord_y = y + h
-            cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
-            
-        return frame, name, conf
+    
     
     def train(self):
         current_id = 0
@@ -124,3 +86,44 @@ class LBPHF(Classifier):
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
         print("Fine training")
+        
+
+    def recognize(self, frame):
+        # Turn captured frame into gray scale
+        gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # Face recognition
+        faces = self.face_cascade.detectMultiScale(
+            gray, # Input grayscale image.
+            scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+            minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+            minSize = (30, 30) # Minimum rectangle size to be considered a face.
+        )
+        if len(faces) == 0:
+            name = None
+        else:
+            name = "unknown"
+        conf = 1
+        # For each face...
+        for (x, y, w, h) in faces:
+            roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
+
+            # Use deep learned model to identify the person
+            id_, conf = self.recognizer.predict(roi_gray)
+
+            
+            # If confidence is good...
+            if conf >= 85:
+                # ... write who he think he recognized
+                name = self.labels[id_]
+                super().draw_label(frame, name, x, y)
+            
+            print(name)
+            # Draw a rectangle around the face
+            color = (255, 0, 0) #BGR 0-255 
+            stroke = 2
+            end_cord_x = x + w
+            end_cord_y = y + h
+            cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
+            
+        return frame, name, conf
