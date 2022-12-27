@@ -18,7 +18,7 @@ type RecognitionInfo = {
 	recognitionPhase: boolean
 	facePresent: boolean
 	userInfo: Person
-	similarity: number
+	similarity?: number
 }
 
 interface AdminContextInterface {
@@ -48,11 +48,11 @@ export default function Admin() {
 	}
 
 	const computeAccuracy = () => {
-		let startingSimilarity = 1
+		let startingSimilarity = 0
 		for (let sim of similarityArray) {
-			startingSimilarity *= sim
+			startingSimilarity += sim
 		}
-		return startingSimilarity
+		return startingSimilarity / similarityArray.length
 	}
 
 	const handleSocketReception = (e: any) => {

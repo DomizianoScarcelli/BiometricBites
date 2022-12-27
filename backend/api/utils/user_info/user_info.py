@@ -44,4 +44,4 @@ def get_profile_pic(id):
                 img = opencvimg_to_b64_str(imread(img_path))
                 output_data.append([file, img])
     output_data.sort(key=lambda x: x[0])
-    return output_data[0][1]
+    return output_data[0][-1]

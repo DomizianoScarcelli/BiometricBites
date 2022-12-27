@@ -42,18 +42,17 @@ class FrameConsumer(WebsocketConsumer):
         processed_frame = None
         if self.count % self.DELTA_RECOGNITION == 0:
             processed_frame, id, similarity = self.classifier.recognize(img)
-            identity_data["FACE_PRESENT"] = id is not None
-            identity_data["USER_INFO"] = get_user_info(id) if id is not None else None
+            identity_data["FACE_PRESENT"] = id is not None and id.lower() != "unknown"
+            identity_data["USER_INFO"] = get_user_info(id) if identity_data["FACE_PRESENT"] else None
+            identity_data["SIMILARITY"] = np.float64(similarity)
             identity_data["RECOGNITION_PHASE"] = True
-            if id is not None:
+            if identity_data["FACE_PRESENT"]:
                 identity_data["USER_INFO"]["PROFILE_IMG"] = get_profile_pic(id)
         else:
             processed_frame, face_present = self.classifier.detect_faces(img)
-            similarity = 1.0
-            identity_data["FACE_PRESENT"] = face_present
             identity_data["RECOGNITION_PHASE"] = False
+            identity_data["FACE_PRESENT"] = face_present
         b64_img = opencvimg_to_b64_str(processed_frame)
         identity_data["FRAME"] = b64_img
-        identity_data["SIMILARITY"] = np.float64(similarity)
         identity_data = json.dumps(identity_data)
         self.send(text_data=identity_data)

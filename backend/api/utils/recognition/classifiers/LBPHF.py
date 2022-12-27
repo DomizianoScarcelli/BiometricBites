@@ -48,6 +48,7 @@ class LBPHF(Classifier):
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
 
+            name = "unknown"
             # If confidence is good...
             if conf >= 85:
                 # ... write who he think he recognized
@@ -63,7 +64,7 @@ class LBPHF(Classifier):
             
 
             
-        return frame
+        return frame, name, conf
     
     def train(self):
         current_id = 0
@@ -119,5 +120,4 @@ class LBPHF(Classifier):
             self.recognizer.read(train_path)
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
-        self.load_recognizer()
         print("Fine training")
