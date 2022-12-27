@@ -11,25 +11,25 @@ from api.utils.recognition.Classifier import Classifier
 class SVC(Classifier):
     def __init__(self) -> None:
         super().__init__()
-        self.pickle_file_name = "face_labels_svc.pickle"
+        self.labels_file_name = "face_labels_svc.pickle"
+        self.model_file_name = "svc_model.pickle"
         self.classifier = sklearn_SVC(C=1, kernel='linear', probability=True)
-        self.labels = None
-        self.load_labels(self.pickle_file_name)
-        self.load_classifier()
 
-    def load_labels(self, pickle_file_name):
-        pickle_path = os.path.join(self.labels_root, pickle_file_name)
+    def load_labels(self):
+        pickle_path = os.path.join(self.labels_root, self.labels_file_name)
         if not os.path.exists(pickle_path):
             with open(pickle_path, "wb") as picle_file:
                 picle_file.write(pickle.dumps({}))
         with open(pickle_path, 'rb') as pickle_file:
-            self.labels = pickle.load(pickle_file)
+            labels = pickle.load(pickle_file)
+        return labels
     
     def load_classifier(self):
-        classifier_path = os.path.join(self.models_root, "svc_model.pickle")
+        classifier_path = os.path.join(self.models_root, self.model_file_name)
         if not os.path.exists(classifier_path): return 
         with open(classifier_path, 'rb') as pickle_file:
-            self.classifier = pickle.load(pickle_file)
+            classifier = pickle.load(pickle_file)
+        return classifier
     
     def train(self):
         self.load_classifier()
@@ -54,12 +54,10 @@ class SVC(Classifier):
                     knownNames.append(name)
                 count += 1
         
-        print(f"Know encodings: {knownEncodings}") 
-
         print("Stiamo generando il tuo file di encodings..")
         data = {"encodings": np.array(knownEncodings), "names": np.array(knownNames)}
 
-        f = open(os.path.join(self.labels_root, self.pickle_file_name), "wb")
+        f = open(os.path.join(self.labels_root, self.labels_file_name), "wb")
         f.write(pickle.dumps(data))
         f.close()
 
@@ -72,12 +70,16 @@ class SVC(Classifier):
         self.classifier.fit(X, y)
 
         print("Saving classifier to local folder")
-        f = open(os.path.join(self.models_root, "svc_model.pickle"), "wb")
+        f = open(os.path.join(self.models_root, self.model_file_name), "wb")
         f.write(pickle.dumps(self.classifier))
         f.close()
         print("Classifier saved!")
 
-    def recognize(self, frame):
+        # reload labels and classifier
+        self.labels = self.load_labels()
+        self.classifier = self.load_classifier()
+
+    def recognize(self, frame):        
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         boxes = face_recognition.face_locations(img=rgb, model="hog")
 
@@ -88,14 +90,13 @@ class SVC(Classifier):
             maxPred = np.argmax(predictions)
             confidence = predictions[maxPred]
 
-            if confidence > 0.85:
+            if confidence > 0.80:
                 name = self.classifier.predict([frame_encodings[0]])[0]
                 print(name)
                 print(confidence)
             else:
-                name = "unknown"
+                name = "Unknown"
                 print(name)
                 print(confidence)
-        
                 
         return frame
