@@ -40,7 +40,11 @@ class LBPHF(Classifier):
             minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
             minSize = (30, 30) # Minimum rectangle size to be considered a face.
         )
-
+        if len(faces) == 0:
+            name = None
+        else:
+            name = "unknown"
+        conf = 1
         # For each face...
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
@@ -48,21 +52,20 @@ class LBPHF(Classifier):
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
 
-            name = "unknown"
+            
             # If confidence is good...
             if conf >= 85:
                 # ... write who he think he recognized
                 name = self.labels[id_]
                 super().draw_label(frame, name, x, y)
-
+            
+            print(name)
             # Draw a rectangle around the face
             color = (255, 0, 0) #BGR 0-255 
             stroke = 2
             end_cord_x = x + w
             end_cord_y = y + h
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
-            
-
             
         return frame, name, conf
     

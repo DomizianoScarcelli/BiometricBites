@@ -1,4 +1,5 @@
 //Import your images here: e.g. 'import logo from 'path_to_img/logo.png'
+import unknown_person from "../assets/unknown_person.png"
 import details_emoji from "../assets/details_emoji.png"
 import face_emoji from "../assets/face_emoji.png"
 import history_emoji from "../assets/history_emoji.png"
@@ -8,6 +9,7 @@ import photo_of_face from "../assets/photo_of_face.png"
 import selfie_emoji from "../assets/selfie_emoji.png"
 
 const images = {
+	unknown_person,
 	details_emoji,
 	face_emoji,
 	history_emoji,

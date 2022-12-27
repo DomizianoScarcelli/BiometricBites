@@ -82,7 +82,7 @@ class SVC(Classifier):
         boxes = face_recognition.face_locations(img=rgb, model="hog")
 
         frame_encodings = face_recognition.face_encodings(face_image=rgb, known_face_locations=boxes)
-        name = "unknown"
+        name = None
         confidence = 1
 
         if frame_encodings:
@@ -92,6 +92,8 @@ class SVC(Classifier):
 
             if confidence > 0.85:
                 name = self.classifier.predict([frame_encodings[0]])[0]
+            else:
+                name = "unknown"
             print(name)
             print(confidence)
         

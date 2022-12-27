@@ -14,9 +14,9 @@ type Person = {
 }
 
 type RecognitionInfo = {
+	state: string
 	frame: string
 	recognitionPhase: boolean
-	facePresent: boolean
 	userInfo: Person
 	similarity?: number
 }
@@ -38,6 +38,7 @@ export default function Admin() {
 	const [currentPerson, setCurrentPerson] = useState<Person>()
 	const [similarityArray, setSimilarityArray] = useState<number[]>([])
 	const [userProfilePic, setUserProfilePic] = useState(images.photo_of_face)
+	const [isUnknown, setUnknown] = useState<boolean>(false)
 
 	const webcamStyle: React.CSSProperties = {
 		textAlign: "center",
@@ -58,25 +59,35 @@ export default function Admin() {
 	const handleSocketReception = (e: any) => {
 		const data: any = JSON.parse(e.data)
 		const recognitionInfo: RecognitionInfo = {
+			state: data["STATE"],
 			frame: data["FRAME"],
 			recognitionPhase: data["RECOGNITION_PHASE"],
-			facePresent: data["FACE_PRESENT"],
 			userInfo: parseUserInfo(data["USER_INFO"]),
 			similarity: data["SIMILARITY"],
 		}
-		const { recognitionPhase, facePresent, userInfo, similarity }: RecognitionInfo = recognitionInfo
+		const { state, recognitionPhase, userInfo, similarity }: RecognitionInfo = recognitionInfo
 		if (!recognitionPhase) return // It the frame is not used for recognition, do nothing
-		if (facePresent) {
-			// The face is present on the camera
-			if (similarity !== undefined) setSimilarityArray((array) => array.concat(similarity))
-			setRecognitionArray((array) => array.concat(userInfo))
-		} else {
-			setRecognitionArray([])
+		switch (state) {
+			case "UNKNOWN":
+				setUnknown(true)
+				break
+			case "KNOWN": {
+				setUnknown(false)
+				// The face is present on the camera
+				if (similarity !== undefined) setSimilarityArray((array) => array.concat(similarity))
+				setRecognitionArray((array) => array.concat(userInfo))
+				break
+			}
+			case "NO FACE": {
+				setUnknown(false)
+				setRecognitionArray([])
+				break
+			}
 		}
 	}
 
 	const parseUserInfo = (userInfo: any): Person => {
-		if (userInfo === null || userInfo === undefined) {
+		if (userInfo === undefined || userInfo === null) {
 			return {
 				id: "",
 				name: "",
@@ -85,7 +96,6 @@ export default function Admin() {
 				toPay: 0,
 			}
 		}
-
 		return {
 			id: userInfo["ID"],
 			name: userInfo["NAME"],
@@ -139,30 +149,28 @@ export default function Admin() {
 						</div>
 						<div className="admin-container__right">
 							<div className="student-details">
-								{recognitionArray.length === 0 ? (
-									<h1>Waiting for a student</h1>
+								{recognitionArray.length === 0 && !isUnknown ? (
+									<h1>Waiting for a person</h1>
 								) : (
 									<>
-										<h1>{`${currentPerson?.name} ${currentPerson?.surname}`}</h1>
+										<h1>{isUnknown ? "Person not registered" : `${currentPerson?.name} ${currentPerson?.surname}`}</h1>
 										<div className="student-details__inner">
 											<div className="photo">
-												<img alt="student_photo" src={userProfilePic}></img>
-												<p>{`Accuracy: ${(Math.round(similarity * 100) / 100) * 100}% `}</p>
+												<img alt="student_photo" src={isUnknown ? images.unknown_person : userProfilePic}></img>
+												{!isUnknown && <p>{`Accuracy: ${(Math.round(similarity * 100) / 100) * 100}% `}</p>}
 											</div>
 
 											<div className="price-to-pay">
-												<p>{`${currentPerson?.toPay} Euro`}</p>
+												<p>{`${isUnknown ? "7.00" : currentPerson?.toPay} Euro`}</p>
 											</div>
 										</div>
 									</>
 								)}
 							</div>
-							{recognitionArray.length !== 0 && (
-								<div className="actions">
-									<Button text="Ignore" shadow={true} onClick={() => {}} />
-									<Button text="Pay" shadow={true} onClick={() => {}} />
-								</div>
-							)}
+
+							<div className="actions">
+								<Button text="Pay" shadow={recognitionArray.length !== 0} isActive={recognitionArray.length !== 0} onClick={() => {}} />
+							</div>
 						</div>
 					</div>
 				</div>
