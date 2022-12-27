@@ -1,24 +1,24 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, useContext } from "react"
 import Webcam from "react-webcam"
 import "./WebcamStreamServer.scss"
 import Resolution from "../../types/Resolution.js"
+import { AdminContext } from "../../pages/Admin/Admin"
 
 type WebcamStreamCaptureProps = {
 	style?: React.CSSProperties
-	connected: boolean
-	socket: WebSocket
 	resolution: Resolution
 }
 /**
  * Webcam components that handles the video recording
- * Source: https://codepen.io/mozmorris/pen/yLYKzyp?editors=0010
  * @param param0
  * @returns
  */
-const WebcamStreamServer = ({ style, connected, socket, resolution }: WebcamStreamCaptureProps) => {
+const WebcamStreamServer = ({ style, resolution }: WebcamStreamCaptureProps) => {
 	const webcamRef = useRef<any>(null)
+	const [connected, setConnected] = useState<boolean>(false)
 	const [imgSrc, setImgSrc] = useState<any>(null)
 	const [photoInterval, setPhotoInterval] = useState<any>(null)
+	let { socket, setSocket } = useContext(AdminContext)
 
 	const FPS = 15
 
@@ -26,14 +26,26 @@ const WebcamStreamServer = ({ style, connected, socket, resolution }: WebcamStre
 		const photoInterval = setInterval(async () => {
 			if (webcamRef.current === null) return
 			const screenshot: string = webcamRef.current.getScreenshot()
-			socket.send(screenshot)
+			socket?.send(screenshot)
 		}, 1000 / FPS)
 		setPhotoInterval(photoInterval)
 	}
 
 	useEffect(() => {
-		socket.addEventListener("message", (e: any) => {
-			setImgSrc(e.data)
+		setSocket(new WebSocket(`ws://127.0.0.1:8000/ws/socket-server/`))
+		return () => {
+			socket?.close()
+			setSocket(undefined)
+		}
+	}, [])
+
+	useEffect(() => {
+		socket?.addEventListener("open", () => setConnected(true))
+		socket?.addEventListener("close", () => setConnected(false))
+		socket?.addEventListener("message", (e: any) => {
+			const data = JSON.parse(e.data)
+			const frame = data["FRAME"]
+			setImgSrc(frame)
 		})
 	}, [socket])
 

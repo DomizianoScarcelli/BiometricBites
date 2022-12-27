@@ -100,7 +100,11 @@ class LBPHF(Classifier):
             minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
             minSize = (30, 30) # Minimum rectangle size to be considered a face.
         )
-
+        if len(faces) == 0:
+            name = None
+        else:
+            name = "unknown"
+        conf = 1
         # For each face...
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
@@ -113,12 +117,11 @@ class LBPHF(Classifier):
                 # ... write who he think he recognized
                 name = self.labels[id_]
                 super().draw_label(frame, name, x, y)
-
             # Draw a rectangle around the face
             color = (255, 0, 0) #BGR 0-255 
             stroke = 2
             end_cord_x = x + w
             end_cord_y = y + h
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
-
-        return frame
+            
+        return frame, name, conf

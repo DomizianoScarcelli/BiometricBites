@@ -6,17 +6,22 @@ type ButtonProps = {
 	text: string
 	img?: string
 	shadow: boolean
+	isActive?: boolean
 	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Button = ({ text, img, shadow, onClick }: ButtonProps) => {
+const Button = ({ text, img, shadow, isActive, onClick }: ButtonProps) => {
+	const style = {
+		boxShadow: shadow ? "4px 5px 19px rgba(var(--shadow-color-rgb), 0.5)" : "",
+		opacity: isActive === false ? 0.5 : 1,
+	}
 	return (
 		<>
-			<button style={shadow ? { boxShadow: "4px 5px 19px rgba(var(--shadow-color-rgb), 0.5)" } : {}} onClick={onClick}>
+			<button style={style} onClick={onClick}>
 				<p>
 					{/* Strange trick to use \n in the text props */}
 					{text.split("\n").map((str, index) => (
-						<span key={"row"+index}>{str}</span>
+						<span key={"row" + index}>{str}</span>
 					))}
 				</p>
 				{img ? <img alt={`${img}`} src={img}></img> : <></>}

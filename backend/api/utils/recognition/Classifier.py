@@ -5,8 +5,10 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 from bsproject.paths import SAMPLES_ROOT, LABELS_ROOT, MODELS_ROOT
+from abc import ABC, abstractmethod
 
-class Classifier():
+
+class Classifier(ABC):
     """
     Abstract class, this shouldn't be instanced, but it describes the common fields and methods that a classifier have.
     """
@@ -19,6 +21,10 @@ class Classifier():
         self.image_width = 224
         self.image_height = 224
         self.create_necessary_folders()
+    
+    @abstractmethod
+    def recognize(self, frame: str):
+        pass
 
     def create_necessary_folders(self):
         """
@@ -129,7 +135,8 @@ class Classifier():
     # la rete non funziona.
     def apply_filters(self, frame):
         # group frames
-            
+        
+        frames = []
         image = tf.cast(tf.convert_to_tensor(frame), tf.uint8)
         image_gray = tf.image.rgb_to_grayscale(image)
 
@@ -172,7 +179,8 @@ class Classifier():
     def detect_faces(self, frame):
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+        face_present = len(faces) != 0
         for (x_, y_, w, h) in faces:
             # draw the face detected
             cv2.rectangle(frame, (x_, y_), (x_+w, y_+h), (255, 0, 0), 2)
-        return frame
+        return frame, face_present

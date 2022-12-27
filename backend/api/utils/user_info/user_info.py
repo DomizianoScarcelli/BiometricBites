@@ -1,5 +1,10 @@
 from ..isee_to_cost_calculator import cost_calculator
 from ..dbconnector import dbconnector as db
+import os
+from ..encoding.encoding import opencvimg_to_b64_str
+import imghdr
+from matplotlib.image import imread
+from bsproject.settings import SAMPLES_ROOT
 
 def get_user_info(user_id):
     output_data = {
@@ -27,3 +32,16 @@ def get_user_info(user_id):
         output_data["CF"] = ret[3]
         output_data["COST"] = cost_calculator.cost_calculator(ret[4])
         return output_data
+
+def get_profile_pic(id):
+    supported_types = ['jpeg', 'jpg', 'png']
+    sample_path = os.path.join(SAMPLES_ROOT, id)
+    output_data = []
+    if os.path.exists(sample_path):
+        for file in os.listdir(sample_path):
+            img_path = os.path.join(sample_path, file)
+            if imghdr.what(img_path) in supported_types:
+                img = opencvimg_to_b64_str(imread(img_path))
+                output_data.append([file, img])
+    output_data.sort(key=lambda x: x[0])
+    return output_data[0][-1]
