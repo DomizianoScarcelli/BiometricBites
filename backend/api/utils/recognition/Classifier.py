@@ -45,8 +45,6 @@ class Classifier():
         cv2.putText(frame, label, (x,y), font, 1, color, stroke, cv2.LINE_AA)
         return frame
 
-    #TODO: per ora questo process_images è uguale anche a quello di VGGFACE, e quindi non vengono applicati i vari filtri.
-    # È da sistemare visto che in SVC e LBPHF vanno salvate le immagini filtrate. Non l'ho fatto ora perchè mi da qualche errore.
     def preprocess_images(self):
         """
         Detect frontal and profile faces inside the image, crops them, applies some filters and saves them in the same directory, deleting the original images.
@@ -121,51 +119,45 @@ class Classifier():
                     new_path = os.path.join(root, new_file_name)
                     im.save(new_path)
 
-    #TODO: now it's never used.
-    #TODO: IMPORTANTE: se questo metodo viene utilizzato per VGGFace, le immagini devono essere per forza scalate a 224x224, altrimenti
-    # la rete non funziona.
     def apply_filters(self, filter, frame):
-        # group frames
+        """
+        Apply different filters to increase the face features
+        """
         image = tf.cast(tf.convert_to_tensor(frame), tf.uint8)
-        image_gray = tf.image.rgb_to_grayscale(image)
-        image_gray = tf.image.crop_to_bounding_box(image_gray, 34, 0, 224, 224)
+        image = tf.image.rgb_to_grayscale(image)
+        #TODO: IMPORTANTE: se questo metodo viene utilizzato per VGGFace, le immagini devono essere per forza scalate a 224x224, altrimenti la rete non funziona.
+        # image = tf.image.crop_to_bounding_box(image, 34, 0, 224, 224)
 
-        match filter:
-            case 0:
-                # Invert image
-                flip = tf.image.flip_left_right(image_gray)
-                return np.asarray(flip)
-            case 1:
-                # Boosting constrast
-                # +0.9
-                contrast = tf.image.adjust_contrast(image_gray, 0.9)
-                return np.asarray(contrast)
-            case 2:
-                # Boosting constrast
-                # +0.9
-                contrast = tf.image.adjust_contrast(image_gray, 0.9)
-                return np.asarray(contrast)
-            case 3:
-                # +1.5
-                contrast = tf.image.adjust_contrast(image_gray, 1.5)
-                return np.asarray(contrast)
-            case 4:
-                # +2
-                contrast = tf.image.adjust_contrast(image_gray, 2)
-                return np.asarray(contrast)
-            case 5:
-                # Boosting brightness
-                # -0.5
-                brightness = tf.image.adjust_brightness(image_gray, -0.5)
-                return np.asarray(brightness)
-            case 6
-                # -0.2
-                brightness = tf.image.adjust_brightness(image_gray, -0.2)
-                return np.asarray(brightness)
-            case 7:
-                # +0.2
-                brightness = tf.image.adjust_brightness(image_gray, 0.2)
-                return np.asarray(brightness)
+        # original frame
+        if filter == 0:
+            return frame
+        # gray image
+        elif filter == 1:
+            return np.asarray(image)
+        # Boosting constrast
+        elif filter == 2:
+            contrast = tf.image.adjust_contrast(image, 0.8)
+            return np.asarray(contrast)
+        elif filter == 3:
+            contrast = tf.image.adjust_contrast(image, 0.9)
+            return np.asarray(contrast)
+        elif filter == 4:
+            contrast = tf.image.adjust_contrast(image, 1)
+            return np.asarray(contrast)
+        # Boosting brightness
+        elif filter == 5:
+            brightness = tf.image.adjust_brightness(image, 0.1)
+            return np.asarray(brightness)
+        elif filter == 6:
+            brightness = tf.image.adjust_brightness(image, 0.2)
+            return np.asarray(brightness)
+        elif filter == 7:
+            brightness = tf.image.adjust_brightness(image, 0.3)
+            return np.asarray(brightness)
+        # Invert image
+        elif filter == 8:   
+            flip = tf.image.flip_left_right(image)
+            return np.asarray(flip)
                 
     def detect_faces(self, frame):
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

@@ -253,9 +253,9 @@ def upload_photo_enrollment(request, *args, **kargs):
                 print(f"Starting index: {starting_index}, {is_in_index}")
                 if any(is_in_index): starting_index += 1
                 else: break
-            for i in range(8):
-                cv2.imwrite(os.path.join(img_path, f"image_{starting_index}.jpeg"), classifier.apply_filters(i, opencv_img))
-
+            for i in range(9):
+                cv2.imwrite(os.path.join(img_path, f"image_{starting_index}_{i}.jpeg"), classifier.apply_filters(i, opencv_img))
+                
         def train_pipeline():
             classifier.preprocess_images()
             classifier.train()
