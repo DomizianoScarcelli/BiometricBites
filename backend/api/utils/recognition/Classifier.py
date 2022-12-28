@@ -96,7 +96,7 @@ class Classifier():
                         faces = profile_faces
                 else:
                     faces = frontal_faces
-
+                
                 # save the detected face(s) and associate
                 # them with the label
                 for (x_, y_, w, h) in faces:
@@ -128,12 +128,13 @@ class Classifier():
         #TODO: IMPORTANTE: se questo metodo viene utilizzato per VGGFace, le immagini devono essere per forza scalate a 224x224, altrimenti la rete non funziona.
         # image = tf.image.crop_to_bounding_box(image, 34, 0, 224, 224)
 
-        # original frame
-        if filter == 0:
-            return frame
         # gray image
-        elif filter == 1:
+        if filter == 0:
             return np.asarray(image)
+        # Invert image
+        elif filter == 1:
+            flip = tf.image.flip_left_right(image)
+            return np.asarray(flip)
         # Boosting constrast
         elif filter == 2:
             contrast = tf.image.adjust_contrast(image, 0.8)
@@ -153,11 +154,7 @@ class Classifier():
             return np.asarray(brightness)
         elif filter == 7:
             brightness = tf.image.adjust_brightness(image, 0.3)
-            return np.asarray(brightness)
-        # Invert image
-        elif filter == 8:   
-            flip = tf.image.flip_left_right(image)
-            return np.asarray(flip)
+            return np.asarray(brightness)            
                 
     def detect_faces(self, frame):
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
