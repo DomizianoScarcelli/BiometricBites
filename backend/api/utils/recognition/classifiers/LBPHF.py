@@ -13,6 +13,7 @@ class LBPHF(Classifier):
         self.recognizer = cv2.face.LBPHFaceRecognizer_create()
         self.labels_file_name = "face_labels_lbphf.pickle"
         self.model_file_name = "lbphf_model.yml"
+        self.labels = self.load_labels()
 
     def load_labels(self):
         labels_path = os.path.join(self.labels_root, self.labels_file_name)
@@ -83,13 +84,13 @@ class LBPHF(Classifier):
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
 
+        print("Fine training")
+
+    def recognize(self, frame):
         # reload labels and recognizer
         self.labels = self.load_labels()
         self.load_recognizer()
 
-        print("Fine training")
-
-    def recognize(self, frame):
         # Turn captured frame into gray scale
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
