@@ -125,34 +125,28 @@ class Classifier():
         """
         image = tf.cast(tf.convert_to_tensor(frame), tf.uint8)
         image = tf.image.rgb_to_grayscale(image)
-        #TODO: IMPORTANTE: se questo metodo viene utilizzato per VGGFace, le immagini devono essere per forza scalate a 224x224, altrimenti la rete non funziona.
-        # image = tf.image.crop_to_bounding_box(image, 34, 0, 224, 224)
-
+        
         # gray image
         if filter == 0:
             return np.asarray(image)
-        # Invert image
-        elif filter == 1:
-            flip = tf.image.flip_left_right(image)
-            return np.asarray(flip)
         # Boosting constrast
-        elif filter == 2:
+        elif filter == 1:
             contrast = tf.image.adjust_contrast(image, 0.8)
             return np.asarray(contrast)
-        elif filter == 3:
+        elif filter == 2:
             contrast = tf.image.adjust_contrast(image, 0.9)
             return np.asarray(contrast)
-        elif filter == 4:
+        elif filter == 3:
             contrast = tf.image.adjust_contrast(image, 1)
             return np.asarray(contrast)
         # Boosting brightness
-        elif filter == 5:
+        elif filter == 4:
             brightness = tf.image.adjust_brightness(image, 0.1)
             return np.asarray(brightness)
-        elif filter == 6:
+        elif filter == 5:
             brightness = tf.image.adjust_brightness(image, 0.2)
             return np.asarray(brightness)
-        elif filter == 7:
+        elif filter == 6:
             brightness = tf.image.adjust_brightness(image, 0.3)
             return np.asarray(brightness)            
                 

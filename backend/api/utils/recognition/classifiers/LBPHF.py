@@ -84,12 +84,14 @@ class LBPHF(Classifier):
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
 
+        # reload labels and classifier
+        self.labels = self.load_labels()
+        self.load_recognizer()
+
         print("Fine training")
 
     def recognize(self, frame):
         # reload labels and recognizer
-        self.labels = self.load_labels()
-        self.load_recognizer()
 
         # Turn captured frame into gray scale
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -108,6 +110,7 @@ class LBPHF(Classifier):
 
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
+            print(str(conf))
 
             # If confidence is good...
             if conf >= 85:
