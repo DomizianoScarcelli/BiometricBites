@@ -25,6 +25,10 @@ class Classifier(ABC):
     @abstractmethod
     def recognize(self, frame: str):
         pass
+    
+    @abstractmethod
+    def train(self):
+        pass
 
     def create_necessary_folders(self):
         """
@@ -85,7 +89,11 @@ class Classifier(ABC):
 
                 # load the image
                 imgtest = cv2.imread(path, cv2.IMREAD_COLOR)
-                img_gray = cv2.cvtColor(imgtest, cv2.COLOR_BGR2GRAY)
+                try:
+                    img_gray = cv2.cvtColor(imgtest, cv2.COLOR_BGR2GRAY)
+                except:
+                    print(f"---Photo {file} skipped because there is no face---\n")
+                    continue
                 image_array = np.array(imgtest, "uint8")
 
                 # get the faces detected in the image
