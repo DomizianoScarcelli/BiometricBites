@@ -11,6 +11,7 @@ from api.utils.recognition.Classifier import Classifier
 class SVC(Classifier):
     def __init__(self) -> None:
         super().__init__()
+        self.name = "SVC"
         self.labels_file_name = "face_labels_svc.pickle"
         self.model_file_name = "svc_model.pickle"
         self.classifier = sklearn_SVC(C=1, kernel='linear', probability=True)
@@ -32,7 +33,6 @@ class SVC(Classifier):
         return classifier
     
     def train(self):
-        self.load_classifier()
         knownEncodings = []
         knownNames = []
 
@@ -77,11 +77,7 @@ class SVC(Classifier):
         f.close()
         print("Classifier saved!")
 
-        # reload labels and classifier
-        self.labels = self.load_labels()
-        self.classifier = self.load_classifier()
-
-    def recognize(self, frame):       
+    def recognize(self, frame):        
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         boxes = face_recognition.face_locations(img=rgb, model="hog")
 
