@@ -10,10 +10,14 @@ from api.utils.recognition.Classifier import Classifier
 class LBPHF(Classifier):
     def __init__(self):
         super().__init__()
+        self.name = "LBPHF"
         self.recognizer = cv2.face.LBPHFaceRecognizer_create()
         self.labels_file_name = "face_labels_lbphf.pickle"
         self.model_file_name = "lbphf_model.yml"
         self.labels = self.load_labels()
+        self.scaleFactor = 1.1 # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+        self.minNeighbors = 3 # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+        self.minSize = (30, 30) # Minimum rectangle size to be considered a face.
 
     def load_labels(self):
         labels_path = os.path.join(self.labels_root, self.labels_file_name)
@@ -61,9 +65,9 @@ class LBPHF(Classifier):
                 # Face recognition
                 faces = self.face_cascade.detectMultiScale(
                     image_array, # Input grayscale image.
-                    scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-                    minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-                    minSize = (30, 30) # Minimum rectangle size to be considered a face.
+                    scaleFactor = self.scaleFactor,
+                    minNeighbors = self.minNeighbors, 
+                    minSize = self.minSize 
                 )
 
                 # Append the detected faces into x_train and their id into y_labels
@@ -98,11 +102,11 @@ class LBPHF(Classifier):
 
         # Face recognition
         faces = self.face_cascade.detectMultiScale(
-            gray, # Input grayscale image.
-            scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-            minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-            minSize = (30, 30) # Minimum rectangle size to be considered a face.
-        )
+                    gray, # Input grayscale image.
+                    scaleFactor = self.scaleFactor,
+                    minNeighbors = self.minNeighbors, 
+                    minSize = self.minSize 
+                )
         if len(faces) == 0:
             name = None
         else:
@@ -117,7 +121,7 @@ class LBPHF(Classifier):
             print(str(conf))
 
             # If confidence is good...
-            if conf >= 85:
+            if conf >= 70:
                 # ... write who he think he recognized
                 name = self.labels[id_]
                 super().draw_label(frame, name, x, y)
