@@ -88,15 +88,9 @@ class LBPHF(Classifier):
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
 
-        # reload labels and classifier
-        self.labels = self.load_labels()
-        self.load_recognizer()
-
         print("Fine training")
 
     def recognize(self, frame):
-        # reload labels and recognizer
-
         # Turn captured frame into gray scale
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
