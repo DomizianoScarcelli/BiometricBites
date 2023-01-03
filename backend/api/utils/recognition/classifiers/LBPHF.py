@@ -11,13 +11,19 @@ class LBPHF(Classifier):
     def __init__(self):
         super().__init__()
         self.name = "LBPHF"
-        self.recognizer = cv2.face.LBPHFaceRecognizer_create()
+        self.recognizer = cv2.face.LBPHFaceRecognizer_create(
+                            radius = 1, # The radius used for building the Circular Local Binary Pattern. The greater the radius, the smoother the image but more spatial information you can get
+                            neighbors = 8, # The number of sample points to build a Circular Local Binary Pattern. An appropriate value is to use 8 sample points. Keep in mind: the more sample points you include, the higher the computational cost
+                            grid_x = 8, # The number of cells in the horizontal direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
+                            grid_y = 8, # The number of cells in the vertical direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
+                        )         
         self.labels_file_name = "face_labels_lbphf.pickle"
         self.model_file_name = "lbphf_model.yml"
         self.labels = self.load_labels()
         self.scaleFactor = 1.1 # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
         self.minNeighbors = 3 # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
         self.minSize = (30, 30) # Minimum rectangle size to be considered a face.
+        # self.flags = cv2.cv.CV_HAAR_SCALE_IMAGE
 
     def load_labels(self):
         labels_path = os.path.join(self.labels_root, self.labels_file_name)
