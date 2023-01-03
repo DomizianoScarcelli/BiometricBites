@@ -16,7 +16,7 @@ from pathlib import Path
 
 from api.utils.recognition.classifiers.LBPHF import LBPHF
 from api.utils.recognition.classifiers.SVC import SVC
-from api.utils.recognition.classifiers.VGGFACE import VGGFACE
+from api.utils.recognition.classifiers.VGGFACE_deprecated import VGGFACE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -43,8 +43,10 @@ class SVC(Classifier):
                 path = os.path.join(root, file) # Save the path of each image
                 name = os.path.basename(os.path.dirname(path)).replace(" ", "-").lower() # Save the label of each image
                 image = cv2.imread(path)
-
-                rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                try:
+                    rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                except:
+                    continue
                 boxes = face_recognition.face_locations(img=rgb, model="hog")
 
                 frame_encodings = face_recognition.face_encodings(face_image=rgb, known_face_locations=boxes)
@@ -79,7 +81,7 @@ class SVC(Classifier):
         self.labels = self.load_labels()
         self.classifier = self.load_classifier()
 
-    def recognize(self, frame):        
+    def recognize(self, frame):       
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         boxes = face_recognition.face_locations(img=rgb, model="hog")
 
@@ -98,6 +100,26 @@ class SVC(Classifier):
                 name = "unknown"
             print(name)
             print(confidence)
+            print(f"Predictions: {predictions}")
         
                 
         return frame, name, confidence
+
+if __name__ == "__main__":
+    def test_with_cam():
+        DELTA_RECOGNIZE = 5
+        counter = 0
+        cap = cv2.VideoCapture(0)
+        while True:
+            counter += 1
+            success, frame = cap.read()
+            if counter % DELTA_RECOGNIZE == 0:
+                counter = 0
+                classifier.recognize(frame)
+
+            cv2.imshow('Webcam',cv2.flip(frame, 1))
+            cv2.waitKey(1)
+
+    classifier = SVC()
+    classifier.train()
+    test_with_cam()
