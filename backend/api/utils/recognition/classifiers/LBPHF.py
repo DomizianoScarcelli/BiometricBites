@@ -23,7 +23,6 @@ class LBPHF(Classifier):
         self.scaleFactor = 1.1 # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
         self.minNeighbors = 3 # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
         self.minSize = (30, 30) # Minimum rectangle size to be considered a face.
-        # self.flags = cv2.cv.CV_HAAR_SCALE_IMAGE
 
     def load_labels(self):
         labels_path = os.path.join(self.labels_root, self.labels_file_name)
@@ -118,6 +117,7 @@ class LBPHF(Classifier):
 
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
+            conf = float("{:.2f}".format(conf))
             print(str(conf))
 
             # If confidence is good...
@@ -131,5 +131,5 @@ class LBPHF(Classifier):
             end_cord_x = x + w
             end_cord_y = y + h
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
-            
+                        
         return frame, name, conf
