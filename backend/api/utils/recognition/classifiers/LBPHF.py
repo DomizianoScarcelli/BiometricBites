@@ -19,6 +19,9 @@ class LBPHF(Classifier):
         self.minNeighbors = 3 # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
         self.minSize = (30, 30) # Minimum rectangle size to be considered a face.
 
+        self.collector = cv2.face.StandardCollector_create()
+
+
     def load_labels(self):
         labels_path = os.path.join(self.labels_root, self.labels_file_name)
         if not os.path.exists(labels_path): 
@@ -90,6 +93,8 @@ class LBPHF(Classifier):
 
         print("Fine training")
 
+        # TODO: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
+
     def recognize(self, frame):
         # Turn captured frame into gray scale
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -109,6 +114,15 @@ class LBPHF(Classifier):
         # For each face...
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
+
+            # TODO: retrieve distance vector
+            # self.recognizer.predict_collect(roi_gray, self.collector)
+            # list_of_conf_id_tuples = self.collector.getResults()
+            # conf = self.collector.getMinDist()
+            # id_ = self.collector.getMinLabel()
+
+            # TODO: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
+            print(self.recognizer.getHistograms())
 
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
