@@ -21,12 +21,11 @@ def compute_similarities(template_list, similarity_function: callable):
         row_similarities = []
         for j, element_j in enumerate(template_list): #for every column (template)
             label_j, template_j = element_j
-            if i == j: #Do not consider main diagonal elements
-                continue
-            if label_i == label_j: #We have to compare the identities to template_list must be some labels..
-                genuine_claims += 1
-            else:
-                impostor_claims += 1
+            if i != j: #Do not consider main diagonal elements
+                if label_i == label_j: #We have to compare the identities to template_list must be some labels..
+                    genuine_claims += 1
+                else:
+                    impostor_claims += 1
             similarity = similarity_function(template_i, template_j)
             row_similarities.append(similarity) #Must substitute 0 with the similarity algorithm
         all_similarities.append(row_similarities)
