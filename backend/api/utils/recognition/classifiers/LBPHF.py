@@ -115,15 +115,6 @@ class LBPHF(Classifier):
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
 
-            # TODO: retrieve distance vector
-            # self.recognizer.predict_collect(roi_gray, self.collector)
-            # list_of_conf_id_tuples = self.collector.getResults()
-            # conf = self.collector.getMinDist()
-            # id_ = self.collector.getMinLabel()
-
-            # TODO: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
-            print(self.recognizer.getHistograms())
-
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
             conf /= 100.
@@ -143,3 +134,61 @@ class LBPHF(Classifier):
                         
         return frame, name, conf
 
+######################################
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+if __name__ == "__main__":
+    def displayHistogram(target_file):
+        img = detect_face(target_file)
+        tmp_model = cv2.face.LBPHFaceRecognizer_create()
+        tmp_model.train([img], np.array([0]))
+
+        histogram = tmp_model.getHistograms()[0][0]
+        #histogram = histogram[0:100]
+        axis_values = np.array([i for i in range(0, len(histogram))])
+
+        plt.bar(axis_values, histogram)
+        plt.show()
+
+    def evaluation(image_dir):   
+        # TODO 1: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
+        # Trained model object stores histograms of the images in the facial database. It will compare the histogram of the target image with them later.
+        histograms = classifier.recognizer.getHistograms()
+
+        # For each file in the image directory
+        for root, dirs, files in os.walk(image_dir):
+            for file in files:
+                path = os.path.join(root, file) # Save the path of each image
+                
+                for i in range(0, len(files)):
+                    histogram = histograms[i][0]
+                    axis_values = np.array([i for i in range(0, len(histogram))])
+                    fig = plt.figure(figsize=(10, 5))
+                    
+                    ax1 = fig.add_subplot(1,2,1)
+                    plt.imshow(cv2.imread(path)[:,:,::-1])
+                    plt.axis('off')
+                    
+                    ax2 = fig.add_subplot(1,2,2)
+                    plt.bar(axis_values, histogram)
+                    # plt.show()
+
+                    fig.savefig(image_dir + "/" + file + "_" + str(i) + ".png")
+
+        # TODO 2: retrieve distance vector
+        # self.collector = cv2.face.StandardCollector_create()
+        # self.recognizer.predict_collect(roi_gray, self.collector)
+        # list_of_conf_id_tuples = self.collector.getResults()
+        # conf = self.collector.getMinDist()
+        # id_ = self.collector.getMinLabel()
+
+        # TODO 3: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
+        #print(self.recognizer.getHistograms())
+
+    classifier = LBPHF()
+    classifier.load_recognizer()
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+    image_dir = os.path.join(BASE_DIR, 'samples')
+
+    evaluation(image_dir)
