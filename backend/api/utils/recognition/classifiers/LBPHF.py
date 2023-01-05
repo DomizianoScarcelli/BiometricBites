@@ -115,6 +115,15 @@ class LBPHF(Classifier):
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y+h, x:x+w] # ...pick its Region of Intrest (from eyes to mouth)
 
+            # TODO: retrieve distance vector
+            # self.recognizer.predict_collect(roi_gray, self.collector)
+            # list_of_conf_id_tuples = self.collector.getResults()
+            # conf = self.collector.getMinDist()
+            # id_ = self.collector.getMinLabel()
+
+            # TODO: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
+            print(self.recognizer.getHistograms())
+
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
             conf /= 100.
