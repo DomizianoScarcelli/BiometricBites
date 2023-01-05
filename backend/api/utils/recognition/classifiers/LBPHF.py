@@ -117,11 +117,11 @@ class LBPHF(Classifier):
 
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
-            conf = float("{:.2f}".format(conf))
-            print(str(conf))
+            conf /= 100.
+            print(conf)
 
             # If confidence is good...
-            if conf >= 70:
+            if conf >= .70:
                 # ... write who he think he recognized
                 name = self.labels[id_]
                 super().draw_label(frame, name, x, y)
@@ -133,3 +133,4 @@ class LBPHF(Classifier):
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
                         
         return frame, name, conf
+
