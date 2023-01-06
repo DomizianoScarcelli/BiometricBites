@@ -10,10 +10,19 @@ from api.utils.recognition.Classifier import Classifier
 class LBPHF(Classifier):
     def __init__(self):
         super().__init__()
-        self.recognizer = cv2.face.LBPHFaceRecognizer_create()
+        self.name = "LBPHF"
+        self.recognizer = cv2.face.LBPHFaceRecognizer_create(
+                            radius = 1, # The radius used for building the Circular Local Binary Pattern. The greater the radius, the smoother the image but more spatial information you can get
+                            neighbors = 8, # The number of sample points to build a Circular Local Binary Pattern. An appropriate value is to use 8 sample points. Keep in mind: the more sample points you include, the higher the computational cost
+                            grid_x = 8, # The number of cells in the horizontal direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
+                            grid_y = 8, # The number of cells in the vertical direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
+                        )         
         self.labels_file_name = "face_labels_lbphf.pickle"
         self.model_file_name = "lbphf_model.yml"
         self.labels = self.load_labels()
+        self.scaleFactor = 1.1 # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
+        self.minNeighbors = 3 # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
+        self.minSize = (30, 30) # Minimum rectangle size to be considered a face.
 
     def load_labels(self):
         labels_path = os.path.join(self.labels_root, self.labels_file_name)
@@ -61,9 +70,9 @@ class LBPHF(Classifier):
                 # Face recognition
                 faces = self.face_cascade.detectMultiScale(
                     image_array, # Input grayscale image.
-                    scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-                    minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-                    minSize = (30, 30) # Minimum rectangle size to be considered a face.
+                    scaleFactor = self.scaleFactor,
+                    minNeighbors = self.minNeighbors, 
+                    minSize = self.minSize 
                 )
 
                 # Append the detected faces into x_train and their id into y_labels
@@ -84,25 +93,19 @@ class LBPHF(Classifier):
         self.recognizer.update(x_train, np.array(y_lables))
         self.recognizer.save(train_path)
 
-        # reload labels and classifier
-        self.labels = self.load_labels()
-        self.load_recognizer()
-
         print("Fine training")
 
     def recognize(self, frame):
-        # reload labels and recognizer
-
         # Turn captured frame into gray scale
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # Face recognition
         faces = self.face_cascade.detectMultiScale(
-            gray, # Input grayscale image.
-            scaleFactor = 1.1, # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-            minNeighbors = 5, # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-            minSize = (30, 30) # Minimum rectangle size to be considered a face.
-        )
+                    gray, # Input grayscale image.
+                    scaleFactor = self.scaleFactor,
+                    minNeighbors = self.minNeighbors, 
+                    minSize = self.minSize 
+                )
         if len(faces) == 0:
             name = None
         else:
@@ -114,10 +117,11 @@ class LBPHF(Classifier):
 
             # Use deep learned model to identify the person
             id_, conf = self.recognizer.predict(roi_gray)
-            print(str(conf))
+            conf /= 100.
+            print(conf)
 
             # If confidence is good...
-            if conf >= 85:
+            if conf >= .70:
                 # ... write who he think he recognized
                 name = self.labels[id_]
                 super().draw_label(frame, name, x, y)
@@ -127,5 +131,6 @@ class LBPHF(Classifier):
             end_cord_x = x + w
             end_cord_y = y + h
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
-            
+                        
         return frame, name, conf
+

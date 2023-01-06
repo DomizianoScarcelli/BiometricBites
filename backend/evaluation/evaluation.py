@@ -1,16 +1,5 @@
-# from sklearn.model_selection import train_test_split, GridSearchCV
-# from scipy.spatial import distance
-# from evaluation import Gallery
 from tqdm import tqdm
 import numpy as np
-
-#THE WHOLE EVALUATION STRUCTURE WILL BE CHANGED DEPENDING ON THE RECOGNITION ALGORITHM WE CHOOSE
-#gallery_set = Gallery() #To implement
-#probe_set = Gallery()
-gallery_set = []
-#probe_set = []
-
-#X_train, X_test, y_train, y_test = train_test_split(gallery.get_images(), labels)
 
 def compute_similarities(template_list, similarity_function: callable):
     all_similarities = []
@@ -99,4 +88,4 @@ def verification_eval(template_list, threshold):
     GRR = GR / impostor_claims
     FAR = FA / impostor_claims
     FRR = FR / genuine_claims
-    return GA, GR, FA, FR
+    return GAR, GRR, FAR, FRR

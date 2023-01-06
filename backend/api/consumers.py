@@ -16,6 +16,19 @@ class FrameConsumer(WebsocketConsumer):
        self.count = 0
        self.classifier = CLASSIFIER
        self.DELTA_RECOGNITION = 5
+
+       # reload labels and classifier
+       if self.classifier.name == "LBPHF":
+        #LBPH
+        self.classifier.labels = self.classifier.load_labels()
+        self.classifier.load_recognizer()
+       elif self.classifier.name == "SVC":
+        #SVC
+        self.classifier.labels = self.classifier.load_labels()
+        self.classifier.classifier = self.classifier.load_classifier()
+       elif self.classifier.name == "VGGFACE":
+        #VGGFACE
+        pass
     
     def receive(self, text_data):
         self.count += 1
