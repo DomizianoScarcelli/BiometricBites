@@ -5,11 +5,9 @@ def compute_similarities(template_list, similarity_function: callable):
     all_similarities = []
     genuine_claims = 0
     impostor_claims = 0
-    for i, element_i in enumerate(tqdm(template_list)): #for every row (probe)
-        label_i, template_i = element_i
+    for i, (label_i, template_i) in enumerate(tqdm(template_list, desc="Compute similarities")): #for every row (probe)
         row_similarities = []
-        for j, element_j in enumerate(template_list): #for every column (template)
-            label_j, template_j = element_j
+        for j, (label_j, template_j) in enumerate(template_list): #for every column (template)
             if i != j: #Do not consider main diagonal elements
                 if label_i == label_j: #We have to compare the identities to template_list must be some labels..
                     genuine_claims += 1
@@ -21,33 +19,31 @@ def compute_similarities(template_list, similarity_function: callable):
     return genuine_claims, impostor_claims, all_similarities
 
 #OpenSet Identification Multiple Template
-#TODO: this hasn't been tested with a real evaluation
-def open_set_identification_eval(template_list, threshold): 
-    genuine_claims, impostor_claims, all_similarities = compute_similarities(template_list)
-    DI = [0 for _ in range(template_list)] #Detection and Identification
+#TODO: for now everything returns 0.0
+def open_set_identification_eval(template_list, threshold, genuine_claims=None, impostor_claims=None, all_similarities=None): 
+    if genuine_claims is None or impostor_claims is None or all_similarities is None:
+        genuine_claims, impostor_claims, all_similarities = compute_similarities(template_list)
+    DI = [0 for _ in range(len(template_list))] #Detection and Identification
     GR = FA = 0
-    for i, template_i in enumerate(template_list): #for every row (probe)
-        cur_probe = template_i
+    for i, (label_i, template_i) in enumerate(template_list): #for every row (probe)
         first_similarity = all_similarities[i][0] #L_i,1, the most similar template
         if first_similarity >= threshold:
-            if cur_probe == cur_template: #the identity!! (to change)
+            if label_i == label_j: #the identity!! (to change)
                 DI[0] += 1
-                for j, template_j in enumerate(template_list): #Parallel impostor case: jump the templates belonging to label(i) since i not in G
-                    cur_template = template_j
+                for j, (label_j, template_j) in enumerate(template_list): #Parallel impostor case: jump the templates belonging to label(i) since i not in G
                     k = None
                     if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
-                        if (k == None) and (cur_probe != cur_template) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
+                        if (k == None) and (template_i != template_j) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
                             k = j
                     if k != None:
                         FA += 1
                     else:
                         GR += 1
             else:
-                for template_j, j in enumerate(1, len(template_list)): #If genuine yet not the first, look for higher ranks
-                    cur_template = template_j
+                for j, (label_j, template_j) in enumerate(1, len(template_list)): #If genuine yet not the first, look for higher ranks
                     k = None
                     if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
-                        if (k == None) and (cur_probe == cur_template) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
+                        if (k == None) and (template_i == template_j) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
                             k = j
                     if k != None:
                         DI[k] += 1 #End of genuine
@@ -55,7 +51,7 @@ def open_set_identification_eval(template_list, threshold):
         else:
             GR += 1 #Impostor case counted directly, FR computed through DIR
 
-        DIR = [0 for _ in range(template_list)] #Detection and Identification rate
+        DIR = [0 for _ in range(len(template_list))] #Detection and Identification rate
         DIR[0] = DI[0] / genuine_claims
         FRR = 1 - DIR[0] 
         FAR = FA / impostor_claims
