@@ -23,17 +23,20 @@ def compute_similarities(template_list, similarity_function: callable):
 def open_set_identification_eval(template_list, threshold, genuine_claims=None, impostor_claims=None, all_similarities=None): 
     if genuine_claims is None or impostor_claims is None or all_similarities is None:
         genuine_claims, impostor_claims, all_similarities = compute_similarities(template_list)
+    all_similarities = [[(x, all_similarities[y][x]) for x in range(len(all_similarities[0]))] for y in range(len(all_similarities))] #Inserting the label on which the similarity refers to in the data structure
+    all_similarities = [sorted(row, reverse=True) for row in all_similarities] #Descending sort similarities
+    print(all_similarities)
     DI = [0 for _ in range(len(template_list))] #Detection and Identification
     GR = FA = 0
     for i, (label_i, template_i) in enumerate(template_list): #for every row (probe)
-        first_similarity = all_similarities[i][0] #L_i,1, the most similar template
+        best_match_label, first_similarity = all_similarities[i][0] #L_i,1, the most similar template
         if first_similarity >= threshold:
-            if label_i == label_j: #the identity!! (to change)
+            if label_i == best_match_label: #the identity!! (to change)
                 DI[0] += 1
                 for j, (label_j, template_j) in enumerate(template_list): #Parallel impostor case: jump the templates belonging to label(i) since i not in G
                     k = None
                     if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
-                        if (k == None) and (template_i != template_j) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
+                        if (k == None) and (label_i != label_j) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
                             k = j
                     if k != None:
                         FA += 1
@@ -43,7 +46,7 @@ def open_set_identification_eval(template_list, threshold, genuine_claims=None, 
                 for j, (label_j, template_j) in enumerate(1, len(template_list)): #If genuine yet not the first, look for higher ranks
                     k = None
                     if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
-                        if (k == None) and (template_i == template_j) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
+                        if (k == None) and (label_i == label_j) and all_similarities[i][j] >= threshold: #The first template != label(i) has a similarity >= t
                             k = j
                     if k != None:
                         DI[k] += 1 #End of genuine

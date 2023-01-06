@@ -38,11 +38,11 @@ else:
 data = np.array([(y[i], feature_vectors[i]) for i in range(len(lfw_people.data))])
 
 def get_similarity_between_two(img1, img2):
-    return 1 - cosine(img1, img2)
+    return cosine(img1, img2)
 
 ######## Load data if present on disk ######## 
-if os.path.exists(FEATURE_VECTORS_PATH) and os.path.exists(CLAIMS_PATH):
-    all_similarities = np.load(FEATURE_VECTORS_PATH)
+if os.path.exists(SIMILARITIES_PATH) and os.path.exists(CLAIMS_PATH):
+    all_similarities = np.load(SIMILARITIES_PATH)
     claims_dict = pd.read_csv(CLAIMS_PATH)
     genuine_claims = claims_dict.at[0, "genuine_claims"]
     impostor_claims = claims_dict.at[0, "impostor_claims"]
