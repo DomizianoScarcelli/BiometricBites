@@ -20,7 +20,8 @@ SAVED_ARRAYS_PATH = "./evaluation/saved_arrays"
 FEATURE_VECTORS_PATH = os.path.join(SAVED_ARRAYS_PATH, "feature_vectors.npy")
 SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
 CLAIMS_PATH = os.path.join(SAVED_ARRAYS_PATH, "claims_number.csv")
-
+if not os.path.exists(SAVED_ARRAYS_PATH):
+    os.mkdir(SAVED_ARRAYS_PATH)
 ######## Build feature vectors ######## 
 model = DeepFace.build_model('VGG-Face')
 feature_vectors = []
