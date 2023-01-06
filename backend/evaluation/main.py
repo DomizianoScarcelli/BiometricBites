@@ -38,7 +38,7 @@ else:
 data = np.array([(y[i], feature_vectors[i]) for i in range(len(lfw_people.data))])
 
 def get_similarity_between_two(img1, img2):
-    return cosine(img1, img2)
+    return 1 - cosine(img1, img2)
 
 ######## Load data if present on disk ######## 
 if os.path.exists(SIMILARITIES_PATH) and os.path.exists(CLAIMS_PATH):
