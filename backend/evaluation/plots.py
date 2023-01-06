@@ -49,7 +49,7 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds):
     plt.legend(loc='upper center')
     plt.show()
 
-
+"""
 def test():
     metrics = {"FAR": [0, 0, 0, 0.34, 0.45, 0.52, 0.67, 0.72, 0.92, 1], "FRR": [1, 0.92, 0.78, 0.56, 0.49, 0.34, 0.21, 0.12, 0, 0], "GAR": [0, 0.82, 0.83, 0.85, 0.87, 0.92, 0.94, 0.95, 0.96, 1]}
     alg_name = "SVC"
@@ -59,3 +59,4 @@ def test():
     far_frr_curve(eval_type, alg_name, metrics, thresholds)
 
 test()
+"""
