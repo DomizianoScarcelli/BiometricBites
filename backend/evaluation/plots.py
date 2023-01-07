@@ -14,12 +14,7 @@ def roc_auc_curve(eval_type, alg_name, metrics):
         alg_name: e.g. Keras
         template_list: list of all templates
     '''
-    eval_name = ""
-    if eval_type == "openset":
-        eval_name = "Open Set Identification"
-    elif eval_type == "verification":
-        eval_name = "Verification Single Template"
-    else: eval_name = "Verification Multiple Template"
+    eval_name = get_eval_name(eval_type)
     FAR_list = metrics["FAR"]
     GAR_list = metrics["GAR"]
 
@@ -36,7 +31,7 @@ def roc_auc_curve(eval_type, alg_name, metrics):
     plt.show()
 
 def far_frr_curve(eval_type, alg_name, metrics, thresholds):
-    eval_name = eval_name = "Open Set Identification" if eval_type == "openset" else "Verification"
+    eval_name = get_eval_name(eval_type)
     FAR_list = metrics["FAR"]
     FRR_list = metrics["FRR"]
 
@@ -53,6 +48,13 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds):
     plt.grid()
     plt.legend(loc='upper center')
     plt.show()
+
+def get_eval_name(eval_type):
+    if eval_type == "openset":
+        return "Open Set Identification"
+    elif eval_type == "verification":
+        return "Verification Single Template"
+    else: return "Verification Multiple Template"
 
 """
 def test():
