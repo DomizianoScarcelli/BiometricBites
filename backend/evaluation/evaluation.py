@@ -13,8 +13,8 @@ def compute_similarities(template_list, similarity_function: callable):
                     genuine_claims += 1
                 else:
                     impostor_claims += 1
-            similarity = similarity_function(template_i, template_j)
-            row_similarities.append(tuple((label_j, similarity))) #Must substitute 0 with the similarity algorithm
+                similarity = similarity_function(template_i, template_j)
+                row_similarities.append(tuple((label_j, similarity))) #Must substitute 0 with the similarity algorithm
         all_similarities.append(tuple((label_i, row_similarities)))
     return genuine_claims, impostor_claims, all_similarities
 
@@ -29,24 +29,24 @@ def open_set_identification_eval(threshold, genuine_claims, impostor_claims, all
         if first_similarity[1] >= threshold:
             if label_i == first_similarity[0]: #the identity!! (to change)
                 DI[0] += 1
+                k = None
                 for j, (label_j, similarity) in enumerate(ordered_similarities): #Parallel impostor case: jump the templates belonging to label(i) since i not in G
-                    k = None
-                    if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
-                        if (k == None) and (label_i != label_j) and similarity >= threshold: #The first template != label(i) has a similarity >= t
-                            k = j
-                    if k != None:
-                        FA += 1
-                    else:
-                        GR += 1
+                    if label_i != label_j and similarity >= threshold: #The first template != label(i) has a similarity >= t
+                        k = j
+                        break
+                if k != None:
+                    FA += 1
+                else:
+                    GR += 1
             else:
+                k = None
                 for j, (label_j, similarity) in enumerate(ordered_similarities): #If genuine yet not the first, look for higher ranks
-                    k = None
-                    if i != j: #Do not consider main diagonal elements so the case in which the template is compared to itself
-                        if (k == None) and (label_i == label_j) and similarity >= threshold: #The first template != label(i) has a similarity >= t
-                            k = j
-                    if k != None:
-                        DI[k] += 1 #End of genuine
-                    FA += 1 #Impostor in parallel, distance below t but different label. No need to jump since the first label is not the impostor                 
+                    if (k == None) and (label_i == label_j) and similarity >= threshold: #The first template != label(i) has a similarity >= t
+                        k = j
+                        break
+                if k != None:
+                    DI[k] += 1 #End of genuine
+                FA += 1 #Impostor in parallel, distance below t but different label. No need to jump since the first label is not the impostor                 
         else:
             GR += 1 #Impostor case counted directly, FR computed through DIR
 

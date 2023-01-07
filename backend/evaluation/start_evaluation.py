@@ -129,24 +129,23 @@ else:
 ######## Perform evaluation ######## 
 open_set_identification_metrics_by_thresholds = {}
 verification_metrics_by_thresholds = {}
-thresholds = np.arange(0.05, 1, 0.05) #To increase (Maybe take a step of just 0.01 to make the plots denser - only if it doesn't take too much time!)
-
+thresholds = np.arange(0, 1, 0.01) #To increase (Maybe take a step of just 0.01 to make the plots denser - only if it doesn't take too much time!)
 for threshold in thresholds:
-    DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, genuine_claims=genuine_claims, impostor_claims=impostor_claims, all_similarities=all_similarities)
+    DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, genuine_claims=len(y), impostor_claims=len(y), all_similarities=all_similarities)
     open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
-    print(threshold, FRR, FAR, GRR)
+    print(FRR, FAR)
 
 #---------Plot ROC-----------
-#DATAFRAME_PATH = os.path.join(SAVED_ARRAYS_PATH, "open_set_metrics.csv")
-#open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
-#open_set_metrics.to_csv(DATAFRAME_PATH)
+DATAFRAME_PATH = os.path.join(SAVED_ARRAYS_PATH, "open_set_metrics.csv")
+open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
+open_set_metrics.to_csv(DATAFRAME_PATH)
 
 #open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
-#open_set_FAR_FRR = {"FAR": open_set_metrics.iloc[2], "FRR": open_set_metrics.iloc[1], "GAR": 1-open_set_metrics.iloc[1]}
-print("ROC curve for Open Set Identification:")
+open_set_FAR_FRR = {"FAR": open_set_metrics.iloc[2], "FRR": open_set_metrics.iloc[1], "GAR": 1-open_set_metrics.iloc[1]}
+#print("ROC curve for Open Set Identification:")
 roc_auc_curve("openset", "VggFace", open_set_FAR_FRR)
-print("FAR vs FRR curve for Open Set Identification:")
-far_frr_curve("openset", "VggFace", open_set_FAR_FRR, thresholds)
+#print("FAR vs FRR curve for Open Set Identification:")
+#far_frr_curve("openset", "VggFace", open_set_FAR_FRR, thresholds)
 
 # verification_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
 # verification_FAR_FRR = {"FAR": verification_metrics.iloc[2], "FRR": verification_metrics.iloc[1]}
