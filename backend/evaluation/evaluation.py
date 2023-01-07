@@ -84,3 +84,36 @@ def verification_eval(threshold, all_similarities):
     FAR = FA / impostor_claims
     FRR = FR / genuine_claims
     return GAR, FRR, FAR, GRR
+
+#Verification Multiple Template
+def verification_mul_eval(threshold, all_similarities):
+    genuine_claims = 0
+    impostor_claims = 0
+    GA = GR = FA = FR = 0
+    for i, (label_i, similarities) in enumerate(all_similarities): #for every row (probe)
+        genuine_claims += 1
+        ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
+        best_similarities = {}
+        for j, (label_j, similarity) in enumerate(ordered_similarities): #for every column (template)
+            if label_j in best_similarities:
+                if similarity >= best_similarities[label_j]:
+                    best_similarities[label_j] = similarity
+            else:
+                best_similarities[label_j] = similarity
+        for label_j, best_similarity in best_similarities.items():
+            impostor_claims += 1
+            if best_similarity >= threshold: #If the templates are similar enough
+                if label_i == label_j:
+                    GA += 1
+                else:
+                    FA += 1
+            else:
+                if label_i == label_j:
+                    FR += 1
+                else:
+                    GR += 1
+    GAR = GA / genuine_claims
+    GRR = GR / impostor_claims
+    FAR = FA / impostor_claims
+    FRR = FR / genuine_claims
+    return GAR, FRR, FAR, GRR

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 """
 
-from .evaluation import compute_similarities, open_set_identification_eval, verification_eval
+from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
 from deepface import DeepFace
 from sklearn.datasets import fetch_lfw_people
 import numpy as np
@@ -67,12 +67,15 @@ else:
 ######## Perform evaluation - Deep Face ######## 
 deep_face_open_set_identification_metrics_by_thresholds = {}
 deep_face_verification_metrics_by_thresholds = {}
+deep_face_verification_mul_metrics_by_thresholds = {}
 thresholds = np.arange(0, 1, 0.01) #To increase (Maybe take a step of just 0.01 to make the plots denser - only if it doesn't take too much time!)
 for threshold in thresholds:
     DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
     deep_face_open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
     GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
     deep_face_verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+    GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
+    deep_face_verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
 
 #if os.path.exists(DEEP_FACE_METRICS_PATH):
 #    deep_face_metrics = pd.read_csv(DEEP_FACE_METRICS_PATH)
@@ -88,4 +91,9 @@ far_frr_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR, thresholds)
 deep_face_verification_metrics = pd.DataFrame(deep_face_verification_metrics_by_thresholds)
 deep_face_verification_FAR_FRR = {"FAR": deep_face_verification_metrics.iloc[2], "FRR": deep_face_verification_metrics.iloc[1], "GAR": 1-deep_face_verification_metrics.iloc[1]}
 roc_auc_curve("verification", "DeepFace", deep_face_verification_FAR_FRR)
-far_frr_curve("openset", "DeepFace", deep_face_verification_FAR_FRR, thresholds)
+far_frr_curve("verification", "DeepFace", deep_face_verification_FAR_FRR, thresholds)
+
+deep_face_verification_mul_metrics = pd.DataFrame(deep_face_verification_mul_metrics_by_thresholds)
+deep_face_verification_mul_FAR_FRR = {"FAR": deep_face_verification_mul_metrics.iloc[2], "FRR": deep_face_verification_mul_metrics.iloc[1], "GAR": 1-deep_face_verification_mul_metrics.iloc[1]}
+roc_auc_curve("verification-mul", "DeepFace", deep_face_verification_mul_FAR_FRR)
+far_frr_curve("verification-mul", "DeepFace", deep_face_verification_mul_FAR_FRR, thresholds)

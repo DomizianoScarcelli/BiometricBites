@@ -14,7 +14,12 @@ def roc_auc_curve(eval_type, alg_name, metrics):
         alg_name: e.g. Keras
         template_list: list of all templates
     '''
-    eval_name = eval_name = "Open Set Identification" if eval_type == "openset" else "Verification"
+    eval_name = ""
+    if eval_type == "openset":
+        eval_name = "Open Set Identification"
+    elif eval_type == "verification":
+        eval_name = "Verification Single Template"
+    else: eval_name = "Verification Multiple Template"
     FAR_list = metrics["FAR"]
     GAR_list = metrics["GAR"]
 
