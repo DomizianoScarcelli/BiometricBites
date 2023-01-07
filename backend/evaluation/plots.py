@@ -35,10 +35,10 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds):
     FAR_list = metrics["FAR"]
     FRR_list = metrics["FRR"]
 
-    zero_far = metrics["FRR"][np.max(np.where(np.array(metrics["FAR"]) == 0)[0])] if len(np.where(np.array(metrics["FAR"]) == 0)[0]) != 0 else "Not defined"
-    zero_frr = metrics["FAR"][np.min(np.where(np.array(metrics["FRR"]) == 0)[0])] if len(np.where(np.array(metrics["FRR"]) == 0)[0]) != 0 else "Not defined"
-    print("The ZeroFAR for " + alg_name + " in " + eval_name + " is: " + str(zero_far))
-    print("The ZeroFRR for " + alg_name + " in " + eval_name + " is: " + str(zero_frr))
+    #zero_far = metrics["FRR"][np.max(np.where(np.array(metrics["FAR"]) == 0)[0])] if len(np.where(np.array(metrics["FAR"]) == 0)[0]) != 0 else "Not defined"
+    #zero_frr = metrics["FAR"][np.min(np.where(np.array(metrics["FRR"]) == 0)[0])] if len(np.where(np.array(metrics["FRR"]) == 0)[0]) != 0 else "Not defined"
+    #print("The ZeroFAR for " + alg_name + " in " + eval_name + " is: " + str(zero_far))
+    #print("The ZeroFRR for " + alg_name + " in " + eval_name + " is: " + str(zero_frr))
 
     plt.plot(thresholds, FAR_list, linestyle="dashed", label="FAR")
     plt.plot(thresholds, FRR_list, linestyle="dashed", label="FRR")
