@@ -157,29 +157,48 @@ if __name__ == "__main__":
     def evaluation(image_dir):   
         # Trained model object stores histograms of the images in the facial database. It will compare the histogram of the target image with them later.
         histograms = classifier.recognizer.getHistograms()
-        count = 0
+        distance_matrix = np.zeros((len(histograms), len(histograms)))
+        target_count = 0
+        template_count = 0
 
         # For each file in the image directory
         for root, dirs, files in os.walk(image_dir):
-            for file in files:
-                path = os.path.join(root, file) # Save the path of each image
+            for target in files:
+                # target_img = os.path.join(root, target)
+                target_histogram = histograms[target_count][0]
+                                
+                # target_values = np.array([i for i in range(0, len(target_histogram))])
+                
+                for template_count in range(0, len(files)):
+                     # template_img = os.path.join(root, template)
+                    template_histogram = histograms[template_count][0]
+
+                    # template_values = np.array([i for i in range(0, len(template_histogram))])
+
+                    distance_matrix[target_count][template_count] = np.minimum(target_histogram, template_histogram).sum()
+
+                    template_count += 1
+
+                target_count += 1
+
+        np.savetxt('text.txt',distance_matrix,fmt='%.2f')
+
                 #for i in range(0, len(files)):
 
-                histogram = histograms[count][0]
-                axis_values = np.array([i for i in range(0, len(histogram))])
-                fig = plt.figure(figsize=(10, 5))
+                # axis_values = np.array([i for i in range(0, len(histogram))])
+                # fig = plt.figure(figsize=(10, 5))
                 
-                ax1 = fig.add_subplot(1,2,1)
-                plt.imshow(cv2.imread(path)[:,:,::-1])
-                plt.axis('off')
+                # ax1 = fig.add_subplot(1,2,1)
+                # plt.imshow(cv2.imread(path)[:,:,::-1])
+                # plt.axis('off')
                 
-                ax2 = fig.add_subplot(1,2,2)
-                plt.bar(axis_values, histogram)
+                # ax2 = fig.add_subplot(1,2,2)
+                # plt.bar(axis_values, histogram)
                 # plt.show()
 
-                fig.savefig(image_dir + "/" + file + "_" + str(count) + ".png")
+                # fig.savefig(image_dir + "/" + file + "_" + str(count) + ".png")
 
-                count += 1
+                # count += 1
 
         # TODO 2: retrieve distance vector
         # self.collector = cv2.face.StandardCollector_create()
@@ -187,9 +206,6 @@ if __name__ == "__main__":
         # list_of_conf_id_tuples = self.collector.getResults()
         # conf = self.collector.getMinDist()
         # id_ = self.collector.getMinLabel()
-
-        # TODO 3: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
-        #print(self.recognizer.getHistograms())
 
     classifier = LBPHF()
     classifier.load_recognizer()
