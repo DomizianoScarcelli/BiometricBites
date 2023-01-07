@@ -83,9 +83,9 @@ for threshold in thresholds:
 deep_face_open_set_metrics = pd.DataFrame(deep_face_open_set_identification_metrics_by_thresholds)
 deep_face_open_set_FAR_FRR = {"FAR": deep_face_open_set_metrics.iloc[2], "FRR": deep_face_open_set_metrics.iloc[1], "GAR": 1-deep_face_open_set_metrics.iloc[1]}
 roc_auc_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR)
-far_frr_curve("openset", "VggFace", deep_face_open_set_FAR_FRR, thresholds)
+far_frr_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR, thresholds)
 
 deep_face_verification_metrics = pd.DataFrame(deep_face_verification_metrics_by_thresholds)
 deep_face_verification_FAR_FRR = {"FAR": deep_face_verification_metrics.iloc[2], "FRR": deep_face_verification_metrics.iloc[1], "GAR": 1-deep_face_verification_metrics.iloc[1]}
 roc_auc_curve("verification", "DeepFace", deep_face_verification_FAR_FRR)
-far_frr_curve("openset", "VggFace", deep_face_verification_FAR_FRR, thresholds)
+far_frr_curve("openset", "DeepFace", deep_face_verification_FAR_FRR, thresholds)
