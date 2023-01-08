@@ -14,7 +14,7 @@ def roc_auc_curve(eval_type, alg_name, metrics):
         alg_name: e.g. Keras
         template_list: list of all templates
     '''
-    eval_name = eval_name = "Open Set Identification" if eval_type == "openset" else "Verification"
+    eval_name = get_eval_name(eval_type)
     FAR_list = metrics["FAR"]
     GAR_list = metrics["GAR"]
 
@@ -31,14 +31,14 @@ def roc_auc_curve(eval_type, alg_name, metrics):
     plt.show()
 
 def far_frr_curve(eval_type, alg_name, metrics, thresholds):
-    eval_name = eval_name = "Open Set Identification" if eval_type == "openset" else "Verification"
+    eval_name = get_eval_name(eval_type)
     FAR_list = metrics["FAR"]
     FRR_list = metrics["FRR"]
 
-    zero_far = metrics["FRR"][np.max(np.where(np.array(metrics["FAR"]) == 0)[0])] if len(np.where(np.array(metrics["FAR"]) == 0)[0]) != 0 else "Not defined"
-    zero_frr = metrics["FAR"][np.min(np.where(np.array(metrics["FRR"]) == 0)[0])] if len(np.where(np.array(metrics["FRR"]) == 0)[0]) != 0 else "Not defined"
-    print("The ZeroFAR for " + alg_name + " in " + eval_name + " is: " + str(zero_far))
-    print("The ZeroFRR for " + alg_name + " in " + eval_name + " is: " + str(zero_frr))
+    #zero_far = metrics["FRR"][np.max(np.where(np.array(metrics["FAR"]) == 0)[0])] if len(np.where(np.array(metrics["FAR"]) == 0)[0]) != 0 else "Not defined"
+    #zero_frr = metrics["FAR"][np.min(np.where(np.array(metrics["FRR"]) == 0)[0])] if len(np.where(np.array(metrics["FRR"]) == 0)[0]) != 0 else "Not defined"
+    #print("The ZeroFAR for " + alg_name + " in " + eval_name + " is: " + str(zero_far))
+    #print("The ZeroFRR for " + alg_name + " in " + eval_name + " is: " + str(zero_frr))
 
     plt.plot(thresholds, FAR_list, linestyle="dashed", label="FAR")
     plt.plot(thresholds, FRR_list, linestyle="dashed", label="FRR")
@@ -49,7 +49,14 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds):
     plt.legend(loc='upper center')
     plt.show()
 
+def get_eval_name(eval_type):
+    if eval_type == "openset":
+        return "Open Set Identification"
+    elif eval_type == "verification":
+        return "Verification Single Template"
+    else: return "Verification Multiple Template"
 
+"""
 def test():
     metrics = {"FAR": [0, 0, 0, 0.34, 0.45, 0.52, 0.67, 0.72, 0.92, 1], "FRR": [1, 0.92, 0.78, 0.56, 0.49, 0.34, 0.21, 0.12, 0, 0], "GAR": [0, 0.82, 0.83, 0.85, 0.87, 0.92, 0.94, 0.95, 0.96, 1]}
     alg_name = "SVC"
@@ -59,3 +66,4 @@ def test():
     far_frr_curve(eval_type, alg_name, metrics, thresholds)
 
 test()
+"""
