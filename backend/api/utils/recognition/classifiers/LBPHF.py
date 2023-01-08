@@ -133,35 +133,3 @@ class LBPHF(Classifier):
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
                         
         return frame, name, conf
-
-############## EVALUATION ##############
-
-from pathlib import Path
-import matplotlib.pyplot as plt
-
-if __name__ == "__main__":
-    # TODO 1: retrieve histograms (https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
-    def evaluation(image_dir):   
-        histograms = classifier.recognizer.getHistograms()
-        distance_matrix = np.zeros((len(histograms), len(histograms)))
-        target_count = 0
-        template_count = 0
-
-        for _, _, targets in os.walk(image_dir):
-            for target_count in range(0, len(targets)):
-                target_histogram = histograms[target_count][0]
-                for _, _, templates in os.walk(image_dir):
-                    for template_count in range(0, len(templates)):
-                        template_histogram = histograms[template_count][0]
-                        distance_matrix[target_count][template_count] = np.minimum(target_histogram, template_histogram).sum()
-                    template_count += 1
-            target_count += 1
-
-        np.savetxt('text.txt',distance_matrix,fmt='%.2f')
-
-    classifier = LBPHF()
-    classifier.load_recognizer()
-    BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-    image_dir = os.path.join(BASE_DIR, 'samples')
-
-    evaluation(image_dir)
