@@ -8,3 +8,4 @@ __pycache__
 .env
 saved_models
 pickles
+saved_arrays
