@@ -9,13 +9,14 @@ import pandas as pd
 from PIL import Image
 import numpy as np
 
-from sklearn.datasets import fetch_lfw_people
+from sklearn.datasets import fetch_olivetti_faces
 
 # Detect face
 def face_detection(img):
     faces = face_detector.detectMultiScale(img, 1.1, 4)
     if (len(faces) <= 0):
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img_gray = img
         return img, img_gray
     else:
         X, Y, W, H = faces[0]
@@ -34,6 +35,7 @@ def Face_Alignment(img):
     img_raw = img.copy()
     # img, gray_img = face_detection(img)
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray_img = img
     eyes = eye_detector.detectMultiScale(gray_img)
   
     # for multiple people in an image find the largest 
@@ -131,32 +133,33 @@ nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_n
 # the image with path included
 
 ####### Loading and parsing the dataset images #######
-lfw_people = fetch_lfw_people(color=True, min_faces_per_person=50, resize=0.5)
-X = lfw_people.images
-y = lfw_people.target
+olivetti_people = fetch_olivetti_faces()
+X = olivetti_people.images
+y = olivetti_people.target
 X *= 255
 X = np.array(X, dtype='uint8')
 
-from pathlib import Path
+# from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-image_dir = os.path.join(BASE_DIR, 'samples')
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# image_dir = os.path.join(BASE_DIR, 'samples')
 
-for root, dirs, files in os.walk(image_dir):
-    for file in files:
-        img = os.path.join(root, file) # Save the path of each image
-        x = cv2.imread(img)
-        alignedFace = Face_Alignment(x)
-        pl.imshow(alignedFace)
-        pl.show()
-        img, gray_img = face_detection(alignedFace)
-        pl.imshow(img)
-        pl.show()
+# for root, dirs, files in os.walk(image_dir):
+#     for file in files:
+#         img = os.path.join(root, file) # Save the path of each image
+#         x = cv2.imread(img)
+#         alignedFace = Face_Alignment(x)
+#         pl.imshow(alignedFace)
+#         pl.show()
+#         img, gray_img = face_detection(alignedFace)
+#         pl.imshow(img)
+#         pl.show()
   
-# for x in X:
-    # alignedFace = Face_Alignment(x)
-    # pl.imshow(alignedFace)
-    # pl.show()
-    # img, gray_img = face_detection(alignedFace)
-    # pl.imshow(img)
-    # pl.show()
+for x in X:
+    x = cv2.cvtColor(x, cv2.IMREAD_COLOR)
+    alignedFace = Face_Alignment(x)
+    pl.imshow(alignedFace)
+    pl.show()
+    img, gray_img = face_detection(alignedFace)
+    pl.imshow(img)
+    pl.show()

@@ -36,7 +36,7 @@
 ##################################################
 
 from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
-from sklearn.datasets import fetch_lfw_people
+from sklearn.datasets import fetch_olivetti_faces
 import numpy as np
 from .plots import roc_auc_curve, far_frr_curve
 from tqdm import tqdm
@@ -77,9 +77,7 @@ def extract_histogram(img):
                     grid_x = 8, # The number of cells in the horizontal direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
                     grid_y = 8, # The number of cells in the vertical direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
                 )  
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    tmp_model.train([img], np.array([0]))
-
+    #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     histogram = tmp_model.getHistograms()[0][0]
 
     return histogram / max(histogram)
@@ -94,9 +92,9 @@ def get_similarity_between_two(hist1, hist2):
     #return np.true_divide(np.sum(np.minimum(hist1, hist2)), np.sum(hist2))
 
 ####### Loading and parsing the dataset images #######
-lfw_people = fetch_lfw_people(color=True, min_faces_per_person=50, resize=0.5)
-X = lfw_people.images
-y = lfw_people.target
+olivetti_people = fetch_olivetti_faces()
+X = olivetti_people.images
+y = olivetti_people.target
 X *= 255
 X = np.array(X, dtype='uint8')
 
