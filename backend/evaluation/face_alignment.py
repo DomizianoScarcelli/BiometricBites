@@ -11,7 +11,6 @@ import numpy as np
 
 from sklearn.datasets import fetch_lfw_people
 
-
 # Detect face
 def face_detection(img):
     faces = face_detector.detectMultiScale(img, 1.1, 4)
@@ -33,7 +32,8 @@ def Face_Alignment(img):
     pl.imshow(img)
     pl.show()
     img_raw = img.copy()
-    img, gray_img = face_detection(img)
+    # img, gray_img = face_detection(img)
+    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     eyes = eye_detector.detectMultiScale(gray_img)
   
     # for multiple people in an image find the largest 
@@ -103,9 +103,10 @@ def Face_Alignment(img):
         # rotate image
         new_img = Image.fromarray(img_raw)
         new_img = np.array(new_img.rotate(direction * angle))
+    else:
+        new_img = img
   
     return new_img
-  
   
 # opencv_home = cv2.__file__
 # folders = opencv_home.split(os.path.sep)[0:-1]
@@ -121,9 +122,9 @@ def Face_Alignment(img):
 #         "opencv is not installed pls install using pip install opencv ", 
 #       detector_path, " violated.")
   
-face_detector = cv2.CascadeClassifier(cv2.data.haarcascades +"/data/haarcascade_frontalface_default.xml")
-eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades +"/data/haarcascade_eye.xml")
-nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades +"/data/haarcascade_mcs_nose.xml")
+face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
+nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_nose.xml")
   
 # Name of the image for face alignment if on 
 # the other folder kindly paste the name of
@@ -135,11 +136,27 @@ X = lfw_people.images
 y = lfw_people.target
 X *= 255
 X = np.array(X, dtype='uint8')
+
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+image_dir = os.path.join(BASE_DIR, 'samples')
+
+for root, dirs, files in os.walk(image_dir):
+    for file in files:
+        img = os.path.join(root, file) # Save the path of each image
+        x = cv2.imread(img)
+        alignedFace = Face_Alignment(x)
+        pl.imshow(alignedFace)
+        pl.show()
+        img, gray_img = face_detection(alignedFace)
+        pl.imshow(img)
+        pl.show()
   
-for x in X:
-    alignedFace = Face_Alignment(x)
-    pl.imshow(alignedFace[:, :, ::-1])
-    pl.show()
-    img, gray_img = face_detection(alignedFace)
-    pl.imshow(img[:, :, ::-1])
-    pl.show()
+# for x in X:
+    # alignedFace = Face_Alignment(x)
+    # pl.imshow(alignedFace)
+    # pl.show()
+    # img, gray_img = face_detection(alignedFace)
+    # pl.imshow(img)
+    # pl.show()

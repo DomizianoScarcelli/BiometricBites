@@ -100,7 +100,7 @@ y = lfw_people.target
 X *= 255
 X = np.array(X, dtype='uint8')
 
-####### INIZIO TEST #######
+####### TEST (DA TOGLIERE NELLA VERSIONE FINALE) #######
 for i in range(0, len(X)):
     for j in range(0, len(X)):
         if y[i] == y[j]:    
@@ -124,7 +124,7 @@ for i in range(0, len(X)):
             
             plt.show()
 
-####### FINE TEST #######
+##############
 
 # ######## Defining the paths where results will be saved ######## 
 # SAVED_ARRAYS_PATH = "./evaluation/saved_arrays"
