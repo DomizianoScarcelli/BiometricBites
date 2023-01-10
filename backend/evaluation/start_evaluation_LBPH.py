@@ -1,40 +1,3 @@
-############## Roba che prima stava in fondo a LBPHF.py ##############
-
-# from pathlib import Path
-
-# if __name__ == "__main__":
-#     # retrieve histograms (source: https://sefiks.com/2020/07/14/a-beginners-guide-to-face-recognition-with-opencv-in-python/)
-#     def evaluation(image_dir):   
-#         histograms = classifier.recognizer.getHistograms()
-#         distance_matrix = np.zeros((len(histograms), len(histograms)))
-#         target_count = 0
-#         template_count = 0
-
-#         for _, _, targets in os.walk(image_dir):
-#             for target_count in range(0, len(targets)):
-#                 target_histogram = histograms[target_count][0]
-#                 target_histogram = target_histogram / max(target_histogram)
-#                 for _, _, templates in os.walk(image_dir):
-#                     for template_count in range(0, len(templates)):
-#                         template_histogram = histograms[template_count][0]
-#                         template_histogram = template_histogram / max(template_histogram)
-
-#                         minima = np.minimum(target_histogram, template_histogram)
-#                         distance_matrix[target_count][template_count] = np.true_divide(np.sum(minima), np.sum(template_histogram))
-#                     template_count += 1
-#             target_count += 1
-
-#         np.savetxt('text.txt',distance_matrix,fmt='%.2f')
-
-#     classifier = LBPHF()
-#     classifier.load_recognizer()
-#     BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-#     image_dir = os.path.join(BASE_DIR, 'samples')
-
-#     evaluation(image_dir)
-
-##################################################
-
 from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
 from sklearn.datasets import fetch_olivetti_faces
 import numpy as np
@@ -47,30 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
 
-# face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-# scaleFactor = 1.1 # Parameter specifying how much the image size is reduced at each image scale. It is used to create the scale pyramid.
-# minNeighbors = 3 # Parameter specifying how many neighbors each candidate rectangle should have, to retain it. A higher number gives lower false positives. 
-# minSize = (30, 30) # Minimum rectangle size to be considered a face.
-
-# def detect_face(img):
-#     # img = cv2.imread(img)
-
-#     detected_faces = face_cascade.detectMultiScale(
-#                     img, # Input grayscale image.
-#                     scaleFactor = scaleFactor,
-#                     minNeighbors = minNeighbors, 
-#                     minSize = minSize 
-#                 )
-#     x, y, w, h = detected_faces[0] #focus on the 1st face in the image
-
-#     img = img[y:y+h, x:x+w] #focus on the detected area
-#     # img = cv2.resize(img, (224, 224))
-#     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-#     return img
-
 def extract_histogram(img):
-    # img = detect_face(img)
     tmp_model = cv2.face.LBPHFaceRecognizer_create(
                     radius = 1, # The radius used for building the Circular Local Binary Pattern. The greater the radius, the smoother the image but more spatial information you can get
                     neighbors = 8, # The number of sample points to build a Circular Local Binary Pattern. An appropriate value is to use 8 sample points. Keep in mind: the more sample points you include, the higher the computational cost
@@ -80,11 +20,11 @@ def extract_histogram(img):
     #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     histogram = tmp_model.getHistograms()[0][0]
 
-    return histogram / max(histogram)
+    return histogram / max(histogram) # return normalized histogram
 
 def get_similarity_between_two(hist1, hist2):
     min_sum = sum(np.minimum(hist1, hist2))
-    return 0.5 * min_sum * ((1/sum(hist1)) + (1/sum(hist2)))
+    return 0.5 * min_sum * ((1/sum(hist1)) + (1/sum(hist2))) # computing intersection between hist1 and hist2
 
     # intersection = np.minimum(hist1, hist2)
     # return intersection.sum()
