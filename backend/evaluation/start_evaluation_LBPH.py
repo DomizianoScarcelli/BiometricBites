@@ -18,18 +18,14 @@ def extract_histogram(img):
                     grid_y = 8, # The number of cells in the vertical direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
                 )  
     #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    tmp_model.train([img], np.array([0]))
     histogram = tmp_model.getHistograms()[0][0]
 
     return histogram / max(histogram) # return normalized histogram
 
-def get_similarity_between_two(hist1, hist2):
-    min_sum = sum(np.minimum(hist1, hist2))
-    return 0.5 * min_sum * ((1/sum(hist1)) + (1/sum(hist2))) # computing intersection between hist1 and hist2
-
-    # intersection = np.minimum(hist1, hist2)
-    # return intersection.sum()
-
-    #return np.true_divide(np.sum(np.minimum(hist1, hist2)), np.sum(hist2))
+def get_correlation_between_two(hist1, hist2):
+    from scipy.stats import pearsonr   
+    return pearsonr(hist1, hist2)
 
 ####### Loading and parsing the dataset images #######
 olivetti_people = fetch_olivetti_faces()
@@ -48,7 +44,7 @@ for i in range(0, len(X)):
             # img_i = detect_face(X[i])
             # img_j = detect_face(X[j])
 
-            print(get_similarity_between_two(extract_histogram(img_i), extract_histogram(img_j)))
+            print(get_correlation_between_two(extract_histogram(img_i), extract_histogram(img_j)))
             
             fig = plt.figure()
  
