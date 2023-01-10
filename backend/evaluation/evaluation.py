@@ -64,7 +64,7 @@ def verification_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
     GA = GR = FA = FR = 0
-    for i, (label_i, similarities) in enumerate(all_similarities): #for every row (probe)
+    for i, (label_i, similarities) in enumerate(tqdm(all_similarities, desc=f"Verification with threshold: {threshold}")): #for every row (probe)
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
         for j, (label_j, similarity) in enumerate(ordered_similarities): #for every column (template)
                 if similarity >= threshold: #If the templates are similar enough
@@ -92,7 +92,7 @@ def verification_mul_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
     GA = GR = FA = FR = 0
-    for i, (label_i, similarities) in enumerate(all_similarities): #for every row (probe)
+    for i, (label_i, similarities) in enumerate(tqdm(all_similarities, desc=f"Verification multiple template with threshold: {threshold}")): #for every row (probe)
         genuine_claims += 1
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
         best_similarities = {}
