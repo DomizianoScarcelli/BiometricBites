@@ -24,8 +24,8 @@ def extract_histogram(img):
     return histogram / max(histogram) # return normalized histogram
 
 def get_correlation_between_two(hist1, hist2):
-    from scipy.stats import pearsonr   
-    return pearsonr(hist1, hist2)
+    from scipy.stats import pearsonr, spearmanr, kendalltau  
+    return pearsonr(hist1, hist2)[0], spearmanr(hist1, hist2).correlation, kendalltau(hist1, hist2).correlation
 
 ####### Loading and parsing the dataset images #######
 olivetti_people = fetch_olivetti_faces()
