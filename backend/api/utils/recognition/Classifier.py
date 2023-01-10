@@ -12,7 +12,7 @@ class Classifier(ABC):
     """
     Abstract class, this shouldn't be instanced, but it describes the common fields and methods that a classifier have.
     """
-    def __init__(self) -> None:
+    def __init__(self, evaluation) -> None:
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         self.side_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
         self.image_dir = SAMPLES_ROOT
