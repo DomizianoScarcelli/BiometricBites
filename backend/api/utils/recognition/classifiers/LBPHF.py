@@ -133,4 +133,3 @@ class LBPHF(Classifier):
             cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
                         
         return frame, name, conf
-

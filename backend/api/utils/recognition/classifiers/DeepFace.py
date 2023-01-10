@@ -14,6 +14,12 @@ class DeepFaceClassifier(Classifier):
             df.at[index, "identity"] = df.at[index, "identity"].split("/")[-2] 
         df.sort_values(by=["VGG-Face_cosine"], inplace = True, ascending=False)
         return df
+    
+    def get_cosine_similarity(img1, img2):
+        """
+        Gets cosine similarity between two images
+        """
+        return 1 - DeepFace.verify(img1, img2)["distance"]
 
 if __name__ == "__main__":
     def test_with_cam():
