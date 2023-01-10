@@ -18,6 +18,7 @@ def extract_histogram(img):
                     grid_y = 8, # The number of cells in the vertical direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
                 )  
     #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    tmp_model.train([img], np.array([0]))
     histogram = tmp_model.getHistograms()[0][0]
 
     return histogram / max(histogram) # return normalized histogram
