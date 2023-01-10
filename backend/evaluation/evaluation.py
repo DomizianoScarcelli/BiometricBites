@@ -17,9 +17,9 @@ def compute_similarities(probe_set, gallery_set, similarity_function: callable):
 def open_set_identification_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
-    probes_cardinality = all_similarities.shape[0]
-    gallery_cardinality = all_similarities[0][1].shape[0]
-    DI = [0 for _ in range(len(all_similarities))] #Detection and Identification
+    probes_cardinality = len(all_similarities)
+    gallery_cardinality = len(all_similarities[0][1])
+    DI = [0 for _ in range(gallery_cardinality)] #Detection and Identification
     GR = FA = 0
     for i, (label_i, similarities) in enumerate(tqdm(all_similarities, desc=f"Open set identification with threshold: {threshold}")): #for every row (probe)
         genuine_claims += 1
@@ -50,12 +50,12 @@ def open_set_identification_eval(threshold, all_similarities):
         else:
             GR += 1 #Impostor case counted directly, FR computed through DIR
 
-    DIR = [0 for _ in range(len(all_similarities))] #Detection and Identification rate
+    DIR = [0 for _ in range(gallery_cardinality)] #Detection and Identification rate
     DIR[0] = DI[0] / genuine_claims
     FRR = 1 - DIR[0] 
     FAR = FA / impostor_claims
     GRR = GR / impostor_claims
-    for k in range(1, len(all_similarities)):
+    for k in range(1, gallery_cardinality):
         DIR[k] = DI[k] / (genuine_claims + DIR[k-1])
     return DIR, FRR, FAR, GRR
 
