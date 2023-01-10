@@ -2,24 +2,26 @@ from tqdm import tqdm
 import numpy as np
 
 #All similarities are store in an array with the following structure: [(label_i, [label_j, similarities_ij]), (label_n, [label_m, similarities_nm]), ...]
-def compute_similarities(template_list, similarity_function: callable):
+def compute_similarities(probe_set, gallery_set, similarity_function: callable):
     all_similarities = []
-    for i, (label_i, template_i) in enumerate(tqdm(template_list)): #for every row (probe)
+    for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
         row_similarities = []
-        for j, (label_j, template_j) in enumerate(template_list): #for every column (template)
-            if i != j: #Do not consider main diagonal elements
-                similarity = similarity_function(template_i, template_j)
-                row_similarities.append(tuple((label_j, similarity))) #Must substitute 0 with the similarity algorithm
-        all_similarities.append(tuple((label_i, row_similarities)))
+        for j, (label_j, template_j) in enumerate(gallery_set): #for every column (template)
+            # if i != j: #Do not consider main diagonal elements
+            similarity = similarity_function(template_i, template_j)
+            row_similarities.append(np.array([label_j, similarity])) #Must substitute 0 with the similarity algorithm
+        all_similarities.append(np.array([label_i, row_similarities]))
     return all_similarities
 
 #OpenSet Identification Multiple Template
 def open_set_identification_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
-    DI = [0 for _ in range(len(all_similarities))] #Detection and Identification
+    probes_cardinality = len(all_similarities)
+    gallery_cardinality = len(all_similarities[0][1])
+    DI = [0 for _ in range(gallery_cardinality)] #Detection and Identification
     GR = FA = 0
-    for i, (label_i, similarities) in enumerate(all_similarities): #for every row (probe)
+    for i, (label_i, similarities) in enumerate(tqdm(all_similarities, desc=f"Open set identification with threshold: {threshold}")): #for every row (probe)
         genuine_claims += 1
         impostor_claims += 1
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
@@ -48,12 +50,12 @@ def open_set_identification_eval(threshold, all_similarities):
         else:
             GR += 1 #Impostor case counted directly, FR computed through DIR
 
-    DIR = [0 for _ in range(len(all_similarities))] #Detection and Identification rate
+    DIR = [0 for _ in range(gallery_cardinality)] #Detection and Identification rate
     DIR[0] = DI[0] / genuine_claims
     FRR = 1 - DIR[0] 
     FAR = FA / impostor_claims
     GRR = GR / impostor_claims
-    for k in range(1, len(all_similarities)):
+    for k in range(1, gallery_cardinality):
         DIR[k] = DI[k] / (genuine_claims + DIR[k-1])
     return DIR, FRR, FAR, GRR
 
@@ -62,7 +64,7 @@ def verification_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
     GA = GR = FA = FR = 0
-    for i, (label_i, similarities) in enumerate(all_similarities): #for every row (probe)
+    for i, (label_i, similarities) in enumerate(tqdm(all_similarities, desc=f"Verification with threshold: {threshold}")): #for every row (probe)
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
         for j, (label_j, similarity) in enumerate(ordered_similarities): #for every column (template)
                 if similarity >= threshold: #If the templates are similar enough
@@ -90,7 +92,7 @@ def verification_mul_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
     GA = GR = FA = FR = 0
-    for i, (label_i, similarities) in enumerate(all_similarities): #for every row (probe)
+    for i, (label_i, similarities) in enumerate(tqdm(all_similarities, desc=f"Verification multiple template with threshold: {threshold}")): #for every row (probe)
         genuine_claims += 1
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
         best_similarities = {}
