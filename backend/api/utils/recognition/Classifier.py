@@ -175,8 +175,6 @@ class Classifier(ABC):
 
     # TODO: da sistemare e vedere se migliora le performance generali
     # Source: https://www.geeksforgeeks.org/face-alignment-with-opencv-and-python/
-    import os
-    import cv2
     import math
     import pandas as pd
     from PIL import Image
