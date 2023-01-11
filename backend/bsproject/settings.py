@@ -16,7 +16,7 @@ from pathlib import Path
 
 from api.utils.recognition.classifiers.LBPHF import LBPHF
 from api.utils.recognition.classifiers.SVC import SVC
-from api.utils.recognition.classifiers.VGGFACE_deprecated import VGGFACE
+from api.utils.recognition.classifiers.DeepFace import DeepFaceClassifier
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +29,7 @@ MODELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "saved_model
 LABELS_ROOT = os.path.join(BASE_DIR, "api", "utils", "recognition", "pickles")  
 
 # Choose the used classifier between LBPHF(), SVC() and VGGFACE()
-CLASSIFIER = LBPHF()
+CLASSIFIER = DeepFaceClassifier()
 
 dotenv.read_dotenv(BASE_DIR / '.env')
 

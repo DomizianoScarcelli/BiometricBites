@@ -15,6 +15,7 @@ class SVC(Classifier):
         self.labels_file_name = "face_labels_svc.pickle"
         self.model_file_name = "svc_model.pickle"
         self.classifier = sklearn_SVC(C=1, kernel='linear', probability=True)
+        self.THRESHOLD = 0.8
 
     def load_labels(self):
         pickle_path = os.path.join(self.labels_root, self.labels_file_name)
@@ -90,7 +91,7 @@ class SVC(Classifier):
             maxPred = np.argmax(predictions)
             confidence = predictions[maxPred]
 
-            if confidence > 0.80:
+            if confidence > self.THRESHOLD:
                 name = self.classifier.predict([frame_encodings[0]])[0]
             else:
                 name = "unknown"
