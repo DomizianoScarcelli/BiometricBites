@@ -13,6 +13,7 @@ class DeepFaceClassifier(Classifier):
         self.THRESHOLD = 0.8
         self.gallery = self.load_gallery()
         self.model = DeepFace.build_model("VGG-Face")
+        self.name = "VGGFACE" #TODO: remove it once the switch from in the consumer.py file is removed
 
     def load_gallery(self):
         if os.path.exists(self.GALLERY_PATH):
@@ -40,9 +41,15 @@ class DeepFaceClassifier(Classifier):
         self.build_gallery()
         
     def recognize(self, frame: str):
+        """
+        Given in input a frame, it returns:
+        frame - the modified frame, with the rectangle drawn on the face location
+        best_label - the best label (None if the face is not present, "unknwon" if the person isn't recognized)
+        confidence - the similarity from the best match (None if not recognized or the face isn't present)
+        """
         similarities = []
-        roi, face_present = self.detect_faces(frame)
-        if not face_present: return None
+        frame, roi, face_present = self.detect_faces(frame)
+        if not face_present: return frame, None, None
         probe_feature_vector = DeepFace.represent(roi, model=self.model, detector_backend='skip')
 
         for (label, feature_vector) in self.gallery:
@@ -50,8 +57,8 @@ class DeepFaceClassifier(Classifier):
             similarities.append((label, similarity))
         best_label, best_similarity = max(similarities, key=lambda x: x[1])
         if best_similarity >= self.THRESHOLD:
-            return best_label
-        return "Unknown"
+            return frame, best_label, best_similarity
+        return frame, "Unknown", None
 
 if __name__ == "__main__":
     def test_with_cam():

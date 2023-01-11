@@ -79,7 +79,7 @@ class FrameConsumer(WebsocketConsumer):
             identity_data["SIMILARITY"] = np.float64(similarity)
             identity_data["USER_INFO"]["PROFILE_IMG"] = get_profile_pic(id)
         else:
-            processed_frame, face_present = self.classifier.detect_faces(img)
+            processed_frame, roi, face_present = self.classifier.detect_faces(img)
             identity_data["RECOGNITION_PHASE"] = False
             identity_data["FACE_PRESENT"] = face_present
         b64_img = opencvimg_to_b64_str(processed_frame)

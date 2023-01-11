@@ -169,13 +169,13 @@ class Classifier(ABC):
         faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
         face_present = len(faces) != 0
         if not face_present:
-            return frame, False
+            return frame, frame, False
         for (x_, y_, w, h) in faces:
             # draw the face detected
             cv2.rectangle(frame, (x_, y_), (x_+w, y_+h), (255, 0, 0), 2)
         (x_, y_, w, h) = faces[0]
         roi = frame[y_:y_+h, x_:x_+w]
-        return roi, True
+        return frame, roi, True
 
     # TODO: da sistemare e vedere se migliora le performance generali
     # Source: https://www.geeksforgeeks.org/face-alignment-with-opencv-and-python/
