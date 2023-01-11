@@ -12,27 +12,50 @@ import matplotlib.pyplot as plt
 import cv2
 from scipy.stats import pearsonr
 
-face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 eyes_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
 nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_nose.xml")
 mouth_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_mouth.xml")
+print(cv2.data.haarcascades)
 
 # get the faces detected in the image
 def capture_face_features(img):
-    # face
-    face = face_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
-    if (len(face) > 0):
-        X, Y, W, H = faces[0]
-        img = img[int(Y):int(Y+H), int(X):int(X+W)]
-        pl.imshow(img)
-        pl.show()
+    face = img.copy()
+
+    eyes_hist = []
+    nose_hist = []
+    mouth_hist = []
+    f = plt.figure()
+
     # eyes
     eyes = eyes_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
+    for (x,y,w,h) in eyes:
+        plt.imshow(img[y:y+h, x:x+w])
+
+        eyes_hist.append(extract_histogram(img[y:y+h, x:x+w]))
+        # cv2.rectangle(face,(x,y),(x+w,y+h),(0,255,0),2)
+
+        f.savefig("eye.png")
+
+
     # nose
     nose = nose_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
+    if len(nose) != 0:
+        x, y, w, h = nose[0]
+        nose_hist = extract_histogram(img[y:y+h, x:x+w])
+        # cv2.rectangle(face,(x,y),(x+w,y+h),(0,255,0),2)
+        plt.imshow(img[y:y+h, x:x+w])
+
+        f.savefig("nose.png")
+
     # mouth
     mouth = mouth_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
-    print(face, eyes, nose, mouth)
+    if len(mouth) != 0:
+        x, y, w, h = mouth[0]
+        mouth_hist = extract_histogram(img[y:y+h, x:x+w])
+        # cv2.rectangle(face,(x,y),(x+w,y+h),(0,255,0),2)
+        plt.imshow(img[y:y+h, x:x+w])
+
+        f.savefig("mouth.png")
 
 
 def extract_histogram(img):
@@ -63,6 +86,7 @@ for i in range(0, len(X)):
             img_i = X[i]
             img_j = X[j]
             capture_face_features(img_i)
+            capture_face_features(img_j)
 
             # img_i = detect_face(X[i])
             # img_j = detect_face(X[j])
