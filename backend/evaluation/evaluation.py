@@ -19,7 +19,6 @@ def compute_similarities_svc(probe_set, model):
     for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
         probabilities = model.predict_proba([template_i])[0]
         row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities)])
-        print(row_similarities.shape)
         all_similarities.append(np.array([label_i, row_similarities]))
     return all_similarities
 
@@ -58,7 +57,6 @@ def open_set_identification_eval(threshold, all_similarities):
                 FA += 1 #Impostor in parallel, distance below t but different label. No need to jump since the first label is not the impostor                 
         else:
             GR += 1 #Impostor case counted directly, FR computed through DIR
-
     DIR = [0 for _ in range(gallery_cardinality)] #Detection and Identification rate
     DIR[0] = DI[0] / genuine_claims
     FRR = 1 - DIR[0] 
