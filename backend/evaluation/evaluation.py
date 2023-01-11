@@ -13,11 +13,18 @@ def compute_similarities(probe_set, gallery_set, similarity_function: callable):
         all_similarities.append(np.array([label_i, row_similarities]))
     return all_similarities
 
+def compute_similarities_svc(probe_set, model):
+    all_similarities = []
+    for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
+        probabilities = model.predict_proba([template_i])
+        row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities[0])])
+        all_similarities.append(np.array([label_i, row_similarities]))
+    return all_similarities
+
 #OpenSet Identification Multiple Template
 def open_set_identification_eval(threshold, all_similarities):
     genuine_claims = 0
     impostor_claims = 0
-    probes_cardinality = len(all_similarities)
     gallery_cardinality = len(all_similarities[0][1])
     DI = [0 for _ in range(gallery_cardinality)] #Detection and Identification
     GR = FA = 0
@@ -58,6 +65,7 @@ def open_set_identification_eval(threshold, all_similarities):
     for k in range(1, gallery_cardinality):
         DIR[k] = DI[k] / (genuine_claims + DIR[k-1])
     return DIR, FRR, FAR, GRR
+
 
 #Verification Single Template
 def verification_eval(threshold, all_similarities):
