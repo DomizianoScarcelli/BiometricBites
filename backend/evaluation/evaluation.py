@@ -11,13 +11,15 @@ def compute_similarities(probe_set, gallery_set, similarity_function: callable):
             similarity = similarity_function(template_i, template_j)
             row_similarities.append(np.array([label_j, similarity])) #Must substitute 0 with the similarity algorithm
         all_similarities.append(np.array([label_i, row_similarities]))
+        print(all_similarities.shape)
     return all_similarities
 
 def compute_similarities_svc(probe_set, model):
     all_similarities = []
     for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
-        probabilities = model.predict_proba([template_i])
-        row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities[0])])
+        probabilities = model.predict_proba([template_i])[0]
+        row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities)])
+        print(row_similarities.shape)
         all_similarities.append(np.array([label_i, row_similarities]))
     return all_similarities
 
