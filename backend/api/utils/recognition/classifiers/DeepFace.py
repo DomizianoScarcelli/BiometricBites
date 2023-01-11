@@ -12,15 +12,22 @@ class DeepFaceClassifier(Classifier):
         self.GALLERY_PATH = os.path.join(self.models_root, "vggface_gallery.npy")
         self.THRESHOLD = 0.8
         self.gallery = self.load_gallery()
-        self.model = DeepFace.build_model("VGG-Face")
+        self.model = DeepFace.build_model("VGG-Face") #Otherwise it would build it on every call for every operation, this is more efficient
         self.name = "VGGFACE" #TODO: remove it once the switch from in the consumer.py file is removed
 
     def load_gallery(self):
+        """
+        Loads the gallery array from the file system, if exists
+        """
         if os.path.exists(self.GALLERY_PATH):
             return np.load(self.GALLERY_PATH, allow_pickle=True)
         return np.array([])
 
     def build_gallery(self):
+        """
+        For each image in the samples directory, it builds the feature vector using VGG Face model, and adds it to the gallery
+        then the gallery is saved on the file system, replacing an old one if exists.
+        """
         gallery = []
         for root, dirs, files in os.walk(self.image_dir):
             for file in files:
@@ -37,7 +44,9 @@ class DeepFaceClassifier(Classifier):
         np.save(self.GALLERY_PATH, self.gallery)
 
     def train(self):
-        self.preprocess_images()
+        """
+        Trains the model, in this case this means to build the gallery from the enrolling images' feature vectors. 
+        """
         self.build_gallery()
         
     def recognize(self, frame: str):
