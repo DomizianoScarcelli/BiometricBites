@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 
 import matplotlib.pyplot as plt
 import cv2
+from scipy.stats import pearsonr
 
 def extract_histogram(img):
     tmp_model = cv2.face.LBPHFaceRecognizer_create(
@@ -25,7 +26,6 @@ def extract_histogram(img):
     return histogram / max(histogram) # return normalized histogram
 
 def get_correlation_between_two(hist1, hist2):
-    from scipy.stats import pearsonr, spearmanr, kendalltau  
     return pearsonr(hist1, hist2)[0]
 
 ####### Loading and parsing the dataset images #######
