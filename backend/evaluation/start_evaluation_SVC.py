@@ -66,18 +66,12 @@ else:
 # Each element is of type (label, feature_vector)
 # probe_data = np.array([(y_test[i], X_test[i]) for i in range(len(X_test))])
 
+#TODO: I called it disance matrix, but from experiments i can see that it's actually similarity
 distance_matrix = model.decision_function(X_test) #shape: (X_test, num_train_classes)
+
+#Normalizing between 0 and 1
 distance_matrix = (distance_matrix + abs(np.min(distance_matrix)))
 distance_matrix /= np.max(distance_matrix)
-
-# good = 0
-# bad = 0
-# for i in range(len(X_test)):
-#     if np.argmax(distance_matrix[i]) == y_test[i]: good += 1
-#     else: bad +=1
-# print(good)
-# print(bad)
-
 
 def parse_similarities(distance_matrix):
     all_similarities = []
@@ -90,18 +84,19 @@ def parse_similarities(distance_matrix):
 
 all_similarities = parse_similarities(distance_matrix)
 ordered_similarities = sorted(all_similarities[0][1], key=lambda tup: tup[1], reverse=True)
+print(y_test[0])
 print(ordered_similarities[:10])
 
-svc_open_set_identification_metrics_by_thresholds = {}
-thresholds = np.arange(0, 1, 0.001)
-for threshold in tqdm(thresholds, desc="TOTAL"):
-        DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
-        svc_open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
+# svc_open_set_identification_metrics_by_thresholds = {}
+# thresholds = np.arange(0, 1, 0.01)
+# for threshold in tqdm(thresholds, desc="TOTAL"):
+#         DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
+#         svc_open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
 
-svc_open_set_metrics = pd.DataFrame(svc_open_set_identification_metrics_by_thresholds)
-svc_open_set_FAR_FRR = {"FAR": svc_open_set_metrics.iloc[2], "FRR": svc_open_set_metrics.iloc[1], "GAR": 1-svc_open_set_metrics.iloc[1].astype(float)}
-roc_auc_curve("openset", "DeepFace", svc_open_set_FAR_FRR)
-far_frr_curve("openset", "DeepFace", svc_open_set_FAR_FRR, thresholds)
+# svc_open_set_metrics = pd.DataFrame(svc_open_set_identification_metrics_by_thresholds)
+# svc_open_set_FAR_FRR = {"FAR": svc_open_set_metrics.iloc[2], "FRR": svc_open_set_metrics.iloc[1], "GAR": 1-svc_open_set_metrics.iloc[1].astype(float)}
+# roc_auc_curve("openset", "DeepFace", svc_open_set_FAR_FRR)
+# far_frr_curve("openset", "DeepFace", svc_open_set_FAR_FRR, thresholds)
 
 
 # # ###### Load similarity matrix if present on disk ######## 
