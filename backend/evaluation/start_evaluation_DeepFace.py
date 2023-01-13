@@ -9,8 +9,8 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
-
-DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
+import face_recognition
+DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -50,6 +50,7 @@ def get_similarity_between_two(img1, img2):
 ######## Build feature vectors ########
 model = DeepFace.build_model('VGG-Face')
 
+
 gallery_set = []
 probe_set = []
 
@@ -57,6 +58,10 @@ if os.path.exists(GALLERY_SET):
     gallery_set = np.load(GALLERY_SET)
 else:
     for gallery_template in tqdm(X_train, desc="Extracting gallery set feature vectors"):
+        if DATASET == "LFW":
+            boxes = face_recognition.face_locations(gallery_template)
+        else:
+            boxes = [(0, 64, 64, 0)]
         gallery_set.append(DeepFace.represent(gallery_template, model=model, detector_backend="skip"))
     np.save(GALLERY_SET, np.array(gallery_set))
 
@@ -64,6 +69,11 @@ if os.path.exists(PROBE_SET):
     probe_set = np.load(PROBE_SET)
 else:
     for probe_template in tqdm(X_test, desc="Extracting probe set feature vectors"):
+        if DATASET == "LFW":
+            boxes = face_recognition.face_locations(probe_template)
+        else:
+            boxes = [(0, 64, 64, 0)]
+        gallery_set.append(DeepFace.represent(gallery_template, model=model, detector_backend="skip"))
         probe_set.append(DeepFace.represent(probe_template, model=model, detector_backend="skip"))
     np.save(PROBE_SET, np.array(probe_set))
 
