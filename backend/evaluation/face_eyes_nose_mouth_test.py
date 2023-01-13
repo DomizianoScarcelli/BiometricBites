@@ -61,8 +61,10 @@ def capture_features(img_i, img_j):
     img_j_mouth_hist = []
 
     # extract face histogram
-    img_i_face_hist = extract_histogram(img_i)
-    img_j_face_hist = extract_histogram(img_j)
+    # img_i_face_hist = extract_histogram(img_i)
+    # img_j_face_hist = extract_histogram(img_j)
+    img_i_face_hist = []
+    img_j_face_hist = []
 
     # detect eyes
     img_i_eyes_hist = detect_eyes(img_i)
@@ -113,7 +115,7 @@ def capture_features_with_score(img_i, img_j):
     img_j_face_hist = extract_histogram(img_j)
 
     face_score = get_correlation_between_two(img_i_face_hist, img_j_face_hist)
-    n_features = 1
+    n_features = 0
 
     # detect eyes
     img_i_eyes_hist = detect_eyes(img_i)
@@ -155,6 +157,52 @@ def capture_features_with_score(img_i, img_j):
     
     return overall_score
 
+def matching_histograms(img_i, img_j):
+    from skimage.exposure import match_histograms
+    from skimage import exposure
+
+    matched = match_histograms(img_i, img_j)
+
+    fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, 
+                            ncols=3, 
+                            figsize=(8, 3),
+                            sharex=True, 
+                            sharey=True)
+    for aa in (ax1, ax2, ax3):
+        aa.set_axis_off()
+    
+    # displaying images
+    ax1.imshow(img_i)
+    ax1.set_title('Source image')
+    ax2.imshow(img_j)
+    ax2.set_title('Reference image')
+    ax3.imshow(matched)
+    ax3.set_title('Matched image')
+    
+    plt.tight_layout()
+    plt.show()
+
+    # displaying histograms.
+    fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(8, 8))
+    
+    for i, img in enumerate((img_i, img_j, matched)):
+        for c, c_color in enumerate(('red', 'green', 'blue')):
+            img_hist, bins = exposure.histogram(img[..., c],
+                                                source_range='dtype')
+            axes[c, i].plot(bins, img_hist / img_hist.max())
+            img_cdf, bins = exposure.cumulative_distribution(img[..., c])
+            axes[c, i].plot(bins, img_cdf)
+            axes[c, 0].set_ylabel(c_color)
+    
+    axes[0, 0].set_title('Source image')
+    axes[0, 1].set_title('Reference image')
+    axes[0, 2].set_title('Matched image')
+    
+    plt.tight_layout()
+    plt.show()
+
+################################
+
 def extract_histogram(img):
     tmp_model = cv2.face.LBPHFaceRecognizer_create(
                     radius = 1, # The radius used for building the Circular Local Binary Pattern. The greater the radius, the smoother the image but more spatial information you can get
@@ -187,24 +235,41 @@ for i in range(0, len(X)):
             img_i = X[i]
             img_j = X[j]
 
+############################################################
+
+            # FIRST METHOD: JUST EXTRACT THE ISTOGRAM OF THE IMAGES AND COMPUTE CORRELATION
             # img_i_hist = extract_histogram(img_i)
             # img_j_hist = extract_histogram(img_j)
-            # np.savetxt('img_i_hist.txt', img_i_hist)
-            # np.savetxt('img_j_hist.txt', img_j_hist)
+            # print(get_correlation_between_two(img_i_hist, img_j_hist))
 
-            img_i_hist, img_j_hist = capture_features(img_i, img_j)
-            print(get_correlation_between_two(img_i_hist, img_j_hist))
+############################################################
 
+            # SECOND METHOD: EXTRACT HISTOGRAM FEATURES, CONCATENATE THEM INTO TWO ISTOGRAMS AND COMPUTE CORRELATION
+            # img_i_hist, img_j_hist = capture_features(img_i, img_j)
+            # print(get_correlation_between_two(img_i_hist, img_j_hist))
+
+############################################################
+
+            # THIRD METHOD: EXTRACT FEATURE HISTOGRAMS, COMPUTE CORRELATION INDIPENDENTLY (EYES, MOUTH, NOSE, FACE) AND RETURN THE MEAN SCORE
             # print(capture_features_with_score(img_i, img_j))
+
+############################################################
+
+            # FOURTH METHOD: Using the reference histogram, update the pixel intensity values in the input picture such that they match
+            # Matching istograms - Source: https://www.geeksforgeeks.org/histogram-matching-with-opencv-scikit-image-and-python/
+            matching_histograms(img_i, img_j)
             
-            fig = plt.figure()
+############################################################
+
+            # just plotting the figures
+            # fig = plt.figure()
  
-            ax1 = fig.add_subplot(1,2,1)
-            plt.imshow(img_i)
-            plt.axis('off')
+            # ax1 = fig.add_subplot(1,2,1)
+            # plt.imshow(img_i)
+            # plt.axis('off')
             
-            ax2 = fig.add_subplot(1,2,2)
-            plt.imshow(img_j)
-            plt.axis('off')
+            # ax2 = fig.add_subplot(1,2,2)
+            # plt.imshow(img_j)
+            # plt.axis('off')
             
-            plt.show()
+            # plt.show()
