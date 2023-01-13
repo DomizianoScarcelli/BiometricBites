@@ -1,13 +1,14 @@
 from matplotlib import pyplot as plt
 from sklearn.metrics import auc
 import numpy as np
+import os
 
 TICK_SIZE = 10
 TITLE_SIZE = 15
 DESCRIPTION_SIZE = 15
 
 #Returns the ROC curve and also the value of the AUROC
-def roc_auc_curve(eval_type, alg_name, metrics):
+def roc_auc_curve(eval_type, alg_name, metrics, save_path):
     '''
         Input:
         eval_type: openset, verification
@@ -28,9 +29,10 @@ def roc_auc_curve(eval_type, alg_name, metrics):
     plt.title("ROC curve for " + alg_name + " in " + eval_name, fontsize=TITLE_SIZE)
     plt.grid()
     plt.legend(loc='lower right')
-    plt.show()
+    plt.savefig(save_path)
+    plt.close()
 
-def far_frr_curve(eval_type, alg_name, metrics, thresholds):
+def far_frr_curve(eval_type, alg_name, metrics, thresholds, save_path):
     eval_name = get_eval_name(eval_type)
     FAR_list = metrics["FAR"]
     FRR_list = metrics["FRR"]
@@ -47,7 +49,8 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds):
     plt.title("FAR vs FRR for " + alg_name + " in " + eval_name, fontsize=TITLE_SIZE)
     plt.grid()
     plt.legend(loc='upper center')
-    plt.show()
+    plt.savefig(save_path)
+    plt.close()
 
 def get_eval_name(eval_type):
     if eval_type == "openset":
@@ -56,14 +59,15 @@ def get_eval_name(eval_type):
         return "Verification Single Template"
     else: return "Verification Multiple Template"
 
-"""
-def test():
-    metrics = {"FAR": [0, 0, 0, 0.34, 0.45, 0.52, 0.67, 0.72, 0.92, 1], "FRR": [1, 0.92, 0.78, 0.56, 0.49, 0.34, 0.21, 0.12, 0, 0], "GAR": [0, 0.82, 0.83, 0.85, 0.87, 0.92, 0.94, 0.95, 0.96, 1]}
-    alg_name = "SVC"
-    eval_type = "openset"
-    thresholds = np.linspace(0, 1, num=len(metrics["FAR"]))
-    roc_auc_curve(eval_type, alg_name, metrics)
-    far_frr_curve(eval_type, alg_name, metrics, thresholds)
+def save_plots(open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, folder):
+    open_set_FAR_FRR = {"FAR": open_set_metrics.iloc[2], "FRR": open_set_metrics.iloc[1], "GAR": 1-open_set_metrics.iloc[1]}
+    roc_auc_curve("openset", "DeepFace", open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"))
+    far_frr_curve("openset", "DeepFace", open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
 
-test()
-"""
+    verification_FAR_FRR = {"FAR": verification_metrics.iloc[2], "FRR": verification_metrics.iloc[1], "GAR": 1-verification_metrics.iloc[1]}
+    roc_auc_curve("verification", "DeepFace", verification_FAR_FRR, save_path=os.path.join(folder, "verification_roc"))
+    far_frr_curve("verification", "DeepFace", verification_FAR_FRR, thresholds, save_path=os.path.join(folder, "verification_far_frr"))
+
+    verification_mul_FAR_FRR = {"FAR": verification_mul_metrics.iloc[2], "FRR": verification_mul_metrics.iloc[1], "GAR": 1-verification_mul_metrics.iloc[1]}
+    roc_auc_curve("verification-mul", "DeepFace", verification_mul_FAR_FRR, save_path=os.path.join(folder, "verification_mul_roc"))
+    far_frr_curve("verification-mul", "DeepFace", verification_mul_FAR_FRR, thresholds, save_path=os.path.join(folder, "verification_mul_far_frr"))
