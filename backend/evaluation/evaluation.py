@@ -11,7 +11,6 @@ def compute_similarities(probe_set, gallery_set, similarity_function: callable):
             similarity = similarity_function(template_i, template_j)
             row_similarities.append(np.array([label_j, similarity])) #Must substitute 0 with the similarity algorithm
         all_similarities.append(np.array([label_i, row_similarities]))
-        print(all_similarities.shape)
     return all_similarities
 
 def compute_similarities_svc(probe_set, model):

@@ -1,6 +1,6 @@
 from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
 from deepface import DeepFace
-from sklearn.datasets import fetch_lfw_people
+from sklearn.datasets import fetch_lfw_people, fetch_olivetti_faces
 import numpy as np
 from .plots import roc_auc_curve, far_frr_curve
 from tqdm import tqdm
@@ -8,22 +8,35 @@ from scipy.spatial.distance import cosine
 import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import cv2
+
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
-lfw_people = fetch_lfw_people(color=True, min_faces_per_person=4, resize=0.5)
-X = lfw_people.images
-y = lfw_people.target
-X = np.array(X*255, dtype='uint8')
+if DATASET == "LFW":
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    X = lfw_people.images
+    y = lfw_people.target
+    X = np.array(X * 255, dtype='uint8')
+elif DATASET == "OLIVETTI":
+    lfw_people = fetch_olivetti_faces()
+    X = lfw_people.images
+    y = lfw_people.target
+    X = np.array(X * 255, dtype='uint8')
+    X = np.array([cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) for image in X])
+else:
+    raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays"
-DEEP_FACE_GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "deep_face_gallery_set.npy")
-DEEP_FACE_PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "deep_face_probe_set.npy")
-DEEP_FACE_SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "deep_face_similarities.npy")
-DEEP_FACE_IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "deep_face_identification_metrics.csv")
-DEEP_FACE_VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "deep_face_validation_metrics.csv")
-DEEP_FACE_VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "deep_face_validation_mul_metrics.csv")
+SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
+DEEP_FACE_GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
+DEEP_FACE_PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
+DEEP_FACE_SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
+DEEP_FACE_IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics.csv")
+DEEP_FACE_VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "validation_metrics.csv")
+DEEP_FACE_VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "validation_mul_metrics.csv")
 
 if not os.path.exists(SAVED_ARRAYS_PATH):
     os.mkdir(SAVED_ARRAYS_PATH)
@@ -85,13 +98,13 @@ else:
     deep_face_verification_metrics = pd.DataFrame(deep_face_verification_metrics_by_thresholds)
     deep_face_verification_mul_metrics = pd.DataFrame(deep_face_verification_mul_metrics_by_thresholds)
 
-    #Save metrics on disk
-    deep_face_open_set_metrics.to_csv(DEEP_FACE_IDENTIFICATION_METRICS)
-    deep_face_verification_metrics.to_csv(DEEP_FACE_VERIFICATION_METRICS)
-    deep_face_verification_mul_metrics.to_csv(DEEP_FACE_VERIFICATION_MUL_METRICS)
+    # #Save metrics on disk (TODO: commented for now since it causes an error in the next part)
+    # deep_face_open_set_metrics.to_csv(DEEP_FACE_IDENTIFICATION_METRICS)
+    # deep_face_verification_metrics.to_csv(DEEP_FACE_VERIFICATION_METRICS)
+    # deep_face_verification_mul_metrics.to_csv(DEEP_FACE_VERIFICATION_MUL_METRICS)
 
-
-####### PLOT ########
+#TODO: Error because it load the numbers from the .csv files as strings and not floats
+####### PLOT ######## 
 deep_face_open_set_FAR_FRR = {"FAR": deep_face_open_set_metrics.iloc[2], "FRR": deep_face_open_set_metrics.iloc[1], "GAR": 1-deep_face_open_set_metrics.iloc[1]}
 roc_auc_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR)
 far_frr_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR, thresholds)
