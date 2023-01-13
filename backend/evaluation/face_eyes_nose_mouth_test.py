@@ -16,14 +16,9 @@ eyes_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.x
 nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_nose.xml")
 mouth_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_mouth.xml")
 
-# get the faces detected in the image
-def capture_face_features(img):
-    face_hist = extract_histogram(img)
+def detect_eyes(img):
     eyes_hist = []
-    nose_hist = []
-    mouth_hist = []
 
-    # eyes
     eyes = eyes_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
     if len(eyes) >= 2:
         x, y, w, h = eyes[0]
@@ -32,33 +27,133 @@ def capture_face_features(img):
         eye_2 = extract_histogram(img[y:y+h, x:x+w])
 
         eyes_hist = np.concatenate((eye_1, eye_2))
-    else:
-        x, y, w, h = eyes[0]
-        eye_1 = extract_histogram(img[y:y+h, x:x+w])
-        eye_2 = np.zeros(len(eye_1))
-        eyes_hist = np.concatenate((eye_1, eye_2))
 
-    # nose
+    return eyes_hist
+    
+def detect_nose(img):
+    nose_hist = []
+
     nose = nose_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
     if len(nose) != 0:
         x, y, w, h = nose[0]
         nose_hist = extract_histogram(img[y:y+h, x:x+w])
-    else:
-        nose_hist = np.zeros(len(nose))
 
-    # mouth
+    return nose_hist
+
+def detect_mouth(img):
+    mouth_hist = []
+
     mouth = mouth_detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=3)
     if len(mouth) != 0:
         x, y, w, h = mouth[0]
         mouth_hist = extract_histogram(img[y:y+h, x:x+w])
-    else:
-        mouth_hist = np.zeros(len(mouth))
-    print(len(face_hist), len(eyes_hist), len(nose_hist), len(mouth_hist))
 
+    return mouth_hist
+
+def capture_features(img_i, img_j):
+    # count number of features detected
+    img_i_eyes_hist = []
+    img_i_nose_hist = []
+    img_i_mouth_hist = []
+
+    img_j_eyes_hist = []
+    img_j_nose_hist = []
+    img_j_mouth_hist = []
+
+    # extract face histogram
+    img_i_face_hist = extract_histogram(img_i)
+    img_j_face_hist = extract_histogram(img_j)
+
+    # detect eyes
+    img_i_eyes_hist = detect_eyes(img_i)
+    img_j_eyes_hist = detect_eyes(img_j)
+
+    if (len(img_i_eyes_hist) != len(img_j_eyes_hist)):
+        img_i_eyes_hist = []
+        img_j_eyes_hist = []
+
+    # detect nose
+    img_i_nose_hist = detect_nose(img_i)
+    img_j_nose_hist = detect_nose(img_j)
+
+    if (len(img_i_nose_hist) != len(img_j_nose_hist)):
+        img_i_nose_hist = []
+        img_j_nose_hist = []
+
+    #detect mouth
+    img_i_mouth_hist = detect_mouth(img_i)
+    img_j_mouth_hist = detect_mouth(img_j)
+
+    if (len(img_i_mouth_hist) != len(img_j_mouth_hist)):
+        img_i_mouth_hist = []
+        img_j_mouth_hist = []
+    
     # concatenate hists
-    conc_hist = np.concatenate([face_hist, eyes_hist, nose_hist, mouth_hist])
+    img_i_conc_hist = np.concatenate([img_i_face_hist, img_i_eyes_hist, img_i_nose_hist, img_i_mouth_hist])
+    img_j_conc_hist = np.concatenate([img_j_face_hist, img_j_eyes_hist, img_j_nose_hist, img_j_mouth_hist])
 
-    return conc_hist
+    return img_i_conc_hist, img_j_conc_hist
+
+def capture_features_with_score(img_i, img_j):
+    # count number of features detected
+    img_i_eyes_hist = []
+    img_i_nose_hist = []
+    img_i_mouth_hist = []
+
+    img_j_eyes_hist = []
+    img_j_nose_hist = []
+    img_j_mouth_hist = []
+
+    eyes_score = 0
+    nose_score = 0
+    mouth_score = 0
+
+    # extract face histogram
+    img_i_face_hist = extract_histogram(img_i)
+    img_j_face_hist = extract_histogram(img_j)
+
+    face_score = get_correlation_between_two(img_i_face_hist, img_j_face_hist)
+    n_features = 1
+
+    # detect eyes
+    img_i_eyes_hist = detect_eyes(img_i)
+    img_j_eyes_hist = detect_eyes(img_j)
+
+    if (len(img_i_eyes_hist) != len(img_j_eyes_hist)):
+        img_i_eyes_hist = []
+        img_j_eyes_hist = []
+    else:
+        if(len(img_i_eyes_hist) != 0):
+            eyes_score = get_correlation_between_two(img_i_eyes_hist, img_j_eyes_hist)
+            n_features += 1
+
+    # detect nose
+    img_i_nose_hist = detect_nose(img_i)
+    img_j_nose_hist = detect_nose(img_j)
+
+    if (len(img_i_nose_hist) != len(img_j_nose_hist)):
+        img_i_nose_hist = []
+        img_j_nose_hist = []
+    else:
+        if(len(img_i_nose_hist) != 0):
+            nose_score = get_correlation_between_two(img_i_nose_hist, img_j_nose_hist)
+            n_features += 1
+
+    #detect mouth
+    img_i_mouth_hist = detect_mouth(img_i)
+    img_j_mouth_hist = detect_mouth(img_j)
+
+    if (len(img_i_mouth_hist) != len(img_j_mouth_hist)):
+        img_i_mouth_hist = []
+        img_j_mouth_hist = []
+    else:
+        if(len(img_i_mouth_hist) != 0):
+            mouth_score = get_correlation_between_two(img_i_mouth_hist, img_j_mouth_hist)
+            n_features += 1
+
+    overall_score = (face_score + eyes_score + nose_score + mouth_score) / n_features
+    
+    return overall_score
 
 def extract_histogram(img):
     tmp_model = cv2.face.LBPHFaceRecognizer_create(
@@ -76,6 +171,10 @@ def extract_histogram(img):
 def get_correlation_between_two(hist1, hist2):
     return pearsonr(hist1, hist2)[0]
 
+# def get_correlation_between_two(hist1, hist2):
+#     min_sum = sum(np.minimum(hist1, hist2))
+#     return 0.5 * min_sum * ((1/sum(hist1)) + (1/sum(hist2))) # computing intersection between hist1 and hist2
+
 olivetti_people = fetch_olivetti_faces()
 X = olivetti_people.images
 y = olivetti_people.target
@@ -88,17 +187,15 @@ for i in range(0, len(X)):
             img_i = X[i]
             img_j = X[j]
 
-            img_i_hist = capture_face_features(img_i)
-            img_j_hist = capture_face_features(img_j)
+            # img_i_hist = extract_histogram(img_i)
+            # img_j_hist = extract_histogram(img_j)
+            # np.savetxt('img_i_hist.txt', img_i_hist)
+            # np.savetxt('img_j_hist.txt', img_j_hist)
 
-            # axis_values = np.array([i for i in range(0, len(img_i_hist))])
-            # fig = plt.figure()
-            # plt.bar(axis_values, img_i_hist)
-            # plt.show()    
-            
-            print(len(img_i_hist), len(img_j_hist))        
-
+            img_i_hist, img_j_hist = capture_features(img_i, img_j)
             print(get_correlation_between_two(img_i_hist, img_j_hist))
+
+            # print(capture_features_with_score(img_i, img_j))
             
             fig = plt.figure()
  
