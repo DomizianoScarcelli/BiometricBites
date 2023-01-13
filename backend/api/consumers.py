@@ -17,6 +17,7 @@ class FrameConsumer(WebsocketConsumer):
        self.classifier = CLASSIFIER
        self.DELTA_RECOGNITION = 5
 
+    #TODO: this switch can be avoided if the load_labels and load_recognizer are defined, even abstractly, inside the generic Classifier
        # reload labels and classifier
        if self.classifier.name == "LBPHF":
         #LBPH
@@ -36,7 +37,7 @@ class FrameConsumer(WebsocketConsumer):
         # {
         #   STATE: "UNKNOWN", "KNOWN", "NO FACE" 
         #   FRAME: str
-        #   RECOGNITION_PHASE: boolean
+        #   RECOGNITION_PHASE: boolean (Is time for the recognition because of the delta or not)
         #   USER_INFO: None | 
         # {
         #     ID: int,
@@ -49,6 +50,11 @@ class FrameConsumer(WebsocketConsumer):
         #   SIMILARITY: str
         #     
         # }
+
+        # If ID is None, then it means there is no face
+        # If ID is "unknown", then the face isn't recognized
+        # Otherwise the ID will be the ID of the recognized user
+
         if text_data == "null":
             return 
         img = b64str_to_opencvimg(text_data)
@@ -73,7 +79,7 @@ class FrameConsumer(WebsocketConsumer):
             identity_data["SIMILARITY"] = np.float64(similarity)
             identity_data["USER_INFO"]["PROFILE_IMG"] = get_profile_pic(id)
         else:
-            processed_frame, face_present = self.classifier.detect_faces(img)
+            processed_frame, roi, face_present = self.classifier.detect_faces(img)
             identity_data["RECOGNITION_PHASE"] = False
             identity_data["FACE_PRESENT"] = face_present
         b64_img = opencvimg_to_b64_str(processed_frame)
