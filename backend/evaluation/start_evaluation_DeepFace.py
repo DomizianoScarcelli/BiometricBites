@@ -73,7 +73,6 @@ else:
             boxes = face_recognition.face_locations(probe_template)
         else:
             boxes = [(0, 64, 64, 0)]
-        gallery_set.append(DeepFace.represent(gallery_template, model=model, detector_backend="skip"))
         probe_set.append(DeepFace.represent(probe_template, model=model, detector_backend="skip"))
     np.save(PROBE_SET, np.array(probe_set))
 
