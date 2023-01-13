@@ -1,5 +1,4 @@
 from .evaluation import open_set_identification_eval, verification_eval, verification_mul_eval, compute_similarities_svc
-from sklearn.datasets import fetch_lfw_people
 import numpy as np
 from .plots import roc_auc_curve, far_frr_curve
 from tqdm import tqdm
@@ -23,14 +22,10 @@ X = np.array(X * 255, dtype='uint8')
 def represent(templates):
     feature_vectors = []
     missed_index = []
-    for index, template in enumerate(tqdm(templates, desc="Extracting feature vectors")):
+    for template in tqdm(templates, desc="Extracting feature vectors"):
         template_RBG = cv2.cvtColor(template, cv2.COLOR_GRAY2RGB)
-        boxes = face_recognition.face_locations(template_RBG)
-        encoding = face_recognition.face_encodings(template_RBG, boxes)
-        if len(encoding) == 0:
-            missed_index.append(index)
-        else:
-            feature_vectors.append(encoding[0])
+        encoding = face_recognition.face_encodings(template_RBG, [(0, 64, 64, 0)])
+        feature_vectors.append(encoding[0])
     return np.array(missed_index), np.array(feature_vectors)
 
 ######## Defining the paths where results will be saved ######## 
@@ -56,7 +51,6 @@ if os.path.exists(FEATURE_VECTORS_PATH):
     X, y = pickle.load(open(FEATURE_VECTORS_PATH, "rb"))
 else:
     missed_index, X = represent(X)
-    y = np.delete(y, missed_index)
     pickle.dump(tuple((X,y)), open(FEATURE_VECTORS_PATH, "wb"))
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
@@ -108,14 +102,14 @@ else:
 
 #TODO: Error because it load the numbers from the .csv files as strings and not floats
 ####### PLOT ########
-svc_open_set_FAR_FRR = {"FAR": svc_open_set_metrics.iloc[2], "FRR": svc_open_set_metrics.iloc[1], "GAR": 1-svc_open_set_metrics.iloc[1].astype(float)}
+svc_open_set_FAR_FRR = {"FAR": svc_open_set_metrics.iloc[2], "FRR": svc_open_set_metrics.iloc[1], "GAR": 1-svc_open_set_metrics.iloc[1]}
 roc_auc_curve("openset", "DeepFace", svc_open_set_FAR_FRR)
 far_frr_curve("openset", "DeepFace", svc_open_set_FAR_FRR, thresholds)
 
-svc_verification_FAR_FRR = {"FAR": svc_verification_metrics.iloc[2], "FRR": svc_verification_metrics.iloc[1], "GAR": 1-svc_verification_metrics.iloc[1].astype(float)}
+svc_verification_FAR_FRR = {"FAR": svc_verification_metrics.iloc[2], "FRR": svc_verification_metrics.iloc[1], "GAR": 1-svc_verification_metrics.iloc[1]}
 roc_auc_curve("verification", "DeepFace", svc_verification_FAR_FRR)
 far_frr_curve("verification", "DeepFace", svc_verification_FAR_FRR, thresholds)
 
-svc_verification_mul_FAR_FRR = {"FAR": svc_verification_mul_metrics.iloc[2], "FRR": svc_verification_mul_metrics.iloc[1], "GAR": 1-svc_verification_mul_metrics.iloc[1].astype(float)}
+svc_verification_mul_FAR_FRR = {"FAR": svc_verification_mul_metrics.iloc[2], "FRR": svc_verification_mul_metrics.iloc[1], "GAR": 1-svc_verification_mul_metrics.iloc[1]}
 roc_auc_curve("verification-mul", "DeepFace", svc_verification_mul_FAR_FRR)
 far_frr_curve("verification-mul", "DeepFace", svc_verification_mul_FAR_FRR, thresholds)
