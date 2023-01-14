@@ -59,21 +59,13 @@ if os.path.exists(GALLERY_SET):
 else:
     for gallery_template in tqdm(X_train, desc="Extracting gallery set feature vectors"):
         image_array = np.array(gallery_template, "uint8")
-        image_width = 224
-        image_height = 224
         boxes = face_recognition.face_locations(gallery_template)
 
-        for (x_, y_, w, h) in boxes:
-            
-            # resize the detected face to 224x224
-            size = (image_width, image_height)
-
-            # detected face region
-            roi = gallery_template[y_: y_ + h, x_: x_ + w]
+   
 
             # resize the detected head to target size
-            #resized_image = cv2.resize(roi, (224,224))
-            image_array = np.array(roi, "uint8")
+        resized_image = cv2.resize(boxes, (224,224))
+        image_array = np.array(resized_image, "uint8")
         gallery_set.append(DeepFace.represent(image_array, model=model, detector_backend="skip"))
     np.save(GALLERY_SET, np.array(gallery_set))
 
@@ -82,15 +74,10 @@ if os.path.exists(PROBE_SET):
 else:
     for probe_template in tqdm(X_test, desc="Extracting probe set feature vectors"):
         image_array = np.array(probe_template, "uint8")
-        image_width = 224
-        image_height = 224
         boxes = face_recognition.face_locations(probe_template)
 
         for (x_, y_, w, h) in boxes:
             
-            # resize the detected face to 224x224
-            size = (image_width, image_height)
-
             # detected face region
             roi = probe_template[y_: y_ + h, x_: x_ + w]
 
