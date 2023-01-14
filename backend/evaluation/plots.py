@@ -44,8 +44,12 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds, save_path):
 
     try:
         frr_far_min_diff = [np.abs(FAR_list[i]-FRR_list[i]) for i in range(len(thresholds))]
-        eer = thresholds[np.argmin(frr_far_min_diff)] if np.min(frr_far_min_diff) <= 0.1 else "Undefined"
-        print(alg_name + ": The Equal Error Rate (ERR) for " + alg_name + " in " + eval_name + " is: " + str(eer))
+        min_diff_index = np.argmin(frr_far_min_diff) if np.min(frr_far_min_diff) <= 0.1 else "Undefined"
+        if min_diff_index != "Undefined":
+            eer_threshold = thresholds[min_diff_index]
+            eer_value = (FAR_list[min_diff_index]+FRR_list[min_diff_index])/2
+            print(alg_name + ": The Equal Error Rate (ERR) for " + alg_name + " in " + eval_name + " is: " + str(eer_value) + " (threshold: " + str(eer_threshold) + ")")
+        else: print(alg_name + ": The Equal Error Rate (ERR) for " + alg_name + " in " + eval_name + " is: Undefined.")
     except:
         print(alg_name + ": Can't calculate EER for " + alg_name + " in " + eval_name)
 
