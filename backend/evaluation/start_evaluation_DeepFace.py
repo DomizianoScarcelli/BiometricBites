@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 import face_recognition
+from PIL import Image
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
@@ -28,6 +29,7 @@ else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
+
 
 ######## Defining the paths where results will be saved ######## 
 SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
@@ -53,39 +55,50 @@ model = DeepFace.build_model('VGG-Face')
 
 gallery_set = []
 probe_set = []
+missed_index_galery = []
+missed_index_probe = []
 
 if os.path.exists(GALLERY_SET):
     gallery_set = np.load(GALLERY_SET)
 else:
-    for gallery_template in tqdm(X_train, desc="Extracting gallery set feature vectors"):
-        image_array = np.array(gallery_template, "uint8")
+    for index,gallery_template in enumerate(tqdm(X_train, desc="Extracting gallery set feature vectors")):
         boxes = face_recognition.face_locations(gallery_template)
-
-   
-
-            # resize the detected head to target size
-        resized_image = cv2.resize(boxes, (224,224))
-        image_array = np.array(resized_image, "uint8")
-        gallery_set.append(DeepFace.represent(image_array, model=model, detector_backend="skip"))
+        
+        if len(boxes)==0:
+            #face not found
+            missed_index_galery.append(index)
+        else:
+            
+            for face_location in boxes:
+                top, right, bottom, left = face_location
+                roy = gallery_template[top:bottom, left:right]           
+        
+            image_array = np.array(roy, "uint8")
+            gallery_set.append(DeepFace.represent(image_array, model=model, detector_backend="skip"))
     np.save(GALLERY_SET, np.array(gallery_set))
+    
+
 
 if os.path.exists(PROBE_SET):
     probe_set = np.load(PROBE_SET)
 else:
-    for probe_template in tqdm(X_test, desc="Extracting probe set feature vectors"):
-        image_array = np.array(probe_template, "uint8")
+    for index,probe_template in enumerate(tqdm(X_test, desc="Extracting probe set feature vectors")):
         boxes = face_recognition.face_locations(probe_template)
-
-        for (x_, y_, w, h) in boxes:
-            
-            # detected face region
-            roi = probe_template[y_: y_ + h, x_: x_ + w]
-
-            # resize the detected head to target size
-            resized_image = cv2.resize(roi, (224,224))
-            image_array = np.array(roi, "uint8")
-        probe_set.append(DeepFace.represent(image_array, model=model, detector_backend="skip"))
+        
+        if len(boxes)==0:
+            #face not found
+            missed_index_probe.append(index)
+        else:
+            for face_location in boxes:
+                top, right, bottom, left = face_location
+                roy = probe_template[top:bottom, left:right]
+            image_array = np.array(roy, "uint8")
+            probe_set.append(DeepFace.represent(image_array, model=model, detector_backend="skip"))
     np.save(PROBE_SET, np.array(probe_set))
+ 
+#delete from y missed index
+y_train = np.delete(y_train, missed_index_galery)        
+y_test = np.delete(y_test, missed_index_probe)
 
 # Each element is of type (label, feature_vector)
 gallery_data = np.array([(y_train[i], gallery_set[i]) for i in range(len(gallery_set))])
