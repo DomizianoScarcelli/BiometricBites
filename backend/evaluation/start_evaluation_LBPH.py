@@ -19,7 +19,7 @@ def extract_histogram(img):
                     grid_x = 8, # The number of cells in the horizontal direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
                     grid_y = 8, # The number of cells in the vertical direction, 8 is a common value used in publications. The more cells, the finer the grid, the higher the dimensionality of the resulting feature vector
                 )  
-    #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     tmp_model.train([img], np.array([0]))
     histogram = tmp_model.getHistograms()[0][0]
 
@@ -28,119 +28,108 @@ def extract_histogram(img):
 def get_correlation_between_two(hist1, hist2):
     return pearsonr(hist1, hist2)[0]
 
+from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
+from sklearn.datasets import fetch_lfw_people, fetch_olivetti_faces
+import numpy as np
+from .plots import save_plots
+from tqdm import tqdm
+from scipy.spatial.distance import cosine
+import os
+import pandas as pd
+from sklearn.model_selection import train_test_split
+import cv2
+
+DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+
 ####### Loading and parsing the dataset images #######
-olivetti_people = fetch_olivetti_faces()
-X = olivetti_people.images
-y = olivetti_people.target
-X = np.array(X*255, dtype='uint8')
+if DATASET == "LFW":
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    X = lfw_people.images
+    y = lfw_people.target
+    X = np.array(X * 255, dtype='uint8')
+elif DATASET == "OLIVETTI":
+    lfw_people = fetch_olivetti_faces()
+    X = lfw_people.images
+    y = lfw_people.target
+    X = np.array(X * 255, dtype='uint8')
+    X = np.array([cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) for image in X])
+else:
+    raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
-####### TEST (DA TOGLIERE NELLA VERSIONE FINALE) #######
+######## Defining the paths where results will be saved ######## 
+SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_lbph_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_lbph_olivetti"
+PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
+GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
+PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
+SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
+IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics.csv")
+VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_metrics.csv")
+VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_mul_metrics.csv")
 
-# for i in range(0, len(X)):
-#     for j in range(0, len(X)):
-#         if y[i] == y[j]:    
-#             img_i = X[i]
-#             img_j = X[j]
+if not os.path.exists(SAVED_ARRAYS_PATH):
+    os.mkdir(SAVED_ARRAYS_PATH)
+if not os.path.exists(PLOTS):
+    os.mkdir(PLOTS)
+    
+######## Build feature vectors ########
+gallery_set = []
+probe_set = []
 
-#             # img_i = detect_face(X[i])
-#             # img_j = detect_face(X[j])
+if os.path.exists(GALLERY_SET):
+    gallery_set = np.load(GALLERY_SET)
+else:
+    for gallery_template in tqdm(X_train, desc="Extracting gallery set feature vectors"):
+        gallery_set.append(extract_histogram(gallery_template))
+    np.save(GALLERY_SET, np.array(gallery_set))
 
-#             print(get_correlation_between_two(extract_histogram(img_i), extract_histogram(img_j)))
-            
-#             fig = plt.figure()
- 
-#             ax1 = fig.add_subplot(1,2,1)
-#             plt.imshow(img_i)
-#             plt.axis('off')
-            
-#             ax2 = fig.add_subplot(1,2,2)
-#             plt.imshow(img_j)
-#             plt.axis('off')
-            
-#             plt.show()
+if os.path.exists(PROBE_SET):
+    probe_set = np.load(PROBE_SET)
+else:
+    for probe_template in tqdm(X_test, desc="Extracting probe set feature vectors"):
+        probe_set.append(extract_histogram(probe_template))
+    np.save(PROBE_SET, np.array(probe_set))
 
-##############
+# Each element is of type (label, feature_vector)
+gallery_data = np.array([(y_train[i], gallery_set[i]) for i in range(len(gallery_set))])
+probe_data = np.array([(y_test[i], probe_set[i]) for i in range(len(probe_set))])
 
-# ######## Defining the paths where results will be saved ######## 
-# SAVED_ARRAYS_PATH = "./evaluation/saved_arrays"
-# DEEP_FACE_GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "deep_face_gallery_set.npy")
-# DEEP_FACE_PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "deep_face_probe_set.npy")
-# DEEP_FACE_SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "deep_face_similarities.npy")
-# DEEP_FACE_IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "deep_face_identification_metrics.csv")
-# DEEP_FACE_VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "deep_face_validation_metrics.csv")
-# DEEP_FACE_VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "deep_face_validation_mul_metrics.csv")
+######## Load similarity matrix if present on disk ######## 
+if os.path.exists(SIMILARITIES_PATH):
+    all_similarities = np.load(SIMILARITIES_PATH, allow_pickle=True)
+else:
+    all_similarities = compute_similarities(probe_data, gallery_data, get_correlation_between_two)
+    np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
-# if not os.path.exists(SAVED_ARRAYS_PATH):
-#     os.mkdir(SAVED_ARRAYS_PATH)
+####### Load evaluation data if present - LBPH ########
+thresholds = np.arange(0, 1, 0.01)
+if os.path.exists(IDENTIFICATION_METRICS) and os.path.exists(VERIFICATION_METRICS) and os.path.exists(VERIFICATION_MUL_METRICS):
+    open_set_metrics = pd.read_csv(IDENTIFICATION_METRICS)
+    verification_metrics = pd.read_csv(VERIFICATION_METRICS)
+    verification_mul_metrics = pd.read_csv(VERIFICATION_MUL_METRICS)
+else:
+    ####### Compute it if not - LBPH ######## 
+    open_set_identification_metrics_by_thresholds = {}
+    verification_metrics_by_thresholds = {}
+    verification_mul_metrics_by_thresholds = {}
+    for threshold in tqdm(thresholds, desc="TOTAL"):
+        DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
+        open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
+        GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
+        verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
+        verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
 
-# ######## Build feature vectors ########
-# gallery_set = []
-# probe_set = []
+    open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
+    verification_metrics = pd.DataFrame(verification_metrics_by_thresholds)
+    verification_mul_metrics = pd.DataFrame(verification_mul_metrics_by_thresholds)
 
-# if os.path.exists(DEEP_FACE_GALLERY_SET):
-#     gallery_set = np.load(DEEP_FACE_GALLERY_SET)
-# else:
-#     for gallery_template in tqdm(X_train, desc="Extracting gallery set feature vectors"):
-#         gallery_set.append(extract_histogram(gallery_template))
-#     np.save(DEEP_FACE_GALLERY_SET, np.array(gallery_set))
+    #Save metrics on disk
+    open_set_metrics.to_csv(IDENTIFICATION_METRICS)
+    verification_metrics.to_csv(VERIFICATION_METRICS)
+    verification_mul_metrics.to_csv(VERIFICATION_MUL_METRICS)
 
-# if os.path.exists(DEEP_FACE_PROBE_SET):
-#     probe_set = np.load(DEEP_FACE_PROBE_SET)
-# else:
-#     for probe_template in tqdm(X_test, desc="Extracting probe set feature vectors"):
-#         probe_set.append(extract_histogram(probe_template))
-#     np.save(DEEP_FACE_PROBE_SET, np.array(probe_set))
-
-# # Each element is of type (label, feature_vector)
-# gallery_data = np.array([(y_train[i], gallery_set[i]) for i in range(len(gallery_set))])
-# probe_data = np.array([(y_test[i], probe_set[i]) for i in range(len(probe_set))])
-
-# ######## Load similarity matrix if present on disk ######## 
-# if os.path.exists(DEEP_FACE_SIMILARITIES_PATH):
-#     all_similarities = np.load(DEEP_FACE_SIMILARITIES_PATH, allow_pickle=True)
-# else:
-#     all_similarities = compute_similarities(probe_data, gallery_data, get_correlation_between_two)
-#     np.save(DEEP_FACE_SIMILARITIES_PATH, np.array(all_similarities))
-
-# ####### Load evaluation data if present - Deep Face ######## 
-# if os.path.exists(DEEP_FACE_IDENTIFICATION_METRICS) and os.path.exists(DEEP_FACE_VERIFICATION_METRICS) and os.path.exists(DEEP_FACE_VERIFICATION_MUL_METRICS):
-#     deep_face_open_set_metrics = pd.read_csv(DEEP_FACE_IDENTIFICATION_METRICS)
-#     deep_face_verification_metrics = pd.read_csv(DEEP_FACE_VERIFICATION_METRICS)
-#     deep_face_verification_mul_metrics = pd.read_csv(DEEP_FACE_VERIFICATION_MUL_METRICS)
-# else:
-#     ####### Compute it if not - Deep Face ######## 
-#     deep_face_open_set_identification_metrics_by_thresholds = {}
-#     deep_face_verification_metrics_by_thresholds = {}
-#     deep_face_verification_mul_metrics_by_thresholds = {}
-#     thresholds = np.arange(0, 1, 0.01)
-#     for threshold in tqdm(thresholds, desc="TOTAL"):
-#         DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
-#         deep_face_open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
-#         GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
-#         deep_face_verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
-#         GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
-#         deep_face_verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
-
-#     deep_face_open_set_metrics = pd.DataFrame(deep_face_open_set_identification_metrics_by_thresholds)
-#     deep_face_verification_metrics = pd.DataFrame(deep_face_verification_metrics_by_thresholds)
-#     deep_face_verification_mul_metrics = pd.DataFrame(deep_face_verification_mul_metrics_by_thresholds)
-
-#     #Save metrics on disk
-#     deep_face_open_set_metrics.to_csv(DEEP_FACE_IDENTIFICATION_METRICS)
-#     deep_face_verification_metrics.to_csv(DEEP_FACE_VERIFICATION_METRICS)
-#     deep_face_verification_mul_metrics.to_csv(DEEP_FACE_VERIFICATION_MUL_METRICS)
-
-
-# ####### PLOT ########
-# deep_face_open_set_FAR_FRR = {"FAR": deep_face_open_set_metrics.iloc[2], "FRR": deep_face_open_set_metrics.iloc[1], "GAR": 1-deep_face_open_set_metrics.iloc[1]}
-# roc_auc_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR)
-# far_frr_curve("openset", "DeepFace", deep_face_open_set_FAR_FRR, thresholds)
-
-# deep_face_verification_FAR_FRR = {"FAR": deep_face_verification_metrics.iloc[2], "FRR": deep_face_verification_metrics.iloc[1], "GAR": 1-deep_face_verification_metrics.iloc[1]}
-# roc_auc_curve("verification", "DeepFace", deep_face_verification_FAR_FRR)
-# far_frr_curve("verification", "DeepFace", deep_face_verification_FAR_FRR, thresholds)
-
-# deep_face_verification_mul_FAR_FRR = {"FAR": deep_face_verification_mul_metrics.iloc[2], "FRR": deep_face_verification_mul_metrics.iloc[1], "GAR": 1-deep_face_verification_mul_metrics.iloc[1]}
-# roc_auc_curve("verification-mul", "DeepFace", deep_face_verification_mul_FAR_FRR)
-# far_frr_curve("verification-mul", "DeepFace", deep_face_verification_mul_FAR_FRR, thresholds)
+####### PLOT ######## 
+# TODO: in plots.py creare i plot per LBPH (tips: vedi quelli utilizzati da DeepFace)
+save_plots(open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)

@@ -161,7 +161,7 @@ def matching_histograms(img_i, img_j):
     from skimage.exposure import match_histograms
     from skimage import exposure
 
-    matched = match_histograms(img_i, img_j)
+    matched = match_histograms(img_j, img_i)
 
     fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, 
                             ncols=3, 
@@ -172,9 +172,9 @@ def matching_histograms(img_i, img_j):
         aa.set_axis_off()
     
     # displaying images
-    ax1.imshow(img_i)
+    ax1.imshow(img_j)
     ax1.set_title('Source image')
-    ax2.imshow(img_j)
+    ax2.imshow(img_i)
     ax2.set_title('Reference image')
     ax3.imshow(matched)
     ax3.set_title('Matched image')
@@ -183,25 +183,25 @@ def matching_histograms(img_i, img_j):
     plt.show()
 
     # displaying histograms.
-    fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(8, 8))
+    # fig, axes = plt.subplots(nrows=3, ncols=3, figsize=(8, 8))
     
-    for i, img in enumerate((img_i, img_j, matched)):
-        for c, c_color in enumerate(('red', 'green', 'blue')):
-            img_hist, bins = exposure.histogram(img[..., c],
-                                                source_range='dtype')
-            axes[c, i].plot(bins, img_hist / img_hist.max())
-            img_cdf, bins = exposure.cumulative_distribution(img[..., c])
-            axes[c, i].plot(bins, img_cdf)
-            axes[c, 0].set_ylabel(c_color)
+    # for i, img in enumerate((img_i, img_j, matched)):
+    #     for c, c_color in enumerate(('red', 'green', 'blue')):
+    #         img_hist, bins = exposure.histogram(img[..., c],
+    #                                             source_range='dtype')
+    #         axes[c, i].plot(bins, img_hist / img_hist.max())
+    #         img_cdf, bins = exposure.cumulative_distribution(img[..., c])
+    #         axes[c, i].plot(bins, img_cdf)
+    #         axes[c, 0].set_ylabel(c_color)
     
-    axes[0, 0].set_title('Source image')
-    axes[0, 1].set_title('Reference image')
-    axes[0, 2].set_title('Matched image')
+    # axes[0, 0].set_title('Source image')
+    # axes[0, 1].set_title('Reference image')
+    # axes[0, 2].set_title('Matched image')
     
-    plt.tight_layout()
-    plt.show()
+    # plt.tight_layout()
+    # plt.show()
 
-################################
+############################################################
 
 def extract_histogram(img):
     tmp_model = cv2.face.LBPHFaceRecognizer_create(
@@ -219,9 +219,7 @@ def extract_histogram(img):
 def get_correlation_between_two(hist1, hist2):
     return pearsonr(hist1, hist2)[0]
 
-# def get_correlation_between_two(hist1, hist2):
-#     min_sum = sum(np.minimum(hist1, hist2))
-#     return 0.5 * min_sum * ((1/sum(hist1)) + (1/sum(hist2))) # computing intersection between hist1 and hist2
+############################################################
 
 olivetti_people = fetch_olivetti_faces()
 X = olivetti_people.images
@@ -256,7 +254,7 @@ for i in range(0, len(X)):
 ############################################################
 
             # FOURTH METHOD: Using the reference histogram, update the pixel intensity values in the input picture such that they match
-            # Matching istograms - Source: https://www.geeksforgeeks.org/histogram-matching-with-opencv-scikit-image-and-python/
+            # Matching Histograms - Source: https://www.geeksforgeeks.org/histogram-matching-with-opencv-scikit-image-and-python/
             matching_histograms(img_i, img_j)
             
 ############################################################
