@@ -70,7 +70,7 @@ def get_eval_name(eval_type):
         return "Verification Single Template"
     else: return "Verification Multiple Template"
 
-def save_plots(open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, folder):
+def save_plots(alg_name, open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, folder):
     FAR_open_set = np.array(open_set_metrics.iloc[2]).astype(np.float)
     FRR_open_set = np.array(open_set_metrics.iloc[1]).astype(np.float)
     if len(thresholds) != len(FAR_open_set): FAR_open_set = FAR_open_set[1:]
@@ -78,8 +78,8 @@ def save_plots(open_set_metrics, verification_metrics, verification_mul_metrics,
     GAR_open_set = 1-FRR_open_set
 
     open_set_FAR_FRR = {"FAR": FAR_open_set, "FRR": FRR_open_set, "GAR": GAR_open_set}
-    roc_auc_curve("openset", "DeepFace", open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"))
-    far_frr_curve("openset", "DeepFace", open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
+    roc_auc_curve("openset", alg_name, open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"))
+    far_frr_curve("openset", alg_name, open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
 
     FAR_verification = np.array(verification_metrics.iloc[2]).astype(np.float)
     FRR_verification = np.array(verification_metrics.iloc[1]).astype(np.float)
@@ -88,8 +88,8 @@ def save_plots(open_set_metrics, verification_metrics, verification_mul_metrics,
     GAR_verification = 1-FRR_verification
 
     verification_FAR_FRR = {"FAR": FAR_verification, "FRR": FRR_verification, "GAR": GAR_verification}
-    roc_auc_curve("verification", "DeepFace", verification_FAR_FRR, save_path=os.path.join(folder, "verification_roc"))
-    far_frr_curve("verification", "DeepFace", verification_FAR_FRR, thresholds, save_path=os.path.join(folder, "verification_far_frr"))
+    roc_auc_curve("verification", alg_name, verification_FAR_FRR, save_path=os.path.join(folder, "verification_roc"))
+    far_frr_curve("verification", alg_name, verification_FAR_FRR, thresholds, save_path=os.path.join(folder, "verification_far_frr"))
 
     FAR_verification_mul = np.array(verification_mul_metrics.iloc[2]).astype(np.float)
     FRR_verification_mul = np.array(verification_mul_metrics.iloc[1]).astype(np.float)
@@ -98,5 +98,5 @@ def save_plots(open_set_metrics, verification_metrics, verification_mul_metrics,
     GAR_verification_mul = 1-FRR_verification_mul
 
     verification_mul_FAR_FRR = {"FAR": FAR_verification_mul, "FRR": FRR_verification_mul, "GAR": GAR_verification_mul}
-    roc_auc_curve("verification-mul", "DeepFace", verification_mul_FAR_FRR, save_path=os.path.join(folder, "verification_mul_roc"))
-    far_frr_curve("verification-mul", "DeepFace", verification_mul_FAR_FRR, thresholds, save_path=os.path.join(folder, "verification_mul_far_frr"))
+    roc_auc_curve("verification-mul", alg_name, verification_mul_FAR_FRR, save_path=os.path.join(folder, "verification_mul_roc"))
+    far_frr_curve("verification-mul", alg_name, verification_mul_FAR_FRR, thresholds, save_path=os.path.join(folder, "verification_mul_far_frr"))

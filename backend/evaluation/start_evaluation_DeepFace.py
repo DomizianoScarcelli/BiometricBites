@@ -107,4 +107,4 @@ else:
     verification_mul_metrics.to_csv(VERIFICATION_MUL_METRICS)
 
 ####### PLOT ######## 
-save_plots(open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)
+save_plots("DeepFace", open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)

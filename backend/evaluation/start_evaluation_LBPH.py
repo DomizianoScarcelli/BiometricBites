@@ -132,4 +132,4 @@ else:
 
 ####### PLOT ######## 
 # TODO: in plots.py creare i plot per LBPH (tips: vedi quelli utilizzati da DeepFace)
-save_plots(open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)
+save_plots("LBPH", open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)
