@@ -12,11 +12,11 @@ import pickle
 import face_recognition
 import cv2
 
-DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
+DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=4, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -52,8 +52,8 @@ FEATURE_VECTORS_PATH = os.path.join(SAVED_ARRAYS_PATH, "feature_vectors.pickles"
 PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
 SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
 IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics.csv")
-VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "validation_metrics.csv")
-VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "validation_mul_metrics.csv")
+VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_metrics.csv")
+VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_mul_metrics.csv")
 
 if not os.path.exists(SAVED_ARRAYS_PATH):
     os.mkdir(SAVED_ARRAYS_PATH)
@@ -93,7 +93,8 @@ else:
     np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
 
-####### Load evaluation data if present ######## 
+####### Load evaluation data if present ########
+thresholds = np.arange(0, 1, 0.01)
 if os.path.exists(IDENTIFICATION_METRICS) and os.path.exists(VERIFICATION_METRICS) and os.path.exists(VERIFICATION_MUL_METRICS):
     open_set_metrics = pd.read_csv(IDENTIFICATION_METRICS)
     verification_metrics = pd.read_csv(VERIFICATION_METRICS)
@@ -103,7 +104,6 @@ else:
     open_set_identification_metrics_by_thresholds = {}
     verification_metrics_by_thresholds = {}
     verification_mul_metrics_by_thresholds = {}
-    thresholds = np.arange(0, 1, 0.01)
     for threshold in tqdm(thresholds, desc="TOTAL"):
         DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
         open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
@@ -117,10 +117,9 @@ else:
     verification_mul_metrics = pd.DataFrame(verification_mul_metrics_by_thresholds)
 
     #Save metrics on disk (commented for now since it gives an error)
-    # open_set_metrics.to_csv(IDENTIFICATION_METRICS)
-    # verification_metrics.to_csv(VERIFICATION_METRICS)
-    # verification_mul_metrics.to_csv(VERIFICATION_MUL_METRICS)
+    open_set_metrics.to_csv(IDENTIFICATION_METRICS)
+    verification_metrics.to_csv(VERIFICATION_METRICS)
+    verification_mul_metrics.to_csv(VERIFICATION_MUL_METRICS)
 
-#TODO: Error because it load the numbers from the .csv files as strings and not floats
 ####### PLOT ########
 save_plots(open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)
