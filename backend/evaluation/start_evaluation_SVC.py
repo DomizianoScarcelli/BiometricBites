@@ -36,20 +36,20 @@ def apply_filters(filter, template):
         """
         image = tf.cast(tf.convert_to_tensor(template), tf.uint8)
         
+        # Boosting constrast
         if filter == 0:
             contrast = tf.image.adjust_contrast(image, 0.8)
             return np.array(contrast* 255, dtype='uint8') 
-        # Boosting constrast
         elif filter == 1:
             contrast = tf.image.adjust_contrast(image, 0.9)
             return np.array(contrast* 255, dtype='uint8') 
         elif filter == 2:
             contrast = tf.image.adjust_contrast(image, 1)
             return np.array(contrast* 255, dtype='uint8')
+        # Boosting brightness        
         elif filter == 3:
             brightness = tf.image.adjust_brightness(image, 0.1)
             return np.array(brightness* 255, dtype='uint8')
-        # Boosting brightness
         elif filter == 4:
             brightness = tf.image.adjust_brightness(image, 0.2)
             return np.array(brightness* 255, dtype='uint8')
