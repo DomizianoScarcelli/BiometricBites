@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 from sklearn.metrics import auc
 import numpy as np
+import json
 import os
 
 TICK_SIZE = 10
@@ -63,6 +64,18 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds, save_path):
     plt.savefig(save_path)
     plt.close()
 
+def dir_curve(alg_name, DIR_list, save_path):
+    thresholds = np.linspace(0, 1, len(DIR_list))
+    plt.plot(thresholds, DIR_list, linestyle="dashed", label="DIR")
+    plt.xlabel("Thresholds", fontsize=DESCRIPTION_SIZE)
+    #plt.ylabel("", fontsize=DESCRIPTION_SIZE)
+    plt.title("DIR curve for " + alg_name + " in Open Set Identification", fontsize=TITLE_SIZE)
+    plt.grid()
+    plt.legend(loc='lower center')
+    plt.savefig(save_path)
+    plt.close()
+    
+
 def get_eval_name(eval_type):
     if eval_type == "openset":
         return "Open Set Identification"
@@ -76,10 +89,14 @@ def save_plots(alg_name, open_set_metrics, verification_metrics, verification_mu
     if len(thresholds) != len(FAR_open_set): FAR_open_set = FAR_open_set[1:]
     if len(thresholds) != len(FRR_open_set): FRR_open_set = FRR_open_set[1:]
     GAR_open_set = 1-FRR_open_set
+    DIR_open_set = open_set_metrics.iloc[0]
+    if isinstance(DIR_open_set[1], str):
+        DIR_open_set = json.loads(DIR_open_set[1])
 
     open_set_FAR_FRR = {"FAR": FAR_open_set, "FRR": FRR_open_set, "GAR": GAR_open_set}
     roc_auc_curve("openset", alg_name, open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"))
     far_frr_curve("openset", alg_name, open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
+    dir_curve(alg_name, DIR_open_set, save_path=os.path.join(folder, "openset_dir"))
 
     FAR_verification = np.array(verification_metrics.iloc[2]).astype(np.float)
     FRR_verification = np.array(verification_metrics.iloc[1]).astype(np.float)
