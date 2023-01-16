@@ -17,8 +17,18 @@ def compute_similarities_svc(probe_set, model):
     all_similarities = []
     for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
         probabilities = model.predict_proba([template_i])[0]
-        row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities)])
-        print(row_similarities.shape)
+        def inverse_sigmoid(x):
+            x = np.nextafter(x, x+1)
+            return np.log(x) - np.log(1-x)
+        inverse_sigmoid_probs = inverse_sigmoid(probabilities)
+        # inverse_sigmoid_probs += abs(np.min(inverse_sigmoid_probs)) #TODO: debugging, see it it may help
+        normalized = 1 / (1 + np.exp(-inverse_sigmoid_probs))
+        # TODO: debugging
+        # print(sorted(normalized))
+        # input()
+        row_similarities = []
+        for j, similarity in enumerate(normalized):
+            row_similarities.append(np.array([j, similarity]))
         all_similarities.append(np.array([label_i, row_similarities]))
     return all_similarities
 

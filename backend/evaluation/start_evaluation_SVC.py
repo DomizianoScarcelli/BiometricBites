@@ -12,11 +12,12 @@ import pickle
 import face_recognition
 import cv2
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "LFW" # Dataset ot use: LFW or OLIVETTI
+MIN_FACES = 7
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=0.5)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -45,7 +46,7 @@ def represent(templates):
     return np.array(missed_index), np.array(feature_vectors)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
+SAVED_ARRAYS_PATH = f"./evaluation/saved_arrays_svc_lfw_{MIN_FACES}" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 MODEL = os.path.join(SAVED_ARRAYS_PATH, "model.pickle")
 FEATURE_VECTORS_PATH = os.path.join(SAVED_ARRAYS_PATH, "feature_vectors.pickles")
@@ -92,6 +93,9 @@ else:
     all_similarities = compute_similarities_svc(probe_data, model)
     np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
+# ordered_similarities = sorted(all_similarities[0][1], key=lambda tup: -tup[1])
+# print(y_test[0])
+# print(ordered_similarities[:10])
 
 ####### Load evaluation data if present ########
 thresholds = np.arange(0, 1, 0.01)

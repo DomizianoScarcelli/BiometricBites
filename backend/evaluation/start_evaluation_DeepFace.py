@@ -13,8 +13,9 @@ import cv2
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
+MIN_FACES = 4
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -30,7 +31,7 @@ else:
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
+SAVED_ARRAYS_PATH = f"./evaluation/saved_arrays_vgg_lfw_{MIN_FACES}" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
 PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
