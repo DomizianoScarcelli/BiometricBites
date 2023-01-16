@@ -64,7 +64,7 @@ def open_set_identification_eval(threshold, all_similarities):
     FAR = FA / impostor_claims
     GRR = GR / impostor_claims
     for k in range(1, gallery_cardinality):
-        DIR[k] = DI[k] / (genuine_claims + DIR[k-1])
+        DIR[k] = (DI[k] / genuine_claims) + DIR[k-1]
     return DIR, FRR, FAR, GRR
 
 
