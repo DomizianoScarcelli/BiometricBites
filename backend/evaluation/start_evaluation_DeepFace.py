@@ -9,12 +9,13 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
+import tensorflow as tf
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=4, resize=0.5)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -33,11 +34,40 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random
 SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
+GALLERY_LABEL = os.path.join(SAVED_ARRAYS_PATH, "gallery_label.npy")
 PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
+PROBE_LABEL = os.path.join(SAVED_ARRAYS_PATH, "probe_label.npy")
 SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
 IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics.csv")
 VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_metrics.csv")
 VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_mul_metrics.csv")
+
+def apply_filters(filter, template):
+        """
+        Apply different filters to increase the face features
+        """
+        image = tf.cast(tf.convert_to_tensor(template), tf.uint8)
+        
+        # Boosting constrast
+        if filter == 0:
+            contrast = tf.image.adjust_contrast(image, 0.8)
+            return np.array(contrast* 255, dtype='uint8') 
+        elif filter == 1:
+            contrast = tf.image.adjust_contrast(image, 0.9)
+            return np.array(contrast* 255, dtype='uint8') 
+        elif filter == 2:
+            contrast = tf.image.adjust_contrast(image, 1)
+            return np.array(contrast* 255, dtype='uint8')
+        # Boosting brightness        
+        elif filter == 3:
+            brightness = tf.image.adjust_brightness(image, 0.1)
+            return np.array(brightness* 255, dtype='uint8')
+        elif filter == 4:
+            brightness = tf.image.adjust_brightness(image, 0.2)
+            return np.array(brightness* 255, dtype='uint8')
+        elif filter == 5:
+            brightness = tf.image.adjust_brightness(image, 0.3)
+            return np.array(brightness* 255, dtype='uint8')   
 
 if not os.path.exists(SAVED_ARRAYS_PATH):
     os.mkdir(SAVED_ARRAYS_PATH)
@@ -52,24 +82,42 @@ model = DeepFace.build_model('VGG-Face')
 
 gallery_set = []
 probe_set = []
+galery_label = []
+probe_label = []
 
 if os.path.exists(GALLERY_SET):
     gallery_set = np.load(GALLERY_SET)
+    galery_label = np.load(GALLERY_LABEL)
 else:
-    for gallery_template in tqdm(X_train, desc="Extracting gallery set feature vectors"):
+    for index,gallery_template in enumerate(tqdm(X_train, desc="Extracting gallery set feature vectors")):
         gallery_set.append(DeepFace.represent(gallery_template, model=model, detector_backend="skip"))
+        
+        #apply filters
+        for i in range(6):
+            template=apply_filters(i,gallery_template)
+            gallery_set.append(DeepFace.represent(template, model=model, detector_backend="skip"))
+            galery_label.append(y_train[index])
     np.save(GALLERY_SET, np.array(gallery_set))
+    np.save(GALLERY_LABEL, np.array(galery_label))
 
 if os.path.exists(PROBE_SET):
     probe_set = np.load(PROBE_SET)
+    probe_label = np.load(PROBE_LABEL)
 else:
-    for probe_template in tqdm(X_test, desc="Extracting probe set feature vectors"):
+    for index,probe_template in enumerate(tqdm(X_test, desc="Extracting probe set feature vectors")):
         probe_set.append(DeepFace.represent(probe_template, model=model, detector_backend="skip"))
+        
+        #apply filters
+        for i in range(6):
+            template=apply_filters(i,probe_template)
+            probe_set.append(DeepFace.represent(template, model=model, detector_backend="skip"))
+            probe_label.append(y_test[index])
     np.save(PROBE_SET, np.array(probe_set))
+    np.save(PROBE_LABEL, np.array(probe_label))
 
 # Each element is of type (label, feature_vector)
-gallery_data = np.array([(y_train[i], gallery_set[i]) for i in range(len(gallery_set))])
-probe_data = np.array([(y_test[i], probe_set[i]) for i in range(len(probe_set))])
+gallery_data = np.array([(galery_label[i], gallery_set[i]) for i in range(len(gallery_set))])
+probe_data = np.array([(probe_label[i], probe_set[i]) for i in range(len(probe_set))])
 
 ######## Load similarity matrix if present on disk ######## 
 if os.path.exists(SIMILARITIES_PATH):
