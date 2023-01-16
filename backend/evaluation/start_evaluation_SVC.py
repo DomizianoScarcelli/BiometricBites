@@ -11,12 +11,13 @@ from sklearn.svm import SVC
 import pickle
 import face_recognition
 import cv2
+import tensorflow as tf
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=4, resize=0.5)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -29,20 +30,53 @@ elif DATASET == "OLIVETTI":
 else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
 
-def represent(templates):
+def apply_filters(filter, template):
+        """
+        Apply different filters to increase the face features
+        """
+        image = tf.cast(tf.convert_to_tensor(template), tf.uint8)
+        
+        if filter == 0:
+            contrast = tf.image.adjust_contrast(image, 0.8)
+            return np.array(contrast* 255, dtype='uint8') 
+        # Boosting constrast
+        elif filter == 1:
+            contrast = tf.image.adjust_contrast(image, 0.9)
+            return np.array(contrast* 255, dtype='uint8') 
+        elif filter == 2:
+            contrast = tf.image.adjust_contrast(image, 1)
+            return np.array(contrast* 255, dtype='uint8')
+        elif filter == 3:
+            brightness = tf.image.adjust_brightness(image, 0.1)
+            return np.array(brightness* 255, dtype='uint8')
+        # Boosting brightness
+        elif filter == 4:
+            brightness = tf.image.adjust_brightness(image, 0.2)
+            return np.array(brightness* 255, dtype='uint8')
+        elif filter == 5:
+            brightness = tf.image.adjust_brightness(image, 0.3)
+            return np.array(brightness* 255, dtype='uint8') 
+
+def represent(templates, labels):
     feature_vectors = []
-    missed_index = []
+    labels_array = []
     for index, template in enumerate(tqdm(templates, desc="Extracting feature vectors")):
         if DATASET == "LFW":
             boxes = face_recognition.face_locations(template)
         else:
             boxes = [(0, 64, 64, 0)]
         encoding = face_recognition.face_encodings(template, boxes)
-        if len(encoding) == 0:
-            missed_index.append(index)
-        else:
+        if len(encoding) != 0:
             feature_vectors.append(encoding[0])
-    return np.array(missed_index), np.array(feature_vectors)
+            labels_array.append(labels[index])  
+            #apply filters
+            for i in range(6):
+                template=apply_filters(i,template)
+                encoding = face_recognition.face_encodings(template, boxes)
+                if len(encoding) != 0:
+                    feature_vectors.append(encoding[0])
+                    labels_array.append(labels[index])
+    return np.array(feature_vectors), np.array(labels_array)
 
 ######## Defining the paths where results will be saved ######## 
 SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
@@ -69,11 +103,9 @@ model = SVC(kernel='linear', probability=True)
 if os.path.exists(FEATURE_VECTORS_PATH):
     X, y = pickle.load(open(FEATURE_VECTORS_PATH, "rb"))
 else:
-    missed_index, X = represent(X)
-    if len(missed_index) != 0:
-        y = np.delete(y, missed_index)
+    X, y= represent(X, y)
     pickle.dump(tuple((X,y)), open(FEATURE_VECTORS_PATH, "wb"))
-
+    
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 if os.path.exists(MODEL):
