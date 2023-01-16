@@ -20,7 +20,17 @@ def compute_similarities_svc(probe_set, model):
         def inverse_sigmoid(x):
             x = np.nextafter(x, x+1)
             return np.log(x) - np.log(1-x)
-        inverse_sigmoid_probs = inverse_sigmoid(probabilities)
+
+        def inverse_softmax(array):
+            x = np.nextafter(0,1)
+            C = np.log(np.exp(array).sum() + x)
+            return np.log(array + x) + C
+        
+        def softmax(array):
+            C = np.exp(array).sum()
+            return np.exp(array) / C
+            
+        inverse_sigmoid_probs = inverse_softmax(probabilities)
         # inverse_sigmoid_probs += abs(np.min(inverse_sigmoid_probs)) #TODO: debugging, see it it may help
         normalized = 1 / (1 + np.exp(-inverse_sigmoid_probs))
         # TODO: debugging
@@ -28,8 +38,8 @@ def compute_similarities_svc(probe_set, model):
         # input()
         row_similarities = []
         for j, similarity in enumerate(normalized):
-            row_similarities.append(np.array([j, similarity]))
-        all_similarities.append(np.array([label_i, row_similarities]))
+            row_similarities.append((j, similarity))
+        all_similarities.append((label_i, row_similarities))
     return all_similarities
 
 #OpenSet Identification Multiple Template

@@ -12,12 +12,12 @@ import pickle
 import face_recognition
 import cv2
 
-DATASET = "LFW" # Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 7
+DATASET = "OLIVETTI" # Dataset ot use: LFW or OLIVETTI
+MIN_FACES = 10
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -93,12 +93,8 @@ else:
     all_similarities = compute_similarities_svc(probe_data, model)
     np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
-# ordered_similarities = sorted(all_similarities[0][1], key=lambda tup: -tup[1])
-# print(y_test[0])
-# print(ordered_similarities[:10])
-
 ####### Load evaluation data if present ########
-thresholds = np.arange(0, 1, 0.01)
+thresholds = np.arange(0, 1, 0.0001)
 if os.path.exists(IDENTIFICATION_METRICS) and os.path.exists(VERIFICATION_METRICS) and os.path.exists(VERIFICATION_MUL_METRICS):
     open_set_metrics = pd.read_csv(IDENTIFICATION_METRICS)
     verification_metrics = pd.read_csv(VERIFICATION_METRICS)

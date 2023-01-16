@@ -10,7 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 MIN_FACES = 4
@@ -80,7 +80,7 @@ else:
     np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
 ####### Load evaluation data if present - Deep Face ########
-thresholds = np.arange(0, 1, 0.01)
+thresholds = np.arange(0, 1, 0.0001)
 if os.path.exists(IDENTIFICATION_METRICS) and os.path.exists(VERIFICATION_METRICS) and os.path.exists(VERIFICATION_MUL_METRICS):
     open_set_metrics = pd.read_csv(IDENTIFICATION_METRICS)
     verification_metrics = pd.read_csv(VERIFICATION_METRICS)
