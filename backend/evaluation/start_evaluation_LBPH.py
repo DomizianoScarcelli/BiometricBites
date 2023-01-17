@@ -103,7 +103,7 @@ if os.path.exists(GALLERY_SET):
 else:
     for index,gallery_template in enumerate(tqdm(X_train, desc="Extracting gallery set feature vectors")):
         gallery_set.append(extract_histogram(gallery_template))
-        
+        galery_label.append(y_train[index])
         #apply filters
         for i in range(6):
             template=apply_filters(i,gallery_template)
@@ -118,7 +118,7 @@ if os.path.exists(PROBE_SET):
 else:
     for index,probe_template in enumerate(tqdm(X_test, desc="Extracting probe set feature vectors")):
         probe_set.append(extract_histogram(probe_template))
-        
+        probe_label.append(y_test[index])
         #apply filters
         for i in range(6):
             template=apply_filters(i,probe_template)
