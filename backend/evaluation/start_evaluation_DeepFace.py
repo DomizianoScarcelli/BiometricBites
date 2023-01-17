@@ -1,8 +1,8 @@
-from evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
+from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
 from deepface import DeepFace
 from sklearn.datasets import fetch_lfw_people, fetch_olivetti_faces
 import numpy as np
-from plots import save_plots
+from .plots import save_plots
 from tqdm import tqdm
 from scipy.spatial.distance import cosine
 import os
@@ -31,7 +31,7 @@ else:
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "backend/evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "backend/evaluation/saved_arrays_vgg_olivetti"
+SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
 GALLERY_LABEL = os.path.join(SAVED_ARRAYS_PATH, "gallery_label.npy")
