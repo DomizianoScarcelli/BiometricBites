@@ -43,6 +43,7 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds, save_path):
     print(alg_name + ": The ZeroFAR for " + alg_name + " in " + eval_name + " is: " + str(zero_far))
     print(alg_name + ": The ZeroFRR for " + alg_name + " in " + eval_name + " is: " + str(zero_frr))
 
+    eer_threshold = None
     try:
         frr_far_min_diff = [np.abs(FAR_list[i]-FRR_list[i]) for i in range(len(thresholds))]
         min_diff_index = np.argmin(frr_far_min_diff) if np.min(frr_far_min_diff) <= 0.1 else "Undefined"
@@ -64,12 +65,14 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds, save_path):
     plt.savefig(save_path)
     plt.close()
 
-def dir_curve(alg_name, DIR_list, save_path):
-    thresholds = np.linspace(0, 1, len(DIR_list))
-    plt.plot(thresholds, DIR_list, linestyle="dashed", label="DIR")
-    plt.xlabel("Thresholds", fontsize=DESCRIPTION_SIZE)
-    #plt.ylabel("", fontsize=DESCRIPTION_SIZE)
-    plt.title("DIR curve for " + alg_name + " in Open Set Identification", fontsize=TITLE_SIZE)
+    return eer_threshold
+
+def dir_curve(alg_name, DIR_list, threshold, save_path):
+    k = np.arange(1, len(DIR_list)+1)
+    plt.plot(k, DIR_list, linestyle="dashed", label="DIR at rank k")
+    plt.xlabel("Rank (k)", fontsize=DESCRIPTION_SIZE)
+    plt.ylabel("DIR value", fontsize=DESCRIPTION_SIZE)
+    plt.title("DIR curve for " + alg_name + " in Open Set Identification (thr = " + str(threshold) +")", fontsize=TITLE_SIZE-1)
     plt.grid()
     plt.legend(loc='lower center')
     plt.savefig(save_path)
@@ -84,19 +87,33 @@ def get_eval_name(eval_type):
     else: return "Verification Multiple Template"
 
 def save_plots(alg_name, open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, folder):
+    if not os.path.exists(os.path.join(folder, "dir_curve")):
+        os.mkdir(os.path.join(folder, "dir_curve"))
+
     FAR_open_set = np.array(open_set_metrics.iloc[2]).astype(np.float)
     FRR_open_set = np.array(open_set_metrics.iloc[1]).astype(np.float)
     if len(thresholds) != len(FAR_open_set): FAR_open_set = FAR_open_set[1:]
     if len(thresholds) != len(FRR_open_set): FRR_open_set = FRR_open_set[1:]
     GAR_open_set = 1-FRR_open_set
-    DIR_open_set = open_set_metrics.iloc[0]
-    if isinstance(DIR_open_set[1], str):
-        DIR_open_set = json.loads(DIR_open_set[1])
 
     open_set_FAR_FRR = {"FAR": FAR_open_set, "FRR": FRR_open_set, "GAR": GAR_open_set}
     roc_auc_curve("openset", alg_name, open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"))
-    far_frr_curve("openset", alg_name, open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
-    dir_curve(alg_name, DIR_open_set, save_path=os.path.join(folder, "openset_dir"))
+    err_threshold = far_frr_curve("openset", alg_name, open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
+
+    DIR_open_set = open_set_metrics.iloc[0].values.tolist()
+    for t in range(1, len(thresholds)+1, 10):
+        DIR_t = DIR_open_set[t] if t != 0 else DIR_open_set[t+1]
+        DIR_t = DIR_open_set[t-1] if t == 100 else DIR_open_set[t]
+        if isinstance(DIR_t, str):
+            DIR_t = json.loads(DIR_t)
+        dir_curve(alg_name, DIR_t, "%.2f" % thresholds[t-1], save_path=os.path.join(folder, "dir_curve", "openset_dir_"+str(t-1)))
+    try:
+        DIR_err = DIR_open_set[int(err_threshold*100)]
+        if isinstance(DIR_err, str):
+            DIR_err = json.loads(DIR_err)
+        dir_curve(alg_name, DIR_err, "%.2f" % thresholds[int(err_threshold*100)], save_path=os.path.join(folder, "dir_curve", "openset_dir_"+str(err_threshold)+"_eer.png"))
+    except:
+        pass
 
     FAR_verification = np.array(verification_metrics.iloc[2]).astype(np.float)
     FRR_verification = np.array(verification_metrics.iloc[1]).astype(np.float)
