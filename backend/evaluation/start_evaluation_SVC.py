@@ -13,11 +13,11 @@ import face_recognition
 import cv2
 import tensorflow as tf
 
-DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
+DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=100, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=4, resize=0.5)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -81,7 +81,7 @@ def represent(templates, labels):
     return np.array(feature_vectors), np.array(labels_array)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "backend/evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
+SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 MODEL = os.path.join(SAVED_ARRAYS_PATH, "model.pickle")
 FEATURE_VECTORS_PATH = os.path.join(SAVED_ARRAYS_PATH, "feature_vectors.pickles")
@@ -128,7 +128,7 @@ if os.path.exists(PROBE_SET):
     probe_set = np.load(PROBE_SET)
     probe_label = np.load(PROBE_LABEL)
 else:
-    probe_set, probe_label = represent(X_train, y_train)
+    probe_set, probe_label = represent(X_test, y_test)
     np.save(PROBE_SET, np.array(probe_set))
     np.save(PROBE_LABEL, np.array(probe_label))
     
