@@ -1,8 +1,8 @@
-from .evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
+from evaluation import compute_similarities, open_set_identification_eval, verification_eval, verification_mul_eval
 from deepface import DeepFace
 from sklearn.datasets import fetch_lfw_people, fetch_olivetti_faces
 import numpy as np
-from .plots import save_plots
+from plots import save_plots
 from tqdm import tqdm
 from scipy.spatial.distance import cosine
 import os
@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 import cv2
 import tensorflow as tf
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -31,7 +31,7 @@ else:
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
+SAVED_ARRAYS_PATH = "backend/evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "backend/evaluation/saved_arrays_vgg_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
 GALLERY_LABEL = os.path.join(SAVED_ARRAYS_PATH, "gallery_label.npy")
@@ -82,23 +82,23 @@ model = DeepFace.build_model('VGG-Face')
 
 gallery_set = []
 probe_set = []
-galery_label = []
+gallery_label = []
 probe_label = []
 
 if os.path.exists(GALLERY_SET):
     gallery_set = np.load(GALLERY_SET)
-    galery_label = np.load(GALLERY_LABEL)
+    gallery_label = np.load(GALLERY_LABEL)
 else:
     for index,gallery_template in enumerate(tqdm(X_train, desc="Extracting gallery set feature vectors")):
         gallery_set.append(DeepFace.represent(gallery_template, model=model, detector_backend="skip"))
-        
+        gallery_label.append(y_train[index])
         #apply filters
         for i in range(6):
             template=apply_filters(i,gallery_template)
             gallery_set.append(DeepFace.represent(template, model=model, detector_backend="skip"))
-            galery_label.append(y_train[index])
+            gallery_label.append(y_train[index])
     np.save(GALLERY_SET, np.array(gallery_set))
-    np.save(GALLERY_LABEL, np.array(galery_label))
+    np.save(GALLERY_LABEL, np.array(gallery_label))
 
 if os.path.exists(PROBE_SET):
     probe_set = np.load(PROBE_SET)
@@ -106,7 +106,7 @@ if os.path.exists(PROBE_SET):
 else:
     for index,probe_template in enumerate(tqdm(X_test, desc="Extracting probe set feature vectors")):
         probe_set.append(DeepFace.represent(probe_template, model=model, detector_backend="skip"))
-        
+        probe_label.append(y_test[index])
         #apply filters
         for i in range(6):
             template=apply_filters(i,probe_template)
@@ -116,7 +116,7 @@ else:
     np.save(PROBE_LABEL, np.array(probe_label))
 
 # Each element is of type (label, feature_vector)
-gallery_data = np.array([(galery_label[i], gallery_set[i]) for i in range(len(gallery_set))])
+gallery_data = np.array([(gallery_label[i], gallery_set[i]) for i in range(len(gallery_set))])
 probe_data = np.array([(probe_label[i], probe_set[i]) for i in range(len(probe_set))])
 
 ######## Load similarity matrix if present on disk ######## 
