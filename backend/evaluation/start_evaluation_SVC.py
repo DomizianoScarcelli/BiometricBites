@@ -13,11 +13,11 @@ import face_recognition
 import cv2
 import tensorflow as tf
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=4, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=100, resize=0.5)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -29,6 +29,8 @@ elif DATASET == "OLIVETTI":
     X = np.array([cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) for image in X])
 else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 def apply_filters(filter, template):
         """
@@ -79,11 +81,14 @@ def represent(templates, labels):
     return np.array(feature_vectors), np.array(labels_array)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
+SAVED_ARRAYS_PATH = "backend/evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 MODEL = os.path.join(SAVED_ARRAYS_PATH, "model.pickle")
 FEATURE_VECTORS_PATH = os.path.join(SAVED_ARRAYS_PATH, "feature_vectors.pickles")
+GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
+GALLERY_LABEL = os.path.join(SAVED_ARRAYS_PATH, "gallery_label.npy")
 PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
+PROBE_LABEL = os.path.join(SAVED_ARRAYS_PATH, "probe_label.npy")
 SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
 IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics.csv")
 VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_metrics.csv")
@@ -100,22 +105,41 @@ def get_similarity_between_two(img1, img2):
 ######## Build feature vectors ########
 model = SVC(kernel='linear', probability=True)
 
-if os.path.exists(FEATURE_VECTORS_PATH):
-    X, y = pickle.load(open(FEATURE_VECTORS_PATH, "rb"))
-else:
-    X, y= represent(X, y)
-    pickle.dump(tuple((X,y)), open(FEATURE_VECTORS_PATH, "wb"))
-    
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
+#if os.path.exists(FEATURE_VECTORS_PATH):
+ #   X, y = pickle.load(open(FEATURE_VECTORS_PATH, "rb"))
+#else:
+#    X, y= represent(X, y)
+#    pickle.dump(tuple((X,y)), open(FEATURE_VECTORS_PATH, "wb"))
 
+gallery_set = []
+probe_set = []
+gallery_label = []
+probe_label = []
+
+if os.path.exists(GALLERY_SET):
+    gallery_set = np.load(GALLERY_SET)
+    galery_label = np.load(GALLERY_LABEL)
+else:
+    gallery_set, galery_label = represent(X_train, y_train)
+    np.save(GALLERY_SET, np.array(gallery_set))
+    np.save(GALLERY_LABEL, np.array(galery_label))
+    
+if os.path.exists(PROBE_SET):
+    probe_set = np.load(PROBE_SET)
+    probe_label = np.load(PROBE_LABEL)
+else:
+    probe_set, probe_label = represent(X_train, y_train)
+    np.save(PROBE_SET, np.array(probe_set))
+    np.save(PROBE_LABEL, np.array(probe_label))
+    
 if os.path.exists(MODEL):
     model = pickle.load(open(MODEL, 'rb'))
 else:
-    model.fit(X_train, y_train)
+    model.fit(gallery_set, galery_label)
     pickle.dump(model, open(MODEL, 'wb'))
 
 # Each element is of type (label, feature_vector)
-probe_data = np.array([(y_test[i], X_test[i]) for i in range(len(X_test))])
+probe_data = np.array([(probe_label[i], probe_set[i]) for i in range(len(probe_set))])
 
 ###### Load similarity matrix if present on disk ######## 
 if os.path.exists(SIMILARITIES_PATH):
