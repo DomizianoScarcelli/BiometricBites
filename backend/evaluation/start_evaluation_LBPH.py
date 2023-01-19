@@ -41,7 +41,7 @@ from sklearn.model_selection import train_test_split
 import cv2
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 7
+MIN_FACES = 10
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
     lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)
@@ -67,23 +67,20 @@ IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics
 VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_metrics.csv")
 VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_mul_metrics.csv")
 
+#TODO: Uncomment this if you want to perform roi cropping on face localization on LFW dataset
 # Localize faces and remove the unlocalized ones, only for the LFW dataset
-if DATASET == "LFW" and not os.path.exists(GALLERY_SET) and not os.path.exists(PROBE_SET):
-    new_X = []
-    new_Y = []
-    for index, template in enumerate(tqdm(X, desc="Localizing faces")):
-        boxes = face_recognition.face_locations(template)
-        if len(boxes) != 0:
-            y_, h, w, x_ = boxes[0]
-            roi = template[y_: y_+h, x_: x_+w]
-            # plt.imshow(roi)
-            # plt.show()
-            # input()
-            # plt.close()
-            new_X.append(roi)
-            new_Y.append(y[index])
-    X = new_X
-    y = new_Y
+# if DATASET == "LFW" and not os.path.exists(GALLERY_SET) and not os.path.exists(PROBE_SET):
+#     new_X = []
+#     new_Y = []
+#     for index, template in enumerate(tqdm(X, desc="Localizing faces")):
+#         boxes = face_recognition.face_locations(template)
+#         if len(boxes) != 0:
+#             y_, h, w, x_ = boxes[0]
+#             roi = template[y_: y_+h, x_: x_+w]
+#             new_X.append(roi)
+#             new_Y.append(y[index])
+#     X = new_X
+#     y = new_Y
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
@@ -135,10 +132,10 @@ else:
     for threshold in tqdm(thresholds, desc="TOTAL"):
         DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
         open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
-        # GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
-        # verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
-        # GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
-        # verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
+        verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
+        verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
 
     open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
     verification_metrics = pd.DataFrame(verification_metrics_by_thresholds)
@@ -150,5 +147,4 @@ else:
     verification_mul_metrics.to_csv(VERIFICATION_MUL_METRICS)
 
 ####### PLOT ######## 
-# TODO: in plots.py creare i plot per LBPH (tips: vedi quelli utilizzati da DeepFace)
 save_plots("LBPH", open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)

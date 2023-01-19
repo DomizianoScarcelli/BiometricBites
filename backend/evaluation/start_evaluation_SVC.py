@@ -11,10 +11,9 @@ from sklearn.svm import SVC
 import pickle
 import face_recognition
 import cv2
-import matplotlib.pyplot as plt
 
-DATASET = "LFW" # Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 7
+DATASET = "OLIVETTI" # Dataset ot use: LFW or OLIVETTI
+MIN_FACES = 4
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -32,27 +31,13 @@ else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
 
 _, WIDTH, HEIGHT, _ = X.shape
-print(WIDTH, HEIGHT)
-input()
+
 def represent(templates):
     feature_vectors = []
     missed_index = []
     for index, template in enumerate(tqdm(templates, desc="Extracting feature vectors")):
         if DATASET == "LFW":
-            # boxes = [(0, WIDTH, HEIGHT, 0)]
-            # #Plot original image next to the cropped image with face_locations
-            # _, (ax1, ax2) = plt.subplots(1, 2) 
-            # ax1.imshow(template)
-            # ax1.set_title('Original image')
             boxes = face_recognition.face_locations(template)
-            # _, w, h, _ = boxes[0]
-            # cropped_image = template[0: h, 0: w]
-            # ax2.imshow(cropped_image)
-            # ax2.set_title('Cropped image')
-            # plt.tight_layout()
-            # plt.show()
-            # input()
-            # plt.close()
         else:
             boxes = [(0, WIDTH, HEIGHT, 0)]
         encoding = face_recognition.face_encodings(template, boxes)
@@ -111,7 +96,7 @@ else:
     np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
 ####### Load evaluation data if present ########
-thresholds = np.arange(0, 1, 0.01)
+thresholds = np.arange(0, 1, 0.0001)
 if os.path.exists(IDENTIFICATION_METRICS) and os.path.exists(VERIFICATION_METRICS) and os.path.exists(VERIFICATION_MUL_METRICS):
     open_set_metrics = pd.read_csv(IDENTIFICATION_METRICS)
     verification_metrics = pd.read_csv(VERIFICATION_METRICS)

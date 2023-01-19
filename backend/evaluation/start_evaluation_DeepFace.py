@@ -13,7 +13,7 @@ import face_recognition
 import matplotlib.pyplot as plt
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 7
+MIN_FACES = 4
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -53,24 +53,20 @@ def get_similarity_between_two(img1, img2):
 ######## Build the VGG Face model ########
 model = DeepFace.build_model('VGG-Face')
 
-# # Localize faces and remove the unlocalized ones, only for the LFW dataset
-# if DATASET == "LFW" and not os.path.exists(GALLERY_SET) and not os.path.exists(PROBE_SET):
-#     new_X = []
-#     new_Y = []
-#     for index, template in enumerate(tqdm(X, desc="Localizing faces")):
-#         boxes = face_recognition.face_locations(template)
-#         if len(boxes) != 0:
-#             y_, h, w, x_ = boxes[0]
-#             roi = template[y_: y_+h, x_: x_+w]
-#             # plt.imshow(roi)
-#             # plt.show()
-#             # input()
-#             # plt.close()
-#             new_X.append(roi)
-#             new_Y.append(y[index])
+# Localize faces and remove the unlocalized ones, only for the LFW dataset
+if DATASET == "LFW" and not os.path.exists(GALLERY_SET) and not os.path.exists(PROBE_SET):
+    new_X = []
+    new_Y = []
+    for index, template in enumerate(tqdm(X, desc="Localizing faces")):
+        boxes = face_recognition.face_locations(template)
+        if len(boxes) != 0:
+            y_, h, w, x_ = boxes[0]
+            roi = template[y_: y_+h, x_: x_+w]
+            new_X.append(roi)
+            new_Y.append(y[index])
 
-#     X = new_X
-#     y = new_Y
+    X = new_X
+    y = new_Y
 
 gallery_set = []
 probe_set = []
@@ -114,10 +110,10 @@ else:
     for threshold in tqdm(thresholds, desc="TOTAL"):
         DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
         open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
-        # GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
-        # verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
-        # GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
-        # verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
+        verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
+        verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
 
     open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
     verification_metrics = pd.DataFrame(verification_metrics_by_thresholds)

@@ -21,13 +21,8 @@ def roc_auc_curve(eval_type, alg_name, metrics, save_path):
 
     auroc = auc(FAR_list, GAR_list)
     print(alg_name + ": The AUROC for " + alg_name + " in " + eval_name + " is: " + str(auroc))
-    # def compute_random_guess():
-    #     random_FAR = []
-    #     random_GAR = []
-    #     for _ in range(len(FAR_list)):
-    #         random_FAR.append(1/)
     plt.plot(FAR_list, GAR_list, marker=".", label='ROC curve for ' + alg_name)
-    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Random guess')
+    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Random guess') #TODO: maybe remove this in the case of open set because IDK if this is correct
     plt.xlabel("False Acceptance Rate", fontsize=DESCRIPTION_SIZE)
     plt.ylabel("Genuine Acceptance Rate (1-FRR)", fontsize=DESCRIPTION_SIZE)
     plt.title("ROC curve for " + alg_name + " in " + eval_name, fontsize=TITLE_SIZE)
