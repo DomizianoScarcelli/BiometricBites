@@ -7,6 +7,7 @@ from scipy.spatial.distance import cosine
 import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import face_recognition
 
 import matplotlib.pyplot as plt
 import cv2
@@ -40,10 +41,10 @@ from sklearn.model_selection import train_test_split
 import cv2
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
-
+MIN_FACES = 7
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -56,10 +57,8 @@ elif DATASET == "OLIVETTI":
 else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
-
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_lbph_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_lbph_olivetti"
+SAVED_ARRAYS_PATH = f"./evaluation/saved_arrays_lbph_lfw_{MIN_FACES}" if DATASET == "LFW" else "./evaluation/saved_arrays_lbph_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
 PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
@@ -67,6 +66,26 @@ SIMILARITIES_PATH = os.path.join(SAVED_ARRAYS_PATH, "similarities.npy")
 IDENTIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "identification_metrics.csv")
 VERIFICATION_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_metrics.csv")
 VERIFICATION_MUL_METRICS = os.path.join(SAVED_ARRAYS_PATH, "verification_mul_metrics.csv")
+
+# Localize faces and remove the unlocalized ones, only for the LFW dataset
+if DATASET == "LFW" and not os.path.exists(GALLERY_SET) and not os.path.exists(PROBE_SET):
+    new_X = []
+    new_Y = []
+    for index, template in enumerate(tqdm(X, desc="Localizing faces")):
+        boxes = face_recognition.face_locations(template)
+        if len(boxes) != 0:
+            y_, h, w, x_ = boxes[0]
+            roi = template[y_: y_+h, x_: x_+w]
+            # plt.imshow(roi)
+            # plt.show()
+            # input()
+            # plt.close()
+            new_X.append(roi)
+            new_Y.append(y[index])
+    X = new_X
+    y = new_Y
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 if not os.path.exists(SAVED_ARRAYS_PATH):
     os.mkdir(SAVED_ARRAYS_PATH)
@@ -116,10 +135,10 @@ else:
     for threshold in tqdm(thresholds, desc="TOTAL"):
         DIR, FRR, FAR, GRR = open_set_identification_eval(threshold, all_similarities=all_similarities)
         open_set_identification_metrics_by_thresholds[threshold] = [DIR, FRR, FAR, GRR]
-        GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
-        verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
-        GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
-        verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        # GAR, FRR, FAR, GRR = verification_eval(threshold, all_similarities=all_similarities)
+        # verification_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
+        # GAR, FRR, FAR, GRR = verification_mul_eval(threshold, all_similarities=all_similarities)
+        # verification_mul_metrics_by_thresholds[threshold] = [GAR, FRR, FAR, GRR]
 
     open_set_metrics = pd.DataFrame(open_set_identification_metrics_by_thresholds)
     verification_metrics = pd.DataFrame(verification_metrics_by_thresholds)
