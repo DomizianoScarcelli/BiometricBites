@@ -6,6 +6,10 @@ import numpy as np
 from PIL import Image
 from bsproject.paths import SAMPLES_ROOT, LABELS_ROOT, MODELS_ROOT
 from abc import ABC, abstractmethod
+import math
+import pandas as pd
+from PIL import Image
+
 
 
 class Classifier(ABC):
@@ -122,6 +126,9 @@ class Classifier(ABC):
 
                     # resize the detected head to target size
                     resized_image = cv2.resize(roi, size)
+
+                    resized_image = self.face_alignment(resized_image)
+
                     image_array = np.array(resized_image, "uint8")
 
                     # remove the original image
@@ -177,47 +184,22 @@ class Classifier(ABC):
         roi = frame[y_:y_+h, x_:x_+w]
         return frame, roi, True
 
-    # TODO: da sistemare e vedere se migliora le performance generali
     # Source: https://www.geeksforgeeks.org/face-alignment-with-opencv-and-python/
-    import math
-    import pandas as pd
-    from PIL import Image
-
     # align face
     def face_alignment(self, frame):
-        face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-        eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
-        nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_nose.xml")
-
-        x = cv2.cvtColor(frame, cv2.IMREAD_COLOR)
-        alignedFace = Face_Alignment(x)
-        return alignedFace
-
-    # Detect face
-    def face_detection(img):
-        faces = face_detector.detectMultiScale(img, 1.1, 4)
-        if (len(faces) <= 0):
-            img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            img_gray = img
-            return img, img_gray
-        else:
-            X, Y, W, H = faces[0]
-            img = img[int(Y):int(Y+H), int(X):int(X+W)]
-            return img, cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
+        alignedFace = self.Face_Alignment(frame)
+        return alignedFace 
     
-    
-    def trignometry_for_distance(a, b):
+    def trignometry_for_distance(self, a, b):
         return math.sqrt(((b[0] - a[0]) * (b[0] - a[0])) +\
                         ((b[1] - a[1]) * (b[1] - a[1])))
     
     # Find eyes
-    def Face_Alignment(img):
-        pl.imshow(img)
-        pl.show()
+    def Face_Alignment(self, img):
+        eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
+
         img_raw = img.copy()
-        # img, gray_img = face_detection(img)
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gray_img = img
         eyes = eye_detector.detectMultiScale(gray_img)
     
         # for multiple people in an image find the largest 
@@ -270,11 +252,11 @@ class Classifier(ABC):
                 direction = 1  # rotate inverse direction of clock
     
             cv2.circle(img, point_3rd, 2, (255, 0, 0), 2)
-            a = trignometry_for_distance(left_eye_center, 
+            a = self.trignometry_for_distance(left_eye_center, 
                                         point_3rd)
-            b = trignometry_for_distance(right_eye_center, 
+            b = self.trignometry_for_distance(right_eye_center, 
                                         point_3rd)
-            c = trignometry_for_distance(right_eye_center, 
+            c = self.trignometry_for_distance(right_eye_center, 
                                         left_eye_center)
             cos_a = (b*b + c*c - a*a)/(2*b*c)
             angle = (np.arccos(cos_a) * 180) / math.pi

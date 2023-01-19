@@ -8,18 +8,14 @@ import numpy as np
   
 # Detect face
 def face_detection(img):
-    # faces = face_detector.detectMultiScale(img, 1.1, 4)
-    # if (len(faces) <= 0):
-    #     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #     return img, img_gray
-    # else:
-    #     X, Y, W, H = faces[0]
-    #     img = img[int(Y):int(Y+H), int(X):int(X+W)]
-    #     return img, cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
-
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    return img, img_gray
-  
+    faces = face_detector.detectMultiScale(img, 1.1, 4)
+    if (len(faces) <= 0):
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        return img, img_gray
+    else:
+        X, Y, W, H = faces[0]
+        img = img[int(Y):int(Y+H), int(X):int(X+W)]
+        return img, cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
   
 def trignometry_for_distance(a, b):
     return math.sqrt(((b[0] - a[0]) * (b[0] - a[0])) +\
@@ -114,7 +110,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
