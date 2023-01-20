@@ -12,11 +12,12 @@ import pickle
 import face_recognition
 import cv2
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" # Dataset ot use: LFW or OLIVETTI
+MIN_FACES = 4
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -29,6 +30,8 @@ elif DATASET == "OLIVETTI":
 else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
 
+_, WIDTH, HEIGHT, _ = X.shape
+
 def represent(templates):
     feature_vectors = []
     missed_index = []
@@ -36,7 +39,7 @@ def represent(templates):
         if DATASET == "LFW":
             boxes = face_recognition.face_locations(template)
         else:
-            boxes = [(0, 64, 64, 0)]
+            boxes = [(0, WIDTH, HEIGHT, 0)]
         encoding = face_recognition.face_encodings(template, boxes)
         if len(encoding) == 0:
             missed_index.append(index)
@@ -45,7 +48,7 @@ def represent(templates):
     return np.array(missed_index), np.array(feature_vectors)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_svc_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
+SAVED_ARRAYS_PATH = f"./evaluation/saved_arrays_svc_lfw_{MIN_FACES}" if DATASET == "LFW" else "./evaluation/saved_arrays_svc_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 MODEL = os.path.join(SAVED_ARRAYS_PATH, "model.pickle")
 FEATURE_VECTORS_PATH = os.path.join(SAVED_ARRAYS_PATH, "feature_vectors.pickles")
@@ -64,7 +67,7 @@ def get_similarity_between_two(img1, img2):
     return 1 - cosine(img1, img2)
     
 ######## Build feature vectors ########
-model = SVC(kernel='linear', probability=True)
+model = SVC(kernel='linear', probability=True, random_state=0)
 
 if os.path.exists(FEATURE_VECTORS_PATH):
     X, y = pickle.load(open(FEATURE_VECTORS_PATH, "rb"))
@@ -92,9 +95,8 @@ else:
     all_similarities = compute_similarities_svc(probe_data, model)
     np.save(SIMILARITIES_PATH, np.array(all_similarities))
 
-
 ####### Load evaluation data if present ########
-thresholds = np.arange(0, 1, 0.01)
+thresholds = np.arange(0, 1, 0.0001)
 if os.path.exists(IDENTIFICATION_METRICS) and os.path.exists(VERIFICATION_METRICS) and os.path.exists(VERIFICATION_MUL_METRICS):
     open_set_metrics = pd.read_csv(IDENTIFICATION_METRICS)
     verification_metrics = pd.read_csv(VERIFICATION_METRICS)

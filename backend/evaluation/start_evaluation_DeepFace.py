@@ -9,12 +9,15 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
+import face_recognition
+import matplotlib.pyplot as plt
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+MIN_FACES = 4
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
-    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=10, resize=0.5)
+    lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)
     X = lfw_people.images
     y = lfw_people.target
     X = np.array(X * 255, dtype='uint8')
@@ -30,7 +33,7 @@ else:
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 
 ######## Defining the paths where results will be saved ######## 
-SAVED_ARRAYS_PATH = "./evaluation/saved_arrays_vgg_lfw" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
+SAVED_ARRAYS_PATH = f"./evaluation/saved_arrays_vgg_lfw_{MIN_FACES}" if DATASET == "LFW" else "./evaluation/saved_arrays_vgg_olivetti"
 PLOTS = os.path.join(SAVED_ARRAYS_PATH, "lfw_plots") if DATASET == "LFW" else os.path.join(SAVED_ARRAYS_PATH, "olivetti_plots")
 GALLERY_SET = os.path.join(SAVED_ARRAYS_PATH, "gallery_set.npy")
 PROBE_SET = os.path.join(SAVED_ARRAYS_PATH, "probe_set.npy")
@@ -47,8 +50,23 @@ if not os.path.exists(PLOTS):
 def get_similarity_between_two(img1, img2):
     return 1 - cosine(img1, img2)
     
-######## Build feature vectors ########
+######## Build the VGG Face model ########
 model = DeepFace.build_model('VGG-Face')
+
+# Localize faces and remove the unlocalized ones, only for the LFW dataset
+if DATASET == "LFW" and not os.path.exists(GALLERY_SET) and not os.path.exists(PROBE_SET):
+    new_X = []
+    new_Y = []
+    for index, template in enumerate(tqdm(X, desc="Localizing faces")):
+        boxes = face_recognition.face_locations(template)
+        if len(boxes) != 0:
+            y_, h, w, x_ = boxes[0]
+            roi = template[y_: y_+h, x_: x_+w]
+            new_X.append(roi)
+            new_Y.append(y[index])
+
+    X = new_X
+    y = new_Y
 
 gallery_set = []
 probe_set = []
