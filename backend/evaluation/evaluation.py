@@ -14,11 +14,21 @@ def compute_similarities(probe_set, gallery_set, similarity_function: callable):
     return all_similarities
 
 def compute_similarities_svc(probe_set, model):
+
+    def inverse_softmax(array):
+            x = np.nextafter(0,1)
+            C = np.log(np.exp(array).sum() + x)
+            return np.log(array + x) + C
+    
     all_similarities = []
     for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
         probabilities = model.predict_proba([template_i])[0]
-        row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities)])
-        all_similarities.append(np.array([label_i, row_similarities], dtype=object))
+        probabilities = inverse_softmax(probabilities) #From [0,1] to [-inf, inf]
+        similarities = 1 / (1 + np.exp(-probabilities)) #From [-inf, inf] to [0,1] but not with sum(probabilities) = 1
+        row_similarities = []
+        for j, similarity in enumerate(similarities):
+            row_similarities.append((j, similarity))
+        all_similarities.append((label_i, row_similarities))
     return all_similarities
 
 #OpenSet Identification Multiple Template
