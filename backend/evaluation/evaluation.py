@@ -10,7 +10,7 @@ def compute_similarities(probe_set, gallery_set, similarity_function: callable):
             # if i != j: #Do not consider main diagonal elements
             similarity = similarity_function(template_i, template_j)
             row_similarities.append(np.array([label_j, similarity])) #Must substitute 0 with the similarity algorithm
-        all_similarities.append(np.array([label_i, row_similarities]))
+        all_similarities.append(np.array([label_i, row_similarities], dtype=object))
     return all_similarities
 
 def compute_similarities_svc(probe_set, model):
@@ -18,8 +18,7 @@ def compute_similarities_svc(probe_set, model):
     for i, (label_i, template_i) in enumerate(tqdm(probe_set, "Computing similarities")): #for every row (probe)
         probabilities = model.predict_proba([template_i])[0]
         row_similarities = np.array([(i, proba) for i, proba in enumerate(probabilities)])
-        print(row_similarities.shape)
-        all_similarities.append(np.array([label_i, row_similarities]))
+        all_similarities.append(np.array([label_i, row_similarities], dtype=object))
     return all_similarities
 
 #OpenSet Identification Multiple Template
@@ -77,14 +76,14 @@ def verification_eval(threshold, all_similarities):
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
         for j, (label_j, similarity) in enumerate(ordered_similarities): #for every column (template)
                 if similarity >= threshold: #If the templates are similar enough
-                    if label_i == label_j:
+                    if label_i == label_j: #If the label of the probe and the template are the same
                         GA += 1
                         genuine_claims += 1
                     else:
                         FA += 1
                         impostor_claims += 1
-                else:
-                    if label_i == label_j:
+                else: #If the templates are not similar enough
+                    if label_i == label_j: #If the label of the probe and the template are the same
                         FR += 1
                         genuine_claims += 1
                     else:
@@ -106,20 +105,20 @@ def verification_mul_eval(threshold, all_similarities):
         ordered_similarities = sorted(similarities, key=lambda tup: tup[1], reverse=True) #Order the similarity vector in a descending order
         best_similarities = {}
         for j, (label_j, similarity) in enumerate(ordered_similarities): #for every column (template)
-            if label_j in best_similarities:
+            if label_j in best_similarities: #for each identity, select the best match (the template with the highest similarity)
                 if similarity >= best_similarities[label_j]:
                     best_similarities[label_j] = similarity
             else:
                 best_similarities[label_j] = similarity
-        for label_j, best_similarity in best_similarities.items():
+        for label_j, best_similarity in best_similarities.items(): #for each identity
             impostor_claims += 1
             if best_similarity >= threshold: #If the templates are similar enough
-                if label_i == label_j:
+                if label_i == label_j: #If the label of the probe and the template are the same
                     GA += 1
                 else:
                     FA += 1
-            else:
-                if label_i == label_j:
+            else: #If the templates are not similar enough
+                if label_i == label_j: #If the label of the probe and the template are the same
                     FR += 1
                 else:
                     GR += 1
