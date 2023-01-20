@@ -12,8 +12,8 @@ import pickle
 import face_recognition
 import cv2
 
-DATASET = "OLIVETTI" # Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 4
+DATASET = "LFW" # Dataset ot use: LFW or OLIVETTI
+MIN_FACES = 10
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -86,14 +86,14 @@ else:
     pickle.dump(model, open(MODEL, 'wb'))
 
 # Each element is of type (label, feature_vector)
-probe_data = np.array([(y_test[i], X_test[i]) for i in range(len(X_test))])
+probe_data = np.array([(y_test[i], X_test[i]) for i in range(len(X_test))], dtype=object)
 
 ###### Load similarity matrix if present on disk ######## 
 if os.path.exists(SIMILARITIES_PATH):
     all_similarities = np.load(SIMILARITIES_PATH, allow_pickle=True)
 else:
     all_similarities = compute_similarities_svc(probe_data, model)
-    np.save(SIMILARITIES_PATH, np.array(all_similarities))
+    np.save(SIMILARITIES_PATH, np.array(all_similarities, dtype=object))
 
 ####### Load evaluation data if present ########
 thresholds = np.arange(0, 1, 0.0001)
