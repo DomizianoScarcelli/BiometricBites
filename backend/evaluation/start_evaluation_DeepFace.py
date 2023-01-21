@@ -46,28 +46,29 @@ def apply_filters(filter, template):
         """
         Apply different filters to increase the face features
         """
-        image = tf.cast(tf.convert_to_tensor(template), tf.uint8)
+        image = tf.cast(tf.convert_to_tensor(template), tf.uint8)   #Converts the given value to a Tensor
+        image = tf.image.rgb_to_grayscale(image)      #convert image from RGB to Grayscale
         
         # Boosting constrast
         if filter == 0:
             contrast = tf.image.adjust_contrast(image, 0.8)
-            return np.array(contrast* 255, dtype='uint8') 
+            return np.array(contrast) 
         elif filter == 1:
             contrast = tf.image.adjust_contrast(image, 0.9)
-            return np.array(contrast* 255, dtype='uint8') 
+            return np.array(contrast) 
         elif filter == 2:
             contrast = tf.image.adjust_contrast(image, 1)
-            return np.array(contrast* 255, dtype='uint8')
+            return np.array(contrast)
         # Boosting brightness        
         elif filter == 3:
             brightness = tf.image.adjust_brightness(image, 0.1)
-            return np.array(brightness* 255, dtype='uint8')
+            return np.array(brightness)
         elif filter == 4:
             brightness = tf.image.adjust_brightness(image, 0.2)
-            return np.array(brightness* 255, dtype='uint8')
+            return np.array(brightness)
         elif filter == 5:
             brightness = tf.image.adjust_brightness(image, 0.3)
-            return np.array(brightness* 255, dtype='uint8')   
+            return np.array(brightness)   
 
 if not os.path.exists(SAVED_ARRAYS_PATH):
     os.mkdir(SAVED_ARRAYS_PATH)
@@ -95,6 +96,7 @@ else:
         #apply filters
         for i in range(6):
             template=apply_filters(i,gallery_template)
+            template=np.array(cv2.cvtColor(template, cv2.COLOR_GRAY2RGB))
             gallery_set.append(DeepFace.represent(template, model=model, detector_backend="skip"))
             gallery_label.append(y_train[index])
     np.save(GALLERY_SET, np.array(gallery_set))
@@ -110,6 +112,7 @@ else:
         #apply filters
         for i in range(6):
             template=apply_filters(i,probe_template)
+            template=np.array(cv2.cvtColor(template, cv2.COLOR_GRAY2RGB))
             probe_set.append(DeepFace.represent(template, model=model, detector_backend="skip"))
             probe_label.append(y_test[index])
     np.save(PROBE_SET, np.array(probe_set))
