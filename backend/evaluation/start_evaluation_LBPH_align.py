@@ -39,7 +39,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -55,6 +55,8 @@ elif DATASET == "OLIVETTI":
     X = np.array([cv2.cvtColor(image, cv2.COLOR_GRAY2RGB) for image in X])
 else:
     raise ValueError(f"Dataset must be LFW or OLIVETTI, not {DATASET}")
+
+#############################################################
 
 import os
 import cv2
@@ -160,6 +162,7 @@ def Face_Alignment(img):
 face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
 nose_detector = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_mcs_nose.xml")
+
 Xmod = []
 for i in X:
     alignedFace = Face_Alignment(i)
@@ -167,6 +170,8 @@ for i in X:
     Xmod.append(gray_img) 
 
 X = Xmod
+
+#############################################################
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
 

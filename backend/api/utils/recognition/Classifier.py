@@ -93,12 +93,14 @@ class Classifier(ABC):
 
                 # load the image
                 imgtest = cv2.imread(path, cv2.IMREAD_COLOR)
+                imgtest = self.face_alignment(imgtest)
                 try:
                     img_gray = cv2.cvtColor(imgtest, cv2.COLOR_BGR2GRAY)
                 except:
                     print(f"---Photo {file} skipped because there is no face---\n")
                     continue
                 image_array = np.array(imgtest, "uint8")
+
 
                 # get the faces detected in the image
                 frontal_faces = frontal_face_cascade.detectMultiScale(img_gray, scaleFactor=1.1, minNeighbors=5)
@@ -126,8 +128,6 @@ class Classifier(ABC):
 
                     # resize the detected head to target size
                     resized_image = cv2.resize(roi, size)
-
-                    resized_image = self.face_alignment(resized_image)
 
                     image_array = np.array(resized_image, "uint8")
 

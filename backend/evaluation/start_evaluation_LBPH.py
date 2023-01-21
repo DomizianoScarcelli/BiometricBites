@@ -39,7 +39,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 
-DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
+DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
