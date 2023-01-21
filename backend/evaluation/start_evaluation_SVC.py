@@ -13,7 +13,7 @@ import face_recognition
 import cv2
 import tensorflow as tf
 
-DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
+DATASET = "OLIVETTI" #Dataset ot use: LFW or OLIVETTI
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -36,28 +36,29 @@ def apply_filters(filter, template):
         """
         Apply different filters to increase the face features
         """
-        image = tf.cast(tf.convert_to_tensor(template), tf.uint8)
+        image = tf.cast(tf.convert_to_tensor(template), tf.uint8)   #Converts the given value to a Tensor
+        image = tf.image.rgb_to_grayscale(image)      #convert image from RGB to Grayscale
         
         # Boosting constrast
         if filter == 0:
             contrast = tf.image.adjust_contrast(image, 0.8)
-            return np.array(contrast* 255, dtype='uint8') 
+            return np.array(contrast) 
         elif filter == 1:
             contrast = tf.image.adjust_contrast(image, 0.9)
-            return np.array(contrast* 255, dtype='uint8') 
+            return np.array(contrast) 
         elif filter == 2:
             contrast = tf.image.adjust_contrast(image, 1)
-            return np.array(contrast* 255, dtype='uint8')
+            return np.array(contrast)
         # Boosting brightness        
         elif filter == 3:
             brightness = tf.image.adjust_brightness(image, 0.1)
-            return np.array(brightness* 255, dtype='uint8')
+            return np.array(brightness)
         elif filter == 4:
             brightness = tf.image.adjust_brightness(image, 0.2)
-            return np.array(brightness* 255, dtype='uint8')
+            return np.array(brightness)
         elif filter == 5:
             brightness = tf.image.adjust_brightness(image, 0.3)
-            return np.array(brightness* 255, dtype='uint8') 
+            return np.array(brightness)   
 
 def represent(templates, labels):
     feature_vectors = []
@@ -74,6 +75,11 @@ def represent(templates, labels):
             #apply filters
             for i in range(6):
                 template=apply_filters(i,template)
+                template=np.array(cv2.cvtColor(template, cv2.COLOR_GRAY2RGB))
+                if DATASET == "LFW":
+                    boxes = face_recognition.face_locations(template)
+                else:
+                    boxes = [(0, 64, 64, 0)]
                 encoding = face_recognition.face_encodings(template, boxes)
                 if len(encoding) != 0:
                     feature_vectors.append(encoding[0])
