@@ -9,7 +9,7 @@ TITLE_SIZE = 15
 DESCRIPTION_SIZE = 15
 
 #Returns the ROC curve and also the value of the AUROC
-def roc_auc_curve(eval_type, alg_name, metrics, save_path):
+def roc_auc_curve(eval_type, alg_name, metrics, save_path, random_guess=True):
     '''
         Input:
         eval_type: openset, verification
@@ -21,9 +21,12 @@ def roc_auc_curve(eval_type, alg_name, metrics, save_path):
     GAR_list = metrics["GAR"]
 
     auroc = auc(FAR_list, GAR_list)
+    plt.xlim([-0.01, 1.01])
+    plt.ylim([-0.01, 1.01])
     print(alg_name + ": The AUROC for " + alg_name + " in " + eval_name + " is: " + str(auroc))
-    plt.plot(FAR_list, GAR_list, marker=".", label='ROC curve for ' + alg_name)
-    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Random guess') #TODO: maybe remove this in the case of open set because IDK if this is correct
+    plt.plot(FAR_list, GAR_list, marker=None if len(FAR_list) >= 200 else ".", label='ROC curve for ' + alg_name)
+    if random_guess:
+        plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Random guess')
     plt.xlabel("False Acceptance Rate", fontsize=DESCRIPTION_SIZE)
     plt.ylabel("Genuine Acceptance Rate (1-FRR)", fontsize=DESCRIPTION_SIZE)
     plt.title("ROC curve for " + alg_name + " in " + eval_name, fontsize=TITLE_SIZE)
@@ -41,6 +44,7 @@ def far_frr_curve(eval_type, alg_name, metrics, thresholds, save_path):
     zero_frr = FAR_list[np.max(np.where(np.array(FRR_list) <= 0.0001)[0])] if len(np.where(np.array(FRR_list) == 0)[0]) != 0 else "Not defined"
     print(alg_name + ": The ZeroFAR for " + alg_name + " in " + eval_name + " is: " + str(zero_far))
     print(alg_name + ": The ZeroFRR for " + alg_name + " in " + eval_name + " is: " + str(zero_frr))
+
 
     eer_threshold = None
     try:
@@ -96,7 +100,7 @@ def save_plots(alg_name, open_set_metrics, verification_metrics, verification_mu
     GAR_open_set = 1-FRR_open_set
 
     open_set_FAR_FRR = {"FAR": FAR_open_set, "FRR": FRR_open_set, "GAR": GAR_open_set}
-    roc_auc_curve("openset", alg_name, open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"))
+    roc_auc_curve("openset", alg_name, open_set_FAR_FRR, save_path=os.path.join(folder, "openset_roc"), random_guess=False)
     err_threshold = far_frr_curve("openset", alg_name, open_set_FAR_FRR, thresholds, save_path=os.path.join(folder, "openset_far_frr"))
 
     DIR_open_set = open_set_metrics.iloc[0].values.tolist()

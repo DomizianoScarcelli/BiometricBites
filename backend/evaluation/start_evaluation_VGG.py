@@ -13,7 +13,7 @@ import face_recognition
 import matplotlib.pyplot as plt
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 4
+MIN_FACES = 7
 
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
@@ -125,4 +125,4 @@ else:
     verification_mul_metrics.to_csv(VERIFICATION_MUL_METRICS)
 
 ####### PLOT ######## 
-save_plots("DeepFace", open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)
+save_plots("VGGFace", open_set_metrics, verification_metrics, verification_mul_metrics, thresholds, PLOTS)

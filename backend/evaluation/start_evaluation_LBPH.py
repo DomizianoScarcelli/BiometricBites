@@ -41,7 +41,7 @@ from sklearn.model_selection import train_test_split
 import cv2
 
 DATASET = "LFW" #Dataset ot use: LFW or OLIVETTI
-MIN_FACES = 10
+MIN_FACES = 7
 ####### Loading and parsing the dataset images #######
 if DATASET == "LFW":
     lfw_people = fetch_lfw_people(color=True, min_faces_per_person=MIN_FACES, resize=1)

@@ -67,7 +67,7 @@ def get_similarity_between_two(img1, img2):
     return 1 - cosine(img1, img2)
     
 ######## Build feature vectors ########
-model = SVC(kernel='linear', probability=True, random_state=0)
+model = SVC(kernel='linear', probability=True, random_state=4)
 
 if os.path.exists(FEATURE_VECTORS_PATH):
     X, y = pickle.load(open(FEATURE_VECTORS_PATH, "rb"))
