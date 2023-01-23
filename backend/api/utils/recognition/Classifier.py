@@ -131,38 +131,7 @@ class Classifier(ABC):
                     im = Image.fromarray(image_array)
                     new_file_name = f"{file.split('.')[0]}_processed.jpg"
                     new_path = os.path.join(root, new_file_name)
-                    im.save(new_path)
-
-    def apply_filters(self, filter, frame):
-        """
-        Apply different filters to increase the face features
-        """
-        image = tf.cast(tf.convert_to_tensor(frame), tf.uint8)
-        image = tf.image.rgb_to_grayscale(image)
-        
-        # gray image
-        if filter == 0:
-            return np.asarray(image)
-        # Boosting constrast
-        elif filter == 1:
-            contrast = tf.image.adjust_contrast(image, 0.8)
-            return np.asarray(contrast)
-        elif filter == 2:
-            contrast = tf.image.adjust_contrast(image, 0.9)
-            return np.asarray(contrast)
-        elif filter == 3:
-            contrast = tf.image.adjust_contrast(image, 1)
-            return np.asarray(contrast)
-        # Boosting brightness
-        elif filter == 4:
-            brightness = tf.image.adjust_brightness(image, 0.1)
-            return np.asarray(brightness)
-        elif filter == 5:
-            brightness = tf.image.adjust_brightness(image, 0.2)
-            return np.asarray(brightness)
-        elif filter == 6:
-            brightness = tf.image.adjust_brightness(image, 0.3)
-            return np.asarray(brightness)            
+                    im.save(new_path)          
                 
     def detect_faces(self, frame):
         gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
