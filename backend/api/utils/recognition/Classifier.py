@@ -57,7 +57,7 @@ class Classifier(ABC):
 
     def preprocess_images(self):
         """
-        Detect frontal and profile faces inside the image, crops them, applies some filters and saves them in the same directory, deleting the original images.
+        Detect frontal and profile faces inside the image, crops them and saves them in the same directory, deleting the original images.
         If the image is already preprocessed, it is skipped.
         """
         image_width = self.image_width
