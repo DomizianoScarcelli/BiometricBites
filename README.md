@@ -9,7 +9,7 @@ More info about the project in the [Report](https://github.com/DomizianoScarcell
 
 The work was carried out by:
 
-[Domiziano Scarcelli](https://github.com/DomizianoScarcelli)
-[Alessio Lucciola](https://github.com/AlessioLucciola)
-[Danilo Corsi](https://github.com/CorsiDanilo)
-[Vasile Vladut Gorea](https://github.com/Vlad-arch)
+- [Domiziano Scarcelli](https://github.com/DomizianoScarcelli)
+- [Alessio Lucciola](https://github.com/AlessioLucciola)
+- [Danilo Corsi](https://github.com/CorsiDanilo)
+- [Vasile Vladut Gorea](https://github.com/Vlad-arch)
